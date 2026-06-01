@@ -1137,6 +1137,25 @@ inputElement.addEventListener('keydown', (event) => {
     }
 });
 
+// Handle Splash Screen Actions
+const splashOverlay = document.getElementById('appSplash');
+const splashStartBtn = document.getElementById('splashStartBtn');
+const splashThemeBtn = document.getElementById('splashThemeBtn');
+
+if (splashStartBtn) {
+    splashStartBtn.addEventListener('click', () => {
+        splashOverlay.classList.add('hidden');
+        switchView('search');
+        if (inputElement) window.setTimeout(() => inputElement.focus(), 420);
+    });
+}
+
+if (splashThemeBtn) {
+    splashThemeBtn.addEventListener('click', () => {
+        if (themeToggle) themeToggle.click();
+    });
+}
+
 suggestions.addEventListener('click', handleSuggestionClick);
 
 directionButtons.forEach((button) => {
