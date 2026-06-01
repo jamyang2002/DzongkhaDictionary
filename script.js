@@ -984,7 +984,16 @@ function scrollToResults() {
     if (window.innerWidth <= 1040) {
         const resultsArea = document.querySelector('.results-area');
         if (resultsArea) {
-            resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const offset = 80; // Account for the sticky top bar
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = resultsArea.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
         }
     }
 }

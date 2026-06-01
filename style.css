@@ -1707,6 +1707,11 @@ img {
         padding: 10px 10px 88px;
     }
 
+    #searchSection .screen-heading,
+    .results-heading .section-kicker {
+        display: none;
+    }
+
     .app-topbar,
     .screen-heading,
     .lookup-panel,
@@ -1715,6 +1720,10 @@ img {
     .importance-panel,
     .creator-section {
         padding: 14px;
+    }
+
+    .lookup-panel {
+        padding-bottom: 0;
     }
 
     .app-topbar,
