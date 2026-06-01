@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v1.2'; // Force update to fix desktop loading
+const CACHE_NAME = 'dzongkha-dict-v1.4'; // Improved data file matching
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -44,17 +44,19 @@ self.addEventListener('activate', (event) => {
 
 // Fetch strategy: Network First for JSON data, Cache First for assets
 self.addEventListener('fetch', (event) => {
-  const isDataFile = event.request.url.endsWith('.json');
+  const url = new URL(event.request.url);
+  const isDataFile = url.pathname.endsWith('.json');
 
   event.respondWith(
     isDataFile 
       ? fetch(event.request)
           .then((response) => {
+            if (!response.ok) return response; // Don't cache errors
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
             return response;
           })
-          .catch(() => caches.match(event.request))
+          .catch(() => caches.match(event.request, { ignoreSearch: true }))
       : caches.match(event.request).then((response) => response || fetch(event.request))
   );
 });

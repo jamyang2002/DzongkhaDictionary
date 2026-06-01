@@ -137,63 +137,6 @@ img {
     fill: currentColor;
 }
 
-.splash-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-    padding: 24px;
-    text-align: center;
-    backdrop-filter: blur(12px);
-}
-
-.splash-overlay.hidden {
-    display: none;
-}
-
-.splash-card {
-    max-width: 480px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding: clamp(24px, 5vw, 40px);
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    animation: splashIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes splashIn {
-    from { opacity: 0; transform: scale(0.92) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.splash-logo {
-    width: 120px;
-    height: 120px;
-    border-radius: 24px;
-    box-shadow: var(--shadow-md);
-}
-
-.splash-title {
-    font-size: clamp(1.8rem, 5vw, 2.3rem);
-    margin: 0;
-    line-height: 1.1;
-}
-
-.splash-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    width: 100%;
-}
-
 .app-shell {
     display: grid;
     grid-template-columns: 288px minmax(0, 1fr);
@@ -1765,8 +1708,7 @@ img {
     }
 
     #searchSection .screen-heading,
-    .results-heading .section-kicker,
-    .results-heading .font-note {
+    .results-heading .section-kicker {
         display: none;
     }
 
@@ -1778,10 +1720,6 @@ img {
     .importance-panel,
     .creator-section {
         padding: 10px;
-    }
-
-    .results-heading {
-        margin-bottom: 8px;
     }
 
     .lookup-panel {
@@ -1920,7 +1858,7 @@ img {
     }
 
     .dictionary-entry .word {
-        font-size: clamp(1.8rem, 10vw, 2.5rem);
+        font-size: clamp(2.1rem, 13vw, 3.5rem);
     }
 
     .creator-photo-wrap,
