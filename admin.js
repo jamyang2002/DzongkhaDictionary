@@ -26,8 +26,12 @@ const exportDataBtn = document.getElementById('exportDataBtn');
 
 let currentEditIndex = -1;
 
+if (secret) {
+    secret.placeholder = 'Enter password';
+}
+
 secret.addEventListener('input', () => {
-    if (secret.value === 'admin') {
+    if (secret.value === 'jamyangloday143') {
         adminPanel.hidden = false;
         authPanel.hidden = true;
     }

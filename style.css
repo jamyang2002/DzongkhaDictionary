@@ -137,6 +137,19 @@ img {
     fill: currentColor;
 }
 
+.notif-badge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: var(--danger);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 .splash-overlay {
     position: fixed;
     inset: 0;
@@ -258,6 +271,7 @@ img {
 }
 
 .nav-link {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 11px;
@@ -1552,9 +1566,44 @@ img {
 }
 
 .notification-summary {
-    color: var(--muted);
+    display: grid;
+    gap: 12px;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.notif-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease;
+}
+
+.notif-icon {
+    flex: 0 0 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 12px;
+}
+
+.notif-msg {
+    margin: 0 0 4px;
     font-weight: 700;
-    line-height: 1.7;
+    line-height: 1.5;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: var(--soft);
 }
 
 .creator-section {

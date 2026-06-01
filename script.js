@@ -200,6 +200,10 @@ function switchView(viewName) {
 
     if (viewName === 'favorites') renderFavoritesPanel();
     if (viewName === 'history') renderHistoryPanel();
+    if (viewName === 'notification') {
+        markNotificationsAsRead();
+        renderNotificationSection();
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -485,18 +489,53 @@ function updateWordOfTheDay() {
 // --- Notifications ---
 function getNotifications() { try { return JSON.parse(localStorage.getItem('dz_notifications') || '[]'); } catch (e) { return []; } }
 function saveNotifications(list) { try { localStorage.setItem('dz_notifications', JSON.stringify(list)); } catch (e) {} }
-function showLatestNotification() {
+
+function updateNotificationBadge() {
     const list = getNotifications();
-    if (!notificationBar) return;
-    if (!list.length) { notificationBar.hidden = true; return; }
-    const latest = list[list.length - 1];
-    notificationBar.hidden = false;
-    notificationBar.innerHTML = `<span>${escapeHtml(latest.message)}</span> <button id="dismissNotif" class="load-json-button" style="margin-left:12px">Dismiss</button>`;
-    if (notificationSummary) {
-        notificationSummary.textContent = latest.message;
+    const readCount = parseInt(localStorage.getItem('dz_notif_read_count') || '0');
+    const unreadCount = Math.max(0, list.length - readCount);
+    const badge = document.getElementById('notifBadge');
+    if (badge) {
+        badge.textContent = unreadCount;
+        badge.hidden = unreadCount === 0;
     }
-    const btn = document.getElementById('dismissNotif');
-    if (btn) btn.addEventListener('click', () => { notificationBar.hidden = true; });
+}
+
+function markNotificationsAsRead() {
+    const list = getNotifications();
+    localStorage.setItem('dz_notif_read_count', list.length);
+    updateNotificationBadge();
+}
+
+function renderNotificationSection() {
+    const list = getNotifications().slice().reverse(); // Newest first
+    if (!notificationSummary) return;
+
+    if (!list.length) {
+        notificationSummary.innerHTML = '<div class="empty-state">No notifications yet. Admin updates will appear here.</div>';
+        return;
+    }
+
+    notificationSummary.innerHTML = list.map(n => {
+        const isDzongkha = /[\u0F00-\u0FFF]/.test(n.message);
+        const fontClass = isDzongkha ? 'dzongkha-word' : 'english-word';
+        return `
+        <div class="notif-item">
+            <div class="notif-icon">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Zm-8 5h4a2 2 0 0 1-4 0Z"/></svg>
+            </div>
+            <div class="notif-body">
+                <p class="notif-msg ${fontClass}">${escapeHtml(n.message)}</p>
+                <span class="notif-time">${new Date(n.createdAt).toLocaleDateString()} at ${new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>
+        </div>
+    `;
+    }).join('');
+}
+
+function showLatestNotification() {
+    updateNotificationBadge();
+    renderNotificationSection();
 }
 
 function loadDictionaryData(data, directionKey, fileName) {
