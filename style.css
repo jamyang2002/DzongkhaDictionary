@@ -337,10 +337,10 @@ img {
 }
 
 .app-topbar {
-    position: sticky;
+    display: none; /* Hidden by default, toggled via JS */
     top: 8px;
     z-index: 18;
-    display: flex;
+    position: sticky;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
@@ -536,9 +536,9 @@ img {
 
 .welcome-stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 1px;
-    max-width: 700px;
+    max-width: 800px;
     margin-top: 28px;
     overflow: hidden;
     border: 1px solid var(--line);

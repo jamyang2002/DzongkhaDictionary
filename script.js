@@ -186,6 +186,11 @@ navLinks.forEach((link) => {
 });
 
 function switchView(viewName) {
+    const topBar = document.querySelector('.app-topbar');
+    if (topBar) {
+        topBar.style.display = (viewName === 'home') ? 'flex' : 'none';
+    }
+
     screenPanels.forEach((panel) => {
         panel.classList.toggle('is-active', panel.dataset.viewPanel === viewName);
     });
