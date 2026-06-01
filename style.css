@@ -148,9 +148,9 @@ img {
     top: 0;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    gap: 20px;
+    gap: 12px;
     height: 100vh;
-    padding: 20px;
+    padding: 16px;
     border-right: 1px solid var(--line);
     background: color-mix(in srgb, var(--panel) 92%, transparent);
     box-shadow: 18px 0 60px rgba(17, 24, 32, 0.06);
@@ -253,7 +253,7 @@ img {
 
 .app-main {
     min-width: 0;
-    padding: 20px;
+    padding: 12px;
 }
 
 .notification-bar {
@@ -278,15 +278,15 @@ img {
 
 .app-topbar {
     position: sticky;
-    top: 12px;
+    top: 8px;
     z-index: 18;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 74px;
-    margin-bottom: 18px;
-    padding: 12px 14px 12px 18px;
+    min-height: 62px;
+    margin-bottom: 12px;
+    padding: 8px 14px;
     border: 1px solid var(--line);
     border-radius: calc(var(--radius-lg) - 2px);
     background: var(--panel-glass);
@@ -306,7 +306,7 @@ img {
 
 .topbar-title h1 {
     font-size: clamp(1.45rem, 2vw, 2.1rem);
-    line-height: 1.05;
+    line-height: 1;
 }
 
 .header-actions,
@@ -344,7 +344,7 @@ img {
 }
 
 .primary-button {
-    min-height: 52px;
+    min-height: 46px;
     padding: 0 18px;
     border-color: transparent;
     background: linear-gradient(180deg, var(--gold), color-mix(in srgb, var(--gold) 84%, #ffffff));
@@ -353,7 +353,7 @@ img {
 }
 
 .secondary-button {
-    min-height: 52px;
+    min-height: 46px;
     padding: 0 18px;
     border-color: var(--accent-border);
     background: color-mix(in srgb, var(--panel) 70%, var(--accent-soft));
@@ -608,8 +608,8 @@ img {
 
 .word-of-day {
     position: relative;
-    min-height: 280px;
-    padding: 24px;
+    min-height: 220px;
+    padding: 18px;
     overflow: hidden;
 }
 
@@ -627,7 +627,7 @@ img {
 .daily-label {
     position: relative;
     display: block;
-    margin-bottom: 22px;
+    margin-bottom: 12px;
     color: var(--accent);
     font-size: 0.76rem;
     font-weight: 900;
@@ -645,7 +645,7 @@ img {
 
 .daily-translation {
     position: relative;
-    margin-top: 18px;
+    margin-top: 12px;
     color: var(--muted);
     font-size: 1.04rem;
     font-weight: 700;
@@ -657,7 +657,7 @@ img {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 24px;
+    margin-top: 16px;
 }
 
 .daily-meta span {
@@ -678,7 +678,7 @@ img {
     justify-content: center;
     width: fit-content;
     min-height: 42px;
-    margin-top: 22px;
+    margin-top: 14px;
     padding: 0 14px;
     border: 1px solid var(--accent-border);
     border-radius: var(--radius-md);
@@ -696,7 +696,7 @@ img {
 }
 
 .importance-panel {
-    padding: 24px;
+    padding: 20px;
 }
 
 .importance-panel h2 {
@@ -710,7 +710,7 @@ img {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
-    margin-top: 26px;
+    margin-top: 16px;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -740,8 +740,8 @@ img {
     justify-content: space-between;
     gap: 18px;
     align-items: center;
-    margin-bottom: 18px;
-    padding: 18px;
+    margin-bottom: 12px;
+    padding: 14px;
 }
 
 .screen-heading h2 {
@@ -752,20 +752,20 @@ img {
 .search-workspace {
     display: grid;
     grid-template-columns: minmax(340px, 0.42fr) minmax(0, 1fr);
-    gap: 18px;
+    gap: 12px;
     align-items: start;
 }
 
 .lookup-panel,
 .results-area {
-    padding: 18px;
+    padding: 14px;
 }
 
 .lookup-panel {
     position: sticky;
-    top: 106px;
+    top: 92px;
     display: grid;
-    gap: 16px;
+    gap: 10px;
 }
 
 .search-panel {
@@ -776,7 +776,7 @@ img {
 
 .search-panel input {
     width: 100%;
-    min-height: 60px;
+    min-height: 52px;
     padding: 0 16px;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-md);
@@ -802,7 +802,7 @@ img {
     justify-content: center;
     gap: 8px;
     min-width: 112px;
-    min-height: 60px;
+    min-height: 52px;
     padding: 0 18px;
     border: none;
     border-radius: var(--radius-md);
@@ -938,7 +938,7 @@ img {
 
 .results-area {
     min-height: 640px;
-    scroll-margin-top: 110px;
+    scroll-margin-top: 92px;
 }
 
 .results-heading {
@@ -982,9 +982,9 @@ img {
 
 .dictionary-entry {
     display: grid;
-    gap: 18px;
-    margin-bottom: 18px;
-    padding: 24px;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 16px;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     background: linear-gradient(180deg, var(--panel), var(--panel-soft));
@@ -1011,7 +1011,7 @@ img {
 
 .translation-caption {
     display: block;
-    margin: 4px 0 14px;
+    margin: 2px 0 10px;
     color: var(--muted);
     font-size: 1.16rem;
     font-weight: 700;
@@ -1038,7 +1038,7 @@ img {
     grid-template-columns: minmax(210px, 0.34fr) minmax(0, 1fr);
     gap: 20px;
     align-items: start;
-    padding: 18px 16px;
+    padding: 10px 14px;
     background: var(--panel);
     color: var(--muted);
     font-size: 0.98rem;
@@ -1606,7 +1606,7 @@ img {
         z-index: 30;
         display: block;
         height: auto;
-        padding: 8px;
+        padding: 6px;
         border: 1px solid var(--line);
         border-radius: 18px;
         box-shadow: var(--shadow-lg);
@@ -1626,7 +1626,7 @@ img {
     .nav-link {
         justify-content: center;
         gap: 0;
-        min-height: 50px;
+        min-height: 46px;
         padding: 0;
     }
 
@@ -1648,11 +1648,11 @@ img {
     }
 
     .app-main {
-        padding: 14px 14px 92px;
+        padding: 10px 10px 84px;
     }
 
     .app-topbar {
-        top: 10px;
+        top: 6px;
     }
 
     .welcome-interface,
@@ -1719,7 +1719,7 @@ img {
     .word-of-day,
     .importance-panel,
     .creator-section {
-        padding: 14px;
+        padding: 10px;
     }
 
     .lookup-panel {
