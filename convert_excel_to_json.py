@@ -14,6 +14,10 @@ COLUMN_MAP = {
     "root_word": "root",
     "roorword": "root",
     "also": "also",
+    "dzongkha": "root",
+    "word": "root",
+    "verb": "root",
+    "english": "root",
     "type": "type",
     "plural": "plural",
     "verbalform": "verbalForm",
@@ -39,6 +43,12 @@ COLUMN_MAP = {
     "equivalentterm": "equivalentTerm",
     "equivalent_term": "equivalentTerm",
     "equivalentterm": "equivalentTerm",
+
+    # Tense Specifics
+    "future": "future",
+    "present": "root",
+    "past": "past",
+    "imperative": "imperative",
 }
 
 
