@@ -960,6 +960,8 @@ function searchWord() {
         }
 
         renderMessage(`No Dzongkha entry found for “${query}”. Try a different spelling or check the source data.`, true);
+        const similar = renderSimilar(query, 'dz-en');
+        if (similar) resultElement.appendChild(similar);
         scrollToResults();
         return;
     }
@@ -1136,8 +1138,6 @@ inputElement.addEventListener('keydown', (event) => {
         searchWord();
     }
 });
-
-suggestions.addEventListener('click', handleSuggestionClick);
 
 directionButtons.forEach((button) => {
     button.addEventListener('click', () => setDirection(button.dataset.direction));
