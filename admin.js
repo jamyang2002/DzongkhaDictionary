@@ -60,9 +60,9 @@ postNotif.addEventListener('click', () => {
 // --- Dictionary CRUD ---
 
 const schemas = {
-    enDz: ['root', 'equivalent', 'type', 'also', 'plural', 'verbalForm', 'comparative', 'source'],
-    dzEn: ['root', 'equivalentTerm', 'type', 'tenses', 'short', 'also', 'syn', 'app', 'hon', 'source'],
-    dzDz: ['root', 'meaning', 'source']
+    enDz: ['root', 'equivalent', 'type', 'also', 'plural', 'verbalForm', 'comparative'],
+    dzEn: ['root', 'equivalentTerm', 'type', 'tenses', 'short', 'also', 'syn', 'app', 'hon'],
+    dzDz: ['root', 'meaning']
 };
 
 function renderEntries() {

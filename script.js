@@ -663,6 +663,7 @@ function renderCard(entry, entryType) {
         })
         .join('');
 
+    const directionLabel = entryType === 'enDz' ? 'English → Dzongkha' : (entryType === 'dzEn' ? 'Dzongkha → English' : 'Dzongkha → Dzongkha');
     const mainWordClass = entryType === 'enDz' ? 'english-word' : 'uchen-word';
     const caption = entryType === 'enDz' ? (entry.equivalent || '') : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : '');
     const captionClass = entryType === 'dzDz' ? 'dzongkha-word' : (entryType === 'enDz' ? 'dzongkha-word' : 'english-word');
@@ -677,6 +678,10 @@ function renderCard(entry, entryType) {
             ${caption ? `<p class="translation-caption ${captionClass}"><span class="lang-flag">${transFlag}</span> ${caption}</p>` : ''}
             <div class="dictionary-details">
                 ${details}
+                <div class="details-item">
+                    <strong>Dictionary direction</strong>
+                    <span>${directionLabel}</span>
+                </div>
             </div>
         </section>
     `;
@@ -695,8 +700,7 @@ function getBrowseConfig(directionKey) {
                 { key: 'also', label: 'Also', className: 'english-word' },
                 { key: 'plural', label: 'Plural', className: 'english-word' },
                 { key: 'verbalForm', label: 'Verbal form', className: 'english-word' },
-                { key: 'comparative', label: 'Comparative', className: 'english-word' },
-                { key: 'source', label: 'Source', className: 'english-word' }
+                { key: 'comparative', label: 'Comparative', className: 'english-word' }
             ]
         };
     }
@@ -708,8 +712,7 @@ function getBrowseConfig(directionKey) {
             type: 'dzDz',
             columns: [
                 { key: 'root', label: 'Root word', className: 'uchen-word' },
-                { key: 'meaning', label: 'Meaning', className: 'dzongkha-word wide' },
-                { key: 'source', label: 'Source', className: 'english-word' }
+                { key: 'meaning', label: 'Meaning', className: 'dzongkha-word wide' }
             ]
         };
     }
@@ -727,8 +730,7 @@ function getBrowseConfig(directionKey) {
                 { key: 'also', label: 'Also', className: 'english-word' },
                 { key: 'syn', label: 'Syn.', className: 'dzongkha-word' },
                 { key: 'app', label: 'App.', className: 'dzongkha-word' },
-                { key: 'hon', label: 'Hon.', className: 'dzongkha-word' },
-                { key: 'source', label: 'Source', className: 'english-word' }
+                { key: 'hon', label: 'Hon.', className: 'dzongkha-word' }
             ]
     };
 }
