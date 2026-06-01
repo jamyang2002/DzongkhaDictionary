@@ -567,7 +567,7 @@ function setDirection(newDirection, skipDefaultMessage = false) {
     });
 
     if (newDirection === 'dz-en') {
-        inputElement.placeholder = 'Enter Dzongkha word (e.g. ཨ་མ་)';
+        inputElement.placeholder = 'Enter Dzongkha Word (e.g. རྫོང་ཁ།)';
     } else if (newDirection === 'dz-dz') {
         inputElement.placeholder = 'Enter a Dzongkha word for Dzongkha definitions';
     } else {
