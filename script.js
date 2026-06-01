@@ -204,6 +204,11 @@ const canFetchLocalJson = location.protocol === 'http:' || location.protocol ===
 let direction = 'dz-en';
 let currentEntries = dzEnEntries;
 
+// Global indices for high-performance searching
+let dzEnIndex = {};
+let dzDzIndex = {};
+let enDzIndex = {};
+
 function inferDirectionFromFileName(fileName) {
     const lower = fileName.toLowerCase();
     if (lower.includes('english_to_dzongkha') || lower.includes('en_dz') || lower.includes('english-to-dzongkha')) return 'en-dz';
@@ -510,6 +515,12 @@ function loadDictionaryData(data, directionKey, fileName) {
     }
 
     currentEntries = direction === 'dz-en' ? dzEnEntries : (direction === 'dz-dz' ? dzDzEntries : enDzEntries);
+    
+    // Pre-calculate indices for instant search results
+    dzEnIndex = buildIndex(dzEnEntries, false);
+    dzDzIndex = buildIndex(dzDzEntries, false);
+    enDzIndex = buildIndex(enDzEntries, true);
+
     updateDictionaryCounts();
     renderBrowseTable(directionKey);
 
@@ -912,15 +923,13 @@ function searchWord() {
     const query = inputElement.value.trim();
     if (!query) {
         renderMessage('Please enter a word to search.', true);
+        scrollToResults();
         return;
     }
     addSearchHistory(query, direction);
 
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
-    const dzEnIndex = buildIndex(dzEnEntries, false);
-    const dzDzIndex = buildIndex(dzDzEntries, false);
-    const enDzIndex = buildIndex(enDzEntries, true);
 
     if (hasDz) {
         const dzEnEntry = dzEnIndex[normalizedQuery] || dzEnIndex[query];
@@ -930,6 +939,7 @@ function searchWord() {
             resultElement.innerHTML = renderCard(dzEnEntry, 'dzEn') + renderCard(dzDzEntry, 'dzDz');
             const similar = renderSimilar(query, 'dz-en');
             if (similar) resultElement.appendChild(similar);
+            scrollToResults();
             return;
         }
 
@@ -937,6 +947,7 @@ function searchWord() {
             renderEntry(dzEnEntry, 'dzEn');
             const similar = renderSimilar(query, 'dz-en');
             if (similar) resultElement.appendChild(similar);
+            scrollToResults();
             return;
         }
 
@@ -944,10 +955,12 @@ function searchWord() {
             renderEntry(dzDzEntry, 'dzDz');
             const similar = renderSimilar(query, 'dz-dz');
             if (similar) resultElement.appendChild(similar);
+            scrollToResults();
             return;
         }
 
         renderMessage(`No Dzongkha entry found for “${query}”. Try a different spelling or check the source data.`, true);
+        scrollToResults();
         return;
     }
 
@@ -956,10 +969,24 @@ function searchWord() {
         renderEntry(enDzEntry, 'enDz');
         const similar = renderSimilar(query, 'en-dz');
         if (similar) resultElement.appendChild(similar);
+        scrollToResults();
         return;
     }
 
     renderMessage(`No entry found for “${query}”. Try a different spelling or check the source data.`, true);
+    scrollToResults();
+}
+
+/**
+ * Smoothly scrolls to the results area on mobile devices
+ */
+function scrollToResults() {
+    if (window.innerWidth <= 1040) {
+        const resultsArea = document.querySelector('.results-area');
+        if (resultsArea) {
+            resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
 }
 
 function updateSuggestions() {
@@ -1154,3 +1181,12 @@ initializeLocalDictionaries();
 updateWordOfTheDay();
 showLatestNotification();
 renderHistoryPanel();
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker registered'))
+            .catch(err => console.error('Service Worker registration failed', err));
+    });
+}

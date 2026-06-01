@@ -938,6 +938,7 @@ img {
 
 .results-area {
     min-height: 640px;
+    scroll-margin-top: 110px;
 }
 
 .results-heading {
