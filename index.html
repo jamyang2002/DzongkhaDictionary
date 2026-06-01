@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="dz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual Dictionary</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="app-shell">
+        <aside class="side-nav" aria-label="App navigation">
+            <div class="side-brand">
+                <img src="assets/app-logo.png" alt="Bilingual Dictionary logo">
+                <div>
+                    <span>Bilingual</span>
+                    <strong>Dictionary</strong>
+                </div>
+            </div>
+
+            <nav class="app-nav">
+                <button class="nav-link active" type="button" data-view="home" aria-label="Home">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8V21h-6v-6H9v6H3V10.8Z"/></svg>
+                    <span>Home</span>
+                </button>
+                <button class="nav-link" type="button" data-view="search" aria-label="Search">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 19.1-4.6-4.6a7 7 0 1 0-1.4 1.4l4.6 4.6 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
+                    <span>Search</span>
+                </button>
+                <button class="nav-link" type="button" data-view="favorites" aria-label="Favourites">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.8 6.4.9-4.6 4.5 1.1 6.3L12 17.5l-5.7 3 1.1-6.3-4.6-4.5 6.4-.9L12 3Z"/></svg>
+                    <span>Favourites</span>
+                </button>
+                <button class="nav-link" type="button" data-view="history" aria-label="History">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 1-8.7 11.3h2.1A7 7 0 1 0 7 7.1V10H3V3h2v2.5A9 9 0 0 1 12 3Zm1 4v5.2l4 2.4-1 1.7-5-3V7h2Z"/></svg>
+                    <span>History</span>
+                </button>
+                <button class="nav-link" type="button" data-view="notification" aria-label="Notification">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Zm-8 5h4a2 2 0 0 1-4 0Z"/></svg>
+                    <span>Notice</span>
+                </button>
+                <button class="nav-link" type="button" data-view="creator" aria-label="Creator">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.7 0-8 2.6-8 6v1h16v-1c0-3.4-3.3-6-8-6Z"/></svg>
+                    <span>Creator</span>
+                </button>
+            </nav>
+
+            <div class="side-note">
+                <span class="uchen-word">རྫོང་ཁ།</span>
+                <p>Preserving language, identity, and cultural knowledge.</p>
+            </div>
+        </aside>
+
+        <section class="app-main">
+            <div id="notificationBar" class="notification-bar" hidden></div>
+
+            <header class="app-topbar">
+                <div class="topbar-title">
+                    <p class="eyebrow">Personal Language Tool</p>
+                    <h1>Bilingual Dictionary</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="themeToggle" class="icon-button" aria-pressed="false" type="button" title="Switch theme">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+                        <span data-theme-label>Dark</span>
+                    </button>
+                    <a href="admin.html" class="icon-button" title="Open admin">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm1 5v5h4v2h-6V7h2Z"/></svg>
+                        <span>Admin</span>
+                    </a>
+                </div>
+            </header>
+
+            <div class="screen-stack">
+                <section id="homeView" class="app-screen is-active" data-view-panel="home" aria-labelledby="homeTitle">
+                    <div class="welcome-interface">
+                        <div class="welcome-content">
+                            <img class="welcome-logo" src="assets/app-logo.png" alt="Bilingual Dictionary logo">
+                            <p class="welcome-greeting dzongkha-word">སྐུ་གཟུགས་བཟང་པོ་ལགས།</p>
+                            <h2 id="homeTitle">Bilingual Dictionary</h2>
+                            <p class="welcome-copy">A simple bilingual dictionary for personal use, built to support Dzongkha readers, translators, language officers, and learners.</p>
+                            <div class="welcome-actions">
+                                <button id="startLookupButton" class="primary-button" type="button">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 19.1-4.6-4.6a7 7 0 1 0-1.4 1.4l4.6 4.6 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
+                                    <span>Start searching</span>
+                                </button>
+                                <button id="welcomeThemeButton" class="secondary-button" type="button">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+                                    <span>Switch theme</span>
+                                </button>
+                            </div>
+                            <div class="welcome-stats" aria-label="Dictionary summary">
+                                <div>
+                                    <strong id="homeDzEnCount">0</strong>
+                                    <span>Dzongkha-English</span>
+                                </div>
+                                <div>
+                                    <strong id="homeEnDzCount">0</strong>
+                                    <span>English-Dzongkha</span>
+                                </div>
+                                <div>
+                                    <strong id="homeDzDzCount">0</strong>
+                                    <span>Dzongkha definitions</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="welcome-preview" aria-label="Dzongkha importance">
+                            <div class="language-orbit" aria-hidden="true">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <div class="preview-word uchen-word">རྫོང་ཁ།</div>
+                            <div class="preview-meaning">Dzongkha · Bhutan's national language</div>
+                            <p>Dzongkha carries identity, tradition, governance, literature, and everyday communication. This app helps keep that knowledge searchable and useful.</p>
+                        </div>
+                    </div>
+
+                    <div class="home-grid">
+                        <section id="wordOfDay" class="word-of-day" aria-live="polite"></section>
+                        <section class="importance-panel">
+                            <p class="section-kicker">Importance of Dzongkha</p>
+                            <h2>Language is memory in motion.</h2>
+                            <div class="importance-list">
+                                <div><strong>Identity</strong><span>Dzongkha connects people to Bhutanese history, values, and national belonging.</span></div>
+                                <div><strong>Service</strong><span>Clear terminology helps language officers, translators, educators, and readers work with confidence.</span></div>
+                                <div><strong>Continuity</strong><span>Searchable language resources make traditional knowledge easier to preserve and share.</span></div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+
+                <section id="searchSection" class="app-screen" data-view-panel="search" aria-labelledby="searchTitle">
+                    <div class="screen-heading">
+                        <div>
+                            <p class="section-kicker">Lookup</p>
+                            <h2 id="searchTitle">Search dictionary entries</h2>
+                        </div>
+                        <label class="auto-detect">
+                            <input type="checkbox" id="autoDetect" checked>
+                            <span>Auto detect</span>
+                        </label>
+                    </div>
+
+                    <div class="search-workspace">
+                        <section class="lookup-panel" aria-label="Dictionary lookup">
+                            <section class="search-panel">
+                                <label class="visually-hidden" for="searchBox">Search term</label>
+                                <input id="searchBox" autocomplete="off" placeholder="Search word in English or Dzongkha">
+                                <button id="searchButton" type="button">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 19.1-4.6-4.6a7 7 0 1 0-1.4 1.4l4.6 4.6 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
+                                    <span>Search</span>
+                                </button>
+                            </section>
+
+                            <section class="control-panel">
+                                <div class="direction-toggle" role="group" aria-label="Search direction">
+                                    <button type="button" data-direction="dz-en" class="active">Dzongkha → English</button>
+                                    <button type="button" data-direction="en-dz">English → Dzongkha</button>
+                                    <button type="button" data-direction="dz-dz">Dzongkha → Dzongkha</button>
+                                </div>
+                                <div class="lookup-summary" aria-label="Available dictionary entries">
+                                    <span><strong id="lookupDzEnCount">0</strong> Dz-En</span>
+                                    <span><strong id="lookupEnDzCount">0</strong> En-Dz</span>
+                                    <span><strong id="lookupDzDzCount">0</strong> Dz-Dz</span>
+                                </div>
+                            </section>
+
+                            <section id="suggestions" class="suggestions" hidden></section>
+
+                            <div class="utility-row">
+                                <button id="favoritesButton" class="ghost-button" type="button">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.8 6.4.9-4.6 4.5 1.1 6.3L12 17.5l-5.7 3 1.1-6.3-4.6-4.5 6.4-.9L12 3Z"/></svg>
+                                    <span>Favourites</span>
+                                </button>
+                                <button id="loadJsonButton" class="ghost-button" type="button">
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.2l3.6-3.6L17 11l-6 6-6-6 1.4-1.4 3.6 3.6V3h2Zm-7 16h14v2H5v-2Z"/></svg>
+                                    <span>Import JSON</span>
+                                </button>
+                                <input id="jsonFileInput" type="file" accept=".json" multiple hidden>
+                            </div>
+
+                            <div id="loadStatus" class="load-status">Loaded sample dictionary entries.</div>
+                        </section>
+
+                        <section class="results-area" aria-label="Dictionary result">
+                            <div class="results-heading">
+                                <p class="section-kicker">Result</p>
+                                <span class="font-note">Joyig Dzongkha font enabled</span>
+                            </div>
+                            <section id="result" class="result-panel">
+                                <div class="notice">Search for a word to see its translation and notes.</div>
+                            </section>
+                        </section>
+                    </div>
+                </section>
+
+                <section id="favoritesSection" class="app-screen" data-view-panel="favorites" aria-labelledby="favoritesTitle">
+                    <div class="screen-heading">
+                        <div>
+                            <p class="section-kicker">Favourites</p>
+                            <h2 id="favoritesTitle">Saved dictionary words</h2>
+                        </div>
+                    </div>
+                    <aside id="favoritesPanel" class="favorites-panel"></aside>
+                </section>
+
+                <section id="historySection" class="app-screen" data-view-panel="history" aria-labelledby="historyTitle">
+                    <div class="screen-heading">
+                        <div>
+                            <p class="section-kicker">History</p>
+                            <h2 id="historyTitle">Recent searches</h2>
+                        </div>
+                    </div>
+                    <div id="historyPanel" class="history-panel"></div>
+                </section>
+
+                <section id="notificationSection" class="app-screen" data-view-panel="notification" aria-labelledby="notificationTitle">
+                    <div class="screen-heading">
+                        <div>
+                            <p class="section-kicker">Notification</p>
+                            <h2 id="notificationTitle">Updates and messages</h2>
+                        </div>
+                    </div>
+                    <div id="notificationSummary" class="notification-summary">No new notifications. Admin messages will appear here when posted.</div>
+                </section>
+
+                <section id="creatorSection" class="app-screen" data-view-panel="creator" aria-labelledby="creatorTitle">
+                    <div class="creator-section">
+                        <div class="creator-photo-wrap">
+                            <img class="creator-photo" src="assets/jamyang-loday.png" alt="Portrait of Jamyang Loday">
+                        </div>
+                        <div class="creator-copy">
+                            <p class="section-kicker">App Creator</p>
+                            <h2 id="creatorTitle">Jamyang Loday</h2>
+                            <p>Jamyang Loday is a Bachelor of Arts graduate from the College of Language and Culture Studies with a specialization in Language and Literature. Presently, he serves as an Assistant Language Development Officer in the Dzongkha Development Division since 2024.</p>
+                            <p>His notable accomplishment includes securing the top position in the RCSE 2023 in the Dzongkha category. In the past, he worked as a Substitute Teacher, gaining valuable experience in education.</p>
+                            <p>Beyond his academic and professional endeavors, Jamyang has skills in graphic design, particularly in designing books, journals, and logos. He also has a keen interest and experience in photography.</p>
+                            <a class="contact-link" href="mailto:jamyangl@moha.gov.bt">
+                                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v14H3V5Zm2 3.2V17h14V8.2l-7 4.7-7-4.7Zm1.2-1.2 5.8 3.9L17.8 7H6.2Z"/></svg>
+                                <span>jamyangl@moha.gov.bt</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Dzongkha Dictionary logo</title>
+  <desc id="desc">A folded dictionary mark with a Dzongkha letter and bilingual arrow.</desc>
+  <defs>
+    <linearGradient id="cover" x1="74" x2="252" y1="54" y2="268" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f7c68"/>
+      <stop offset="0.58" stop-color="#186f61"/>
+      <stop offset="1" stop-color="#b84432"/>
+    </linearGradient>
+    <linearGradient id="page" x1="92" x2="244" y1="84" y2="246" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fffdf9"/>
+      <stop offset="1" stop-color="#efe6d8"/>
+    </linearGradient>
+    <filter id="shadow" x="28" y="26" width="264" height="278" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="18" flood-color="#17221f" flood-opacity=".22" stdDeviation="18"/>
+    </filter>
+  </defs>
+  <rect width="320" height="320" rx="64" fill="#f6f0e8"/>
+  <g filter="url(#shadow)">
+    <path fill="url(#cover)" d="M78 64c0-13.3 10.7-24 24-24h120c13.3 0 24 10.7 24 24v210H102c-13.3 0-24-10.7-24-24V64Z"/>
+    <path fill="#0a5347" d="M102 40h20v234h-20c-13.3 0-24-10.7-24-24V64c0-13.3 10.7-24 24-24Z" opacity=".34"/>
+    <path fill="url(#page)" d="M120 80h108c13.3 0 24 10.7 24 24v168H120V80Z"/>
+    <path fill="#d4c6b5" d="M144 108h76v8h-76zM144 130h64v8h-64zM144 226h82v8h-82z" opacity=".8"/>
+    <path fill="#b84432" d="M226 80h26v78l-13-12-13 12V80Z"/>
+    <text x="160" y="194" fill="#0f7c68" font-family="serif" font-size="76" font-weight="700" text-anchor="middle">ཇ</text>
+    <path fill="none" stroke="#b84432" stroke-linecap="round" stroke-linejoin="round" stroke-width="10" d="M138 210h44m0 0-16-15m16 15-16 15"/>
+  </g>
+</svg>

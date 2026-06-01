@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Dzongkha Dictionary</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { padding: 24px; font-family: Inter, system-ui, sans-serif; max-width: 1200px; margin: 0 auto; }
+    label { display: block; margin: 12px 0 4px; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
+    .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    .admin-tab { padding: 8px 16px; cursor: pointer; border-radius: 6px; border: none; background: none; color: var(--muted); font-weight: 700; }
+    .admin-tab.active { background: var(--accent-soft); color: var(--accent); }
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .data-table th, .data-table td { padding: 12px; border: 1px solid var(--line); text-align: left; }
+    .data-table th { background: var(--panel-soft); font-size: 0.8rem; text-transform: uppercase; }
+    .action-btns { display: flex; gap: 5px; }
+    .btn-edit { color: var(--gold); border-color: var(--gold); }
+    .btn-del { color: var(--danger); border-color: var(--danger); }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .modal-content { background: var(--panel); padding: 24px; border-radius: 12px; width: 500px; max-height: 90vh; overflow-y: auto; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <h1>Admin</h1>
+  <p>Manage app notifications and dictionary entries.</p>
+  
+  <div id="authPanel">
+    <label>Secret Key: <input id="secret" type="password" placeholder="Enter 'admin' to unlock"></label>
+  </div>
+
+  <div id="adminPanel" hidden>
+    <nav class="admin-nav">
+      <button class="admin-tab active" data-target="notifSection">Notifications</button>
+      <button class="admin-tab" data-target="entrySection">Dictionary Management</button>
+    </nav>
+
+    <!-- Notification Section -->
+    <section id="notifSection">
+      <label>New Notification: <textarea id="notifText" rows="2"></textarea></label>
+      <button id="postNotif" class="primary-button">Post Message</button>
+      <h2>History</h2>
+      <ul id="notifList"></ul>
+    </section>
+
+    <!-- Dictionary Entry Section -->
+    <section id="entrySection" hidden>
+      <div class="utility-row">
+        <select id="dictSelector" style="width: 200px;">
+          <option value="dzEn">Dzongkha → English</option>
+          <option value="enDz">English → Dzongkha</option>
+          <option value="dzDz">Dzongkha → Dzongkha</option>
+        </select>
+        <input id="adminSearch" type="text" placeholder="Search entries to edit..." style="flex: 1;">
+        <button id="addNewBtn" class="primary-button">+ Add New Entry</button>
+        <button id="exportDataBtn" class="secondary-button">Export updated JSON</button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Root Word</th>
+            <th>Equivalent / Meaning</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="entryList"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Entry Edit Modal -->
+  <div id="editModal" class="modal" hidden>
+    <div class="modal-content">
+      <h2 id="modalTitle">Edit Entry</h2>
+      <form id="entryForm">
+        <div id="formFields"></div>
+        <div class="utility-row" style="margin-top: 20px;">
+          <button type="submit" class="primary-button">Save Changes</button>
+          <button type="button" id="closeModal" class="secondary-button">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
