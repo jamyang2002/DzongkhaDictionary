@@ -138,10 +138,6 @@
                             <p class="section-kicker">Lookup</p>
                             <h2 id="searchTitle">Search dictionary entries</h2>
                         </div>
-                        <label class="auto-detect">
-                            <input type="checkbox" id="autoDetect" checked>
-                            <span>Auto detect</span>
-                        </label>
                     </div>
 
                     <div class="search-workspace">
@@ -155,20 +151,9 @@
                                 </button>
                             </section>
 
-                            <section class="control-panel">
-                                <div class="direction-toggle" role="group" aria-label="Search direction">
-                                    <button type="button" data-direction="dz-en" class="active">Dzongkha → English</button>
-                                    <button type="button" data-direction="en-dz">English → Dzongkha</button>
-                                    <button type="button" data-direction="dz-dz">Dzongkha → Dzongkha</button>
-                                </div>
-                                <div class="lookup-summary" aria-label="Available dictionary entries">
-                                    <span><strong id="lookupDzEnCount">0</strong> Dz-En</span>
-                                    <span><strong id="lookupEnDzCount">0</strong> En-Dz</span>
-                                    <span><strong id="lookupDzDzCount">0</strong> Dz-Dz</span>
-                                </div>
-                            </section>
-
                             <section id="suggestions" class="suggestions" hidden></section>
+
+                            <div id="loadStatus" class="load-status">Loaded dictionary data.</div>
 
                             <div class="utility-row">
                                 <button id="favoritesButton" class="ghost-button" type="button">
@@ -181,8 +166,6 @@
                                 </button>
                                 <input id="jsonFileInput" type="file" accept=".json" multiple hidden>
                             </div>
-
-                            <div id="loadStatus" class="load-status">Loaded sample dictionary entries.</div>
                         </section>
 
                         <section class="results-area" aria-label="Dictionary result">

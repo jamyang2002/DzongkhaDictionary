@@ -110,9 +110,9 @@ function formatCount(count) {
 }
 
 function updateDictionaryCounts() {
-    dictionaryCountEls.dzEn.forEach((el) => { el.textContent = formatCount(dzEnEntries.length); });
-    dictionaryCountEls.enDz.forEach((el) => { el.textContent = formatCount(enDzEntries.length); });
-    dictionaryCountEls.dzDz.forEach((el) => { el.textContent = formatCount(dzDzEntries.length); });
+    if (dictionaryCountEls.dzEn[0]) dictionaryCountEls.dzEn.forEach((el) => { el.textContent = formatCount(dzEnEntries.length); });
+    if (dictionaryCountEls.enDz[0]) dictionaryCountEls.enDz.forEach((el) => { el.textContent = formatCount(enDzEntries.length); });
+    if (dictionaryCountEls.dzDz[0]) dictionaryCountEls.dzDz.forEach((el) => { el.textContent = formatCount(dzDzEntries.length); });
 
     if (dictionaryCountEls.browseDzEn) dictionaryCountEls.browseDzEn.textContent = `${formatCount(dzEnEntries.length)} entries`;
     if (dictionaryCountEls.browseEnDz) dictionaryCountEls.browseEnDz.textContent = `${formatCount(enDzEntries.length)} entries`;
