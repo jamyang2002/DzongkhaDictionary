@@ -235,7 +235,8 @@ function readJsonFile(file) {
 
 async function fetchLocalJson(path) {
     try {
-        const response = await fetch(path, { cache: 'no-store' });
+        // Add a version query to bypass aggressive desktop browser caching
+        const response = await fetch(`${path}?v=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) {
             return null;
         }
@@ -279,9 +280,9 @@ async function initializeLocalDictionaries() {
         fetchLocalJson(LOCAL_DZ_DZ_COLLOQUIAL_JSON)
     ]);
 
-    if (enDzData) loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON);
-    if (dzEnData) loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON);
-    if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
+    if (enDzData) { enDzEntries.length = 0; loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON); }
+    if (dzEnData) { dzEnEntries.length = 0; loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON); }
+    if (dzDzData) { dzDzEntries.length = 0; loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON); }
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
 
     // Merge with any manual edits from the Admin Panel
@@ -312,7 +313,8 @@ const fieldLabels = {
         { key: 'plural', label: 'Plural' },
         { key: 'verbalForm', label: 'Verbal form' },
         { key: 'comparative', label: 'Comparative form' },
-        { key: 'equivalent', label: 'Dzongkha translation' }
+        { key: 'equivalent', label: 'Dzongkha translation' },
+        { key: 'meaning', label: 'Meaning' }
     ],
     dzEn: [
         { key: 'root', label: 'Root word' },
@@ -323,11 +325,13 @@ const fieldLabels = {
         { key: 'syn', label: 'Syn.' },
         { key: 'app', label: 'App.' },
         { key: 'hon', label: 'Hon.' },
-        { key: 'equivalentTerm', label: 'English equivalent' }
+        { key: 'equivalentTerm', label: 'English equivalent' },
+        { key: 'meaning', label: 'Meaning' }
     ],
     dzDz: [
         { key: 'root', label: 'Root word' },
-        { key: 'meaning', label: 'Meaning' }
+        { key: 'meaning', label: 'Meaning' },
+        { key: 'pronunciation', label: 'Pronunciation' }
     ]
 };
 
@@ -504,15 +508,12 @@ function loadDictionaryData(data, directionKey, fileName) {
         return e;
     });
 
-    if (directionKey === 'en-dz') {
-        enDzEntries.length = 0;
-        enDzEntries.push(...cleaned);
-    } else if (directionKey === 'dz-dz') {
-        dzDzEntries.push(...cleaned);
-    } else {
-        dzEnEntries.length = 0;
-        dzEnEntries.push(...cleaned);
-    }
+    const targetArray = directionKey === 'en-dz' ? enDzEntries : (directionKey === 'dz-dz' ? dzDzEntries : dzEnEntries);
+    
+    // Use a loop instead of spread (...) to avoid "Maximum call stack size exceeded" on large dictionaries
+    cleaned.forEach(entry => {
+        targetArray.push(entry);
+    });
 
     currentEntries = direction === 'dz-en' ? dzEnEntries : (direction === 'dz-dz' ? dzDzEntries : enDzEntries);
     
@@ -906,15 +907,16 @@ function buildIndex(entries, isEnglish = false) {
     return entries.reduce((map, entry) => {
         if (!entry.root) return map;
         const raw = entry.root.trim();
-        const key = isEnglish ? normalizeEnglish(raw) : normalizeDzongkha(raw);
-        map[key] = entry;
-        if (!isEnglish) {
-            map[raw] = entry;
-        }
-        if (isEnglish) {
-            const norm = normalizeEnglish(entry.root);
-            map[norm] = entry;
-        }
+        const primaryKey = isEnglish ? normalizeEnglish(raw) : normalizeDzongkha(raw);
+
+        const addToMap = (k) => {
+            if (!map[k]) map[k] = [];
+            if (!map[k].includes(entry)) map[k].push(entry);
+        };
+
+        addToMap(primaryKey);
+        if (!isEnglish && raw !== primaryKey) addToMap(raw);
+
         return map;
     }, {});
 }
@@ -931,49 +933,88 @@ function searchWord() {
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
 
+    // Gather all potential matches across dictionaries
+    let allMatches = [];
     if (hasDz) {
-        const dzEnEntry = dzEnIndex[normalizedQuery] || dzEnIndex[query];
-        const dzDzEntry = dzDzIndex[normalizedQuery] || dzDzIndex[query];
-
-        if (dzEnEntry && dzDzEntry) {
-            resultElement.innerHTML = renderCard(dzEnEntry, 'dzEn') + renderCard(dzDzEntry, 'dzDz');
-            const similar = renderSimilar(query, 'dz-en');
-            if (similar) resultElement.appendChild(similar);
-            scrollToResults();
-            return;
-        }
-
-        if (dzEnEntry) {
-            renderEntry(dzEnEntry, 'dzEn');
-            const similar = renderSimilar(query, 'dz-en');
-            if (similar) resultElement.appendChild(similar);
-            scrollToResults();
-            return;
-        }
-
-        if (dzDzEntry) {
-            renderEntry(dzDzEntry, 'dzDz');
-            const similar = renderSimilar(query, 'dz-dz');
-            if (similar) resultElement.appendChild(similar);
-            scrollToResults();
-            return;
-        }
-
-        renderMessage(`No Dzongkha entry found for “${query}”. Try a different spelling or check the source data.`, true);
-        scrollToResults();
-        return;
+        const dzEnMatches = dzEnIndex[normalizedQuery] || dzEnIndex[query] || [];
+        const dzDzMatches = dzDzIndex[normalizedQuery] || dzDzIndex[query] || [];
+        dzEnMatches.forEach(e => allMatches.push({ entry: e, type: 'dzEn' }));
+        dzDzMatches.forEach(e => allMatches.push({ entry: e, type: 'dzDz' }));
+    } else {
+        const enDzMatches = enDzIndex[normalizedQuery] || enDzIndex[query] || [];
+        enDzMatches.forEach(e => allMatches.push({ entry: e, type: 'enDz' }));
     }
 
-    const enDzEntry = enDzIndex[normalizedQuery] || enDzIndex[query];
-    if (enDzEntry) {
-        renderEntry(enDzEntry, 'enDz');
-        const similar = renderSimilar(query, 'en-dz');
+    if (allMatches.length === 0) {
+        const msg = hasDz ? `No Dzongkha entry found for “${query}”.` : `No entry found for “${query}”.`;
+        renderMessage(`${msg} Try a different spelling or check the source data.`, true);
+        const similar = renderSimilar(query, hasDz ? 'dz-en' : 'en-dz');
         if (similar) resultElement.appendChild(similar);
         scrollToResults();
         return;
     }
 
-    renderMessage(`No entry found for “${query}”. Try a different spelling or check the source data.`, true);
+    // Group matches by their normalized root word to consolidate similar entries
+    const groups = {};
+    allMatches.forEach(m => {
+        const normRoot = hasDz ? normalizeDzongkha(m.entry.root) : normalizeEnglish(m.entry.root);
+        if (!groups[normRoot]) groups[normRoot] = { displayRoot: m.entry.root, items: [] };
+        groups[normRoot].items.push(m);
+    });
+
+    // Render each group as a single card with multiple meanings/sources
+    resultElement.innerHTML = Object.values(groups).map((group) => {
+        const { displayRoot, items } = group;
+        const firstType = items[0].type;
+        const mainWordClass = firstType === 'enDz' ? 'english-word' : 'uchen-word';
+        
+        const subBlocks = items.map((item, idx) => {
+            const { entry, type } = item;
+            const fields = fieldLabels[type];
+            const caption = entry.equivalent || entry.equivalentTerm || (type === 'dzDz' ? '' : entry.meaning) || '';
+            const captionClass = type === 'dzDz' ? 'dzongkha-word' : (type === 'enDz' ? 'dzongkha-word' : 'english-word');
+            
+            const details = fields
+                .filter((field) => field.key !== 'root' && entry[field.key] && entry[field.key] !== caption && entry[field.key].toString().trim().length > 0)
+                .map((field) => {
+                    let valueClass = type === 'enDz' ? (field.key === 'equivalent' ? 'dzongkha-word' : 'english-word') : 'dzongkha-word';
+                    if (type === 'dzEn' && field.key === 'equivalentTerm') valueClass = 'english-word';
+                    
+                    const rawDisplay = (['equivalent', 'equivalentTerm', 'also'].includes(field.key) || (field.key === 'meaning' && type !== 'dzDz'))
+                        ? renderClickableText(entry[field.key], valueClass)
+                        : `<span class="${valueClass}">${entry[field.key]}</span>`;
+                    
+                    return `<div class="details-item"><strong>${field.label}</strong><span>${field.key === 'meaning' ? `<span class="meaning-text ${valueClass}">${rawDisplay}</span>` : rawDisplay}</span></div>`;
+                })
+                .join('');
+
+            const directionLabel = type === 'enDz' ? 'English → Dzongkha' : (type === 'dzEn' ? 'Dzongkha → English' : 'Dzongkha → Dzongkha');
+            
+            return `
+                <div class="entry-sub-block" style="${idx > 0 ? 'border-top: 1px dashed var(--line); margin-top: 16px; padding-top: 12px;' : ''}">
+                    ${caption ? `<p class="translation-caption ${captionClass}">${caption}</p>` : ''}
+                    <div class="dictionary-details">
+                        ${details}
+                        <div class="details-item"><strong>Dictionary direction</strong><span>${directionLabel}</span></div>
+                        <div class="details-item"><strong>Source</strong><span>${entry.source || 'Unknown source'}</span></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <section class="dictionary-entry">
+                <h2 class="word ${mainWordClass}">${displayRoot}
+                    <button type="button" class="audio-btn" data-root-audio="${displayRoot}" title="Play English pronunciation">🔊</button>
+                    <button type="button" class="fav-btn ${isFavorited(displayRoot) ? 'favorited' : ''}" data-root-fav="${displayRoot}" title="Save favorite">☆</button>
+                </h2>
+                ${subBlocks}
+            </section>
+        `;
+    }).join('');
+
+    const similar = renderSimilar(query, hasDz ? 'dz-en' : 'en-dz');
+    if (similar) resultElement.appendChild(similar);
     scrollToResults();
 }
 
@@ -1014,10 +1055,17 @@ function updateSuggestions() {
 
     const sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries] : enDzEntries;
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
-    const matches = sourceList.filter((entry) => {
+    
+    const matches = [];
+    const seenRoots = new Set();
+    for (const entry of sourceList) {
         const key = hasDz ? normalizeDzongkha(entry.root) : normalizeEnglish(entry.root);
-        return key.includes(normalizedQuery);
-    }).slice(0, 8);
+        if (key.includes(normalizedQuery) && !seenRoots.has(entry.root)) {
+            seenRoots.add(entry.root);
+            matches.push(entry);
+            if (matches.length >= 8) break;
+        }
+    }
 
     if (matches.length === 0) {
         suggestions.hidden = true;
@@ -1100,10 +1148,17 @@ function renderSimilar(query, effectiveDirection) {
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
     const sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries] : enDzEntries;
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
-    const matches = sourceList.filter((entry) => {
+    
+    const matches = [];
+    const seenRoots = new Set();
+    for (const entry of sourceList) {
         const key = hasDz ? normalizeDzongkha(entry.root) : normalizeEnglish(entry.root);
-        return key !== normalizedQuery && key.includes(normalizedQuery);
-    }).slice(0, 8);
+        if (key !== normalizedQuery && key.includes(normalizedQuery) && !seenRoots.has(entry.root)) {
+            seenRoots.add(entry.root);
+            matches.push(entry);
+            if (matches.length >= 8) break;
+        }
+    }
 
     if (matches.length === 0) return null;
 
@@ -1201,6 +1256,11 @@ if (historyPanel) {
         searchWord();
     });
 }
+
+// Build initial indices for sample data so search works immediately
+dzEnIndex = buildIndex(dzEnEntries, false);
+dzDzIndex = buildIndex(dzDzEntries, false);
+enDzIndex = buildIndex(enDzEntries, true);
 
 setDirection(direction, true);
 updateDictionaryCounts();

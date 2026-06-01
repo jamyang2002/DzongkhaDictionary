@@ -1765,7 +1765,8 @@ img {
     }
 
     #searchSection .screen-heading,
-    .results-heading .section-kicker {
+    .results-heading .section-kicker,
+    .results-heading .font-note {
         display: none;
     }
 
@@ -1777,6 +1778,10 @@ img {
     .importance-panel,
     .creator-section {
         padding: 10px;
+    }
+
+    .results-heading {
+        margin-bottom: 8px;
     }
 
     .lookup-panel {
@@ -1915,7 +1920,7 @@ img {
     }
 
     .dictionary-entry .word {
-        font-size: clamp(2.1rem, 13vw, 3.5rem);
+        font-size: clamp(1.8rem, 10vw, 2.5rem);
     }
 
     .creator-photo-wrap,
