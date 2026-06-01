@@ -632,10 +632,14 @@ function escapeHtml(value) {
 }
 
 function renderCard(entry, entryType) {
-    const source = entry.source || 'Unknown source';
     const fields = fieldLabels[entryType];
+    
+    // Determine flags based on direction
+    const rootFlag = entryType === 'enDz' ? '🇬🇧' : '🇧🇹';
+    const transFlag = entryType === 'enDz' ? '🇧🇹' : (entryType === 'dzEn' ? '🇬🇧' : '');
+
     const details = fields
-        .filter((field) => entry[field.key] && entry[field.key].toString().trim().length > 0)
+        .filter((field) => field.key !== 'root' && entry[field.key] && entry[field.key].toString().trim().length > 0)
         .map((field) => {
             let valueClass = entryType === 'enDz' ? (field.key === 'equivalent' ? 'dzongkha-word' : 'english-word') : 'dzongkha-word';
             if (entryType === 'dzEn' && field.key === 'equivalentTerm') valueClass = 'english-word';
@@ -650,37 +654,29 @@ function renderCard(entry, entryType) {
                 ? `<span class="meaning-text ${valueClass}">${rawDisplay}</span>`
                 : rawDisplay;
 
-            return `
-            <div class="details-item">
-                <strong>${field.label}</strong>
-                <span>${displayValue}</span>
-            </div>
-        `;
+            // Render 'Type' as a badge, others as standard items
+            if (field.key === 'type') {
+                return `<div class="details-item"><strong>${field.label}</strong><span class="type-badge">${displayValue}</span></div>`;
+            }
+
+            return `<div class="details-item"><strong>${field.label}</strong><span>${displayValue}</span></div>`;
         })
         .join('');
 
-    const directionLabel = entryType === 'enDz' ? 'English → Dzongkha' : (entryType === 'dzEn' ? 'Dzongkha → English' : 'Dzongkha → Dzongkha');
     const mainWordClass = entryType === 'enDz' ? 'english-word' : 'uchen-word';
     const caption = entryType === 'enDz' ? (entry.equivalent || '') : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : '');
     const captionClass = entryType === 'dzDz' ? 'dzongkha-word' : (entryType === 'enDz' ? 'dzongkha-word' : 'english-word');
 
     return `
         <section class="dictionary-entry">
-            <h2 class="word ${mainWordClass}">${entry.root}
+            <h2 class="word ${mainWordClass}">
+                <span class="lang-flag">${rootFlag}</span> ${entry.root}
                 <button type="button" class="audio-btn" data-root-audio="${entry.root}" title="Play English pronunciation">🔊</button>
                 <button type="button" class="fav-btn ${isFavorited(entry.root)?'favorited':''}" data-root-fav="${entry.root}" title="Save favorite">☆</button>
             </h2>
-            ${caption ? `<p class="translation-caption ${captionClass}">${caption}</p>` : ''}
+            ${caption ? `<p class="translation-caption ${captionClass}"><span class="lang-flag">${transFlag}</span> ${caption}</p>` : ''}
             <div class="dictionary-details">
                 ${details}
-                <div class="details-item">
-                    <strong>Dictionary direction</strong>
-                    <span>${directionLabel}</span>
-                </div>
-                <div class="details-item">
-                    <strong>Source</strong>
-                    <span>${source}</span>
-                </div>
             </div>
         </section>
     `;
