@@ -11,6 +11,7 @@ const authPanel = document.getElementById('authPanel');
 const postNotif = document.getElementById('postNotif');
 const notifText = document.getElementById('notifText');
 const notifList = document.getElementById('notifList');
+const exportNotifBtn = document.createElement('button');
 
 // Dictionary management elements
 const dictSelector = document.getElementById('dictSelector');
@@ -23,6 +24,11 @@ const formFields = document.getElementById('formFields');
 const modalTitle = document.getElementById('modalTitle');
 const closeModal = document.getElementById('closeModal');
 const exportDataBtn = document.getElementById('exportDataBtn');
+
+exportNotifBtn.className = 'secondary-button';
+exportNotifBtn.textContent = 'Export Notifications JSON';
+exportNotifBtn.style.marginTop = '12px';
+if (document.getElementById('notifSection')) document.getElementById('notifSection').appendChild(exportNotifBtn);
 
 let currentEditIndex = -1;
 
@@ -59,6 +65,16 @@ function renderList() {
 
 postNotif.addEventListener('click', () => {
     const msg = (notifText.value||'').trim(); if (!msg) return; const list = getNotifications(); list.push({ message: msg, createdAt: Date.now() }); saveNotifications(list); notifText.value = ''; renderList();
+});
+
+exportNotifBtn.addEventListener('click', () => {
+    const list = getNotifications();
+    const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `notifications.json`;
+    a.click();
 });
 
 // --- Dictionary CRUD ---

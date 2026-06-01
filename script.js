@@ -212,6 +212,7 @@ const LOCAL_EN_DZ_JSON = 'english_to_dzongkha.json';
 const LOCAL_DZ_EN_JSON = 'dzongkha_to_english.json';
 const LOCAL_DZ_DZ_JSON = 'dzongkha_to_dzongkha.json';
 const LOCAL_DZ_DZ_COLLOQUIAL_JSON = 'colloquial_terminology.json';
+const LOCAL_NOTIFICATIONS_JSON = 'notifications.json';
 const canFetchLocalJson = location.protocol === 'http:' || location.protocol === 'https:';
 
 let direction = 'dz-en';
@@ -246,9 +247,10 @@ function readJsonFile(file) {
     });
 }
 
-async function fetchLocalJson(path) {
+async function fetchLocalJson(path, forceRefresh = false) {
     try {
-        const response = await fetch(path, { cache: 'no-store' });
+        const url = forceRefresh ? `${path}?v=${Date.now()}` : path;
+        const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) {
             return null;
         }
@@ -264,7 +266,7 @@ async function fetchLocalJson(path) {
     }
 }
 
-async function initializeLocalDictionaries() {
+async function initializeLocalDictionaries(forceRefresh = false) {
     const statusEl = document.getElementById('loadStatus');
     if (!canFetchLocalJson) {
         if (statusEl) statusEl.textContent = 'Browser security (file://) blocked auto-loading. Please use "Import JSON" or run a local server.';
@@ -285,17 +287,22 @@ async function initializeLocalDictionaries() {
 
     if (statusEl) statusEl.textContent = 'Searching for local dictionary data...';
 
-    const [enDzData, dzEnData, dzDzData, dzDzColloquialData] = await Promise.all([
-        fetchLocalJson(LOCAL_EN_DZ_JSON),
-        fetchLocalJson(LOCAL_DZ_EN_JSON),
-        fetchLocalJson(LOCAL_DZ_DZ_JSON),
-        fetchLocalJson(LOCAL_DZ_DZ_COLLOQUIAL_JSON)
+    const [enDzData, dzEnData, dzDzData, dzDzColloquialData, serverNotifs] = await Promise.all([
+        fetchLocalJson(LOCAL_EN_DZ_JSON, forceRefresh),
+        fetchLocalJson(LOCAL_DZ_EN_JSON, forceRefresh),
+        fetchLocalJson(LOCAL_DZ_DZ_JSON, forceRefresh),
+        fetchLocalJson(LOCAL_DZ_DZ_COLLOQUIAL_JSON, forceRefresh),
+        fetchLocalJson(LOCAL_NOTIFICATIONS_JSON, forceRefresh)
     ]);
 
     if (enDzData) loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON);
     if (dzEnData) loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON);
     if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
+
+    if (serverNotifs) {
+        saveNotifications(serverNotifs);
+    }
 
     // Merge with any manual edits from the Admin Panel
     const overrides = { enDz: 'en-dz', dzEn: 'dz-en', dzDz: 'dz-dz' };
@@ -507,12 +514,17 @@ function markNotificationsAsRead() {
     updateNotificationBadge();
 }
 
-function renderNotificationSection() {
-    const list = getNotifications().slice().reverse(); // Newest first
+function renderNotificationSection(listToRender) {
+    const list = (listToRender || getNotifications()).slice().reverse(); // Newest first
     if (!notificationSummary) return;
 
     if (!list.length) {
-        notificationSummary.innerHTML = '<div class="empty-state">No notifications yet. Admin updates will appear here.</div>';
+        notificationSummary.innerHTML = `
+            <div class="empty-state">No notifications yet. Admin updates will appear here.</div>
+            <button id="syncNotifs" class="secondary-button" style="margin-top: 12px">Check for updates</button>
+        `;
+        const btn = document.getElementById('syncNotifs');
+        if (btn) btn.addEventListener('click', () => refreshData());
         return;
     }
 
@@ -536,6 +548,23 @@ function renderNotificationSection() {
 function showLatestNotification() {
     updateNotificationBadge();
     renderNotificationSection();
+}
+
+async function refreshData() {
+    const syncBtns = document.querySelectorAll('#syncButtonTopbar, #syncButtonHome, #syncNotifs');
+    syncBtns.forEach(b => b.classList.add('spinning'));
+    
+    try {
+        await initializeLocalDictionaries(true);
+        if (notificationSummary && !notificationSummary.closest('.app-screen').hidden) {
+             renderNotificationSection();
+        }
+        renderMessage('Dictionary data and notifications synchronized successfully.');
+    } catch (e) {
+        renderMessage('Failed to sync. Please check your connection.', true);
+    } finally {
+        syncBtns.forEach(b => b.classList.remove('spinning'));
+    }
 }
 
 function loadDictionaryData(data, directionKey, fileName) {
@@ -1201,6 +1230,11 @@ if (splashThemeBtn) {
         if (themeToggle) themeToggle.click();
     });
 }
+
+const syncBtnTopbar = document.getElementById('syncButtonTopbar');
+const syncBtnHome = document.getElementById('syncButtonHome');
+if (syncBtnTopbar) syncBtnTopbar.addEventListener('click', refreshData);
+if (syncBtnHome) syncBtnHome.addEventListener('click', refreshData);
 
 suggestions.addEventListener('click', handleSuggestionClick);
 
