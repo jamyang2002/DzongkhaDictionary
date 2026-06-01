@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v1.4'; // Improved data file matching
+const CACHE_NAME = 'dzongkha-dict-v1.5'; // Enabled auto-update and offline persistence
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
