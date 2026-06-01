@@ -137,6 +137,66 @@ img {
     fill: currentColor;
 }
 
+.splash-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    padding: 24px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+}
+
+.splash-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-card {
+    max-width: 440px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: clamp(20px, 5vw, 32px);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: splashIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes splashIn {
+    from { opacity: 0; transform: scale(0.92) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.splash-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.splash-title {
+    font-size: clamp(1.6rem, 5vw, 2.1rem);
+    margin: 0;
+    line-height: 1;
+}
+
+.splash-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+}
+
 .app-shell {
     display: grid;
     grid-template-columns: 288px minmax(0, 1fr);
@@ -408,8 +468,8 @@ img {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
     gap: 32px;
     align-items: center;
-    min-height: calc(100vh - 132px);
-    padding: clamp(22px, 4vw, 56px);
+    min-height: auto;
+    padding: clamp(32px, 5vw, 64px);
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
@@ -483,15 +543,20 @@ img {
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
-    background: var(--line);
+    background: var(--panel-strong);
 }
 
 .welcome-stats div {
     display: grid;
-    gap: 4px;
-    min-height: 90px;
-    padding: 14px;
+    gap: 2px;
+    min-height: 82px;
+    padding: 12px 16px;
     background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+    transition: background 0.2s ease;
+}
+
+.welcome-stats div:hover {
+    background: var(--accent-soft);
 }
 
 .welcome-stats strong {
@@ -710,7 +775,7 @@ img {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1px;
-    margin-top: 16px;
+    margin-top: 24px;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -719,9 +784,9 @@ img {
 
 .importance-list div {
     display: grid;
-    gap: 8px;
-    min-height: 136px;
-    padding: 16px;
+    gap: 6px;
+    min-height: 120px;
+    padding: 24px;
     background: var(--panel);
 }
 
@@ -1708,7 +1773,8 @@ img {
     }
 
     #searchSection .screen-heading,
-    .results-heading .section-kicker {
+    .results-heading .section-kicker,
+    .results-heading .font-note {
         display: none;
     }
 
@@ -1720,6 +1786,10 @@ img {
     .importance-panel,
     .creator-section {
         padding: 10px;
+    }
+
+    .results-heading {
+        margin-bottom: 8px;
     }
 
     .lookup-panel {
@@ -1858,7 +1928,7 @@ img {
     }
 
     .dictionary-entry .word {
-        font-size: clamp(2.1rem, 13vw, 3.5rem);
+        font-size: clamp(1.8rem, 10vw, 2.5rem);
     }
 
     .creator-photo-wrap,

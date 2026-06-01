@@ -110,9 +110,13 @@ function formatCount(count) {
 }
 
 function updateDictionaryCounts() {
-    if (dictionaryCountEls.dzEn[0]) dictionaryCountEls.dzEn.forEach((el) => { el.textContent = formatCount(dzEnEntries.length); });
-    if (dictionaryCountEls.enDz[0]) dictionaryCountEls.enDz.forEach((el) => { el.textContent = formatCount(enDzEntries.length); });
-    if (dictionaryCountEls.dzDz[0]) dictionaryCountEls.dzDz.forEach((el) => { el.textContent = formatCount(dzDzEntries.length); });
+    const dzEn = document.querySelectorAll('#homeDzEnCount, #splashDzEnCount');
+    const enDz = document.querySelectorAll('#homeEnDzCount, #splashEnDzCount');
+    const dzDz = document.querySelectorAll('#homeDzDzCount, #splashDzDzCount');
+
+    dzEn.forEach(el => el.textContent = formatCount(dzEnEntries.length));
+    enDz.forEach(el => el.textContent = formatCount(enDzEntries.length));
+    dzDz.forEach(el => el.textContent = formatCount(dzDzEntries.length));
 
     if (dictionaryCountEls.browseDzEn) dictionaryCountEls.browseDzEn.textContent = `${formatCount(dzEnEntries.length)} entries`;
     if (dictionaryCountEls.browseEnDz) dictionaryCountEls.browseEnDz.textContent = `${formatCount(enDzEntries.length)} entries`;
