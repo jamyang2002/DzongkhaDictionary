@@ -28,9 +28,13 @@ COLUMN_MAP = {
     "equivalent": "equivalent",
     "equivalentword": "equivalent",
     "equivalent_word": "equivalent",
+    "country": "root",
+    "capital": "equivalent",
     "source": "source",
     "ཚིག་སྡེ།": "type",
     "རྫོང་ཁའི་དོ་མཉམ།": "equivalent",
+    "རྒྱལ་ཁབ།": "root",
+    "རྒྱལ་ས།": "equivalent",
     "meaning": "meaning",
 
     # Dzongkha → English

@@ -214,6 +214,8 @@ function switchView(viewName) {
 }
 
 const LOCAL_EN_DZ_JSON = 'english_to_dzongkha.json';
+const LOCAL_COLLECTED_TERMINOLOGY_JSON = 'collected_terminology.json';
+const LOCAL_COUNTRIES_JSON = 'countries_capitals.json';
 const LOCAL_DZ_EN_JSON = 'dzongkha_to_english.json';
 const LOCAL_DZ_DZ_JSON = 'dzongkha_to_dzongkha.json';
 const LOCAL_DZ_DZ_COLLOQUIAL_JSON = 'colloquial_terminology.json';
@@ -226,7 +228,9 @@ let currentEntries = dzEnEntries;
 let dzEnIndex = {};
 let dzDzIndex = {};
 let enDzIndex = {};
+let countriesIndex = {};
 let tenseIndex = {};
+let countryEntries = [];
 let isBulkLoadingDictionaries = false;
 
 function inferDirectionFromFileName(fileName) {
@@ -234,6 +238,7 @@ function inferDirectionFromFileName(fileName) {
     if (lower.includes('english_to_dzongkha') || lower.includes('en_dz') || lower.includes('english-to-dzongkha')) return 'en-dz';
     if (lower.includes('dzongkha_to_english') || lower.includes('dz_en') || lower.includes('dzongkha-to-english')) return 'dz-en';
     if (lower.includes('dzongkha_to_dzongkha') || lower.includes('dz_dz') || lower.includes('dzongkha-to-dzongkha')) return 'dz-dz';
+    if (lower.includes('countries') || lower.includes('country') || lower.includes('capital')) return 'countries';
     if (lower.includes('tense')) return 'tense';
     if (lower.includes('colloquial')) return 'dz-dz';
     return null;
@@ -341,15 +346,17 @@ async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
     if (statusEl) statusEl.textContent = 'Searching for local dictionary data...';
 
-    const [enDzData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
+    const [enDzData, collectedData, countriesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
+        loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
+        loadLocalDataset(LOCAL_COUNTRIES_JSON),
         loadLocalDataset(LOCAL_DZ_EN_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
         loadLocalDataset(LOCAL_TENSE_JSON)
     ]);
 
-    const totalLoaded = (enDzData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
+    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (countriesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
 
     if (totalLoaded > 0) {
         enDzEntries.length = 0;
@@ -360,6 +367,8 @@ async function initializeLocalDictionaries() {
 
     isBulkLoadingDictionaries = true;
     if (enDzData) loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON);
+    if (collectedData) loadDictionaryData(collectedData, 'en-dz', LOCAL_COLLECTED_TERMINOLOGY_JSON);
+    if (countriesData) loadDictionaryData(countriesData, 'countries', LOCAL_COUNTRIES_JSON);
     if (dzEnData) loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON);
     if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
@@ -403,6 +412,10 @@ const fieldLabels = {
         { key: 'verbalForm', label: 'Verbal form' },
         { key: 'comparative', label: 'Comparative form' },
         { key: 'equivalent', label: 'Dzongkha translation' }
+    ],
+    countries: [
+        { key: 'root', label: 'Country' },
+        { key: 'equivalent', label: 'Capital' }
     ],
     dzEn: [
         { key: 'root', label: 'Root word' },
@@ -461,6 +474,7 @@ function matchesNormalizedQuery(text, normalizedQuery, hasDz, exactOnly = false)
 function getDirectionLabel(searchDirection) {
     if (searchDirection === 'all') return 'All dictionaries';
     if (searchDirection === 'en-dz') return 'English → Dzongkha';
+    if (searchDirection === 'countries') return 'Names of countries and capital';
     if (searchDirection === 'dz-dz') return 'Dzongkha → Dzongkha';
     if (searchDirection === 'tense') return 'Tenses';
     return 'Dzongkha → English';
@@ -468,6 +482,7 @@ function getDirectionLabel(searchDirection) {
 
 function getEntriesForDirection(directionKey) {
     if (directionKey === 'en-dz') return enDzEntries;
+    if (directionKey === 'countries') return countryEntries;
     if (directionKey === 'dz-dz') return dzDzEntries;
     if (directionKey === 'tense') return tenseEntries;
     return dzEnEntries;
@@ -688,6 +703,8 @@ function loadDictionaryData(data, directionKey, fileName) {
 
     if (directionKey === 'en-dz') {
         cleaned.forEach(item => enDzEntries.push(item));
+    } else if (directionKey === 'countries') {
+        cleaned.forEach(item => countryEntries.push(item));
     } else if (directionKey === 'dz-dz') {
         cleaned.forEach(item => dzDzEntries.push(item));
     } else if (directionKey === 'tense') {
@@ -803,8 +820,28 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function toLabel(key) {
+    return String(key)
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/[_-]+/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+
+function getFieldDefinitions(entry, entryType) {
+    const fields = fieldLabels[entryType] ? [...fieldLabels[entryType]] : [];
+    const knownKeys = new Set(fields.map((field) => field.key).concat(['root', 'source']));
+    Object.keys(entry)
+        .filter((key) => !knownKeys.has(key))
+        .sort()
+        .forEach((key) => fields.push({ key, label: toLabel(key) }));
+    return fields;
+}
+
 function renderCard(entry, entryType) {
-    const fields = fieldLabels[entryType];
+    const fields = getFieldDefinitions(entry, entryType);
     
     // Determine flags based on direction
     const rootFlag = entryType === 'enDz' ? '🇬🇧' : '🇧🇹';
@@ -836,10 +873,20 @@ function renderCard(entry, entryType) {
         })
         .join('');
 
-    const directionLabel = entryType === 'enDz' ? 'English → Dzongkha' : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha'));
-    const mainWordClass = entryType === 'enDz' ? 'english-word' : 'uchen-word';
-    const caption = entryType === 'enDz' ? (entry.equivalent || '') : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : (entryType === 'tense' ? 'Verb tense forms' : ''));
-    const captionClass = entryType === 'dzDz' ? 'dzongkha-word' : (entryType === 'enDz' ? 'dzongkha-word' : 'english-word');
+    const directionLabel = entryType === 'enDz'
+        ? 'English → Dzongkha'
+        : entryType === 'countries'
+            ? 'Names of countries and capital'
+            : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha'));
+    const mainWordClass = entryType === 'enDz' || entryType === 'countries' ? 'english-word' : 'uchen-word';
+    const caption = entryType === 'enDz'
+        ? (entry.equivalent || '')
+        : entryType === 'countries'
+            ? (entry.equivalent || '')
+            : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : (entryType === 'tense' ? 'Verb tense forms' : ''));
+    const captionClass = entryType === 'dzDz'
+        ? 'dzongkha-word'
+        : (entryType === 'enDz' || entryType === 'countries' ? 'dzongkha-word' : 'english-word');
 
     return `
         <section class="dictionary-entry">
@@ -875,6 +922,25 @@ function getBrowseConfig(directionKey) {
                 { key: 'verbalForm', label: 'Verbal form', className: 'english-word' },
                 { key: 'comparative', label: 'Comparative', className: 'english-word' }
             ]
+        };
+    }
+
+    if (directionKey === 'countries') {
+        const keys = new Set();
+        countryEntries.forEach((entry) => Object.keys(entry).forEach((key) => keys.add(key)));
+        const orderedKeys = ['root', 'equivalent', ...Array.from(keys).filter((key) => !['root', 'equivalent', 'source'].includes(key)).sort()];
+
+        return {
+            title: 'Country and capital entries',
+            entries: countryEntries,
+            type: 'countries',
+            columns: orderedKeys
+                .filter((key) => key !== 'source')
+                .map((key) => ({
+                    key,
+                    label: key === 'root' ? 'Country' : key === 'equivalent' ? 'Capital' : toLabel(key),
+                    className: key === 'equivalent' ? 'dzongkha-word wide' : 'english-word'
+                }))
         };
     }
 
@@ -1161,9 +1227,11 @@ function buildIndex(entries, directionKey) {
 
         const fieldsToIndex = directionKey === 'en-dz'
             ? ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent']
-            : directionKey === 'dz-dz'
-                ? ['root']
-                : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
+            : directionKey === 'countries'
+                ? Object.keys(entry).filter((key) => key !== 'source')
+                : directionKey === 'dz-dz'
+                    ? ['root']
+                    : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
         fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));
         return map;
@@ -1191,6 +1259,7 @@ function buildTenseIndex(entries) {
 function rebuildSearchIndices() {
     dzEnIndex = buildIndex(dzEnEntries, 'dz-en');
     enDzIndex = buildIndex(enDzEntries, 'en-dz');
+    countriesIndex = buildIndex(countryEntries, 'countries');
     dzDzIndex = buildIndex(dzDzEntries, 'dz-dz');
     tenseIndex = buildTenseIndex(tenseEntries);
 }
@@ -1207,9 +1276,11 @@ function findTenseMatches(query) {
 function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
     const fields = directionKey === 'en-dz'
         ? ['root', 'also', 'plural', 'verbalForm', 'comparative']
-        : directionKey === 'dz-dz'
-            ? ['root']
-            : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
+        : directionKey === 'countries'
+            ? Object.keys(entry).filter((key) => key !== 'source')
+            : directionKey === 'dz-dz'
+                ? ['root']
+                : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
     return fields.some((field) => {
         const value = entry[field];
@@ -1233,17 +1304,22 @@ function suggestionMatchesQuery(entry, normalizedQuery, hasDz) {
 function searchEntriesByQuery(entries, directionKey, query, normalizedQuery, hasDz) {
     const index = directionKey === 'dz-en'
         ? dzEnIndex
-        : directionKey === 'dz-dz'
-            ? dzDzIndex
-            : directionKey === 'en-dz'
-                ? enDzIndex
-                : tenseIndex;
+        : directionKey === 'countries'
+            ? countriesIndex
+            : directionKey === 'dz-dz'
+                ? dzDzIndex
+                : directionKey === 'en-dz'
+                    ? enDzIndex
+                    : tenseIndex;
 
-    const exactMatches = uniqueEntries(getIndexedMatches(index, normalizedQuery, query), directionKey === 'dz-en' ? 'dzEn' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
+    const exactMatches = uniqueEntries(
+        getIndexedMatches(index, normalizedQuery, query),
+        directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense'
+    );
     if (exactMatches.length) return exactMatches;
 
     const filtered = entries.filter((entry) => entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey));
-    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
+    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
 }
 
 function getSearchGroups(query, normalizedQuery) {
@@ -1251,6 +1327,7 @@ function getSearchGroups(query, normalizedQuery) {
         dzEn: searchEntriesByQuery(dzEnEntries, 'dz-en', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         dzDz: searchEntriesByQuery(dzDzEntries, 'dz-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         enDz: searchEntriesByQuery(enDzEntries, 'en-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
+        countries: searchEntriesByQuery(countryEntries, 'countries', query, normalizedQuery, false),
         tense: findTenseMatches(query)
     };
 }
@@ -1289,7 +1366,8 @@ function searchWord() {
             { entries: groups.tense, type: 'tense' }
         ]
         : [
-            { entries: groups.enDz, type: 'enDz' }
+            { entries: groups.enDz, type: 'enDz' },
+            { entries: groups.countries, type: 'countries' }
         ];
 
     if (renderSearchCards(query, searchGroups, hasDz ? 'all-dz' : 'en-dz')) return;
