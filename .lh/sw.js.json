@@ -1,0 +1,30 @@
+{
+    "sourceFile": "sw.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1780375757622,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1780375932499,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-const CACHE_NAME = 'dzongkha-dict-v1.6'; // Bumped version for tense data fix\n+const CACHE_NAME = 'dzongkha-dict-v1.6'; // Bump to force re-cache during fixes\n const ASSETS_TO_CACHE = [\n   './',\n   './index.html',\n   './style.css',\n@@ -8,9 +8,8 @@\n   './manifest.json',\n   './english_to_dzongkha.json',\n   './dzongkha_to_english.json',\n   './dzongkha_to_dzongkha.json',\n-  './final_tense.json',\n   './colloquial_terminology.json',\n   './assets/app-logo.png',\n   './assets/jamyang-loday.png',\n   './assets/icon-192.png',\n@@ -20,8 +19,9 @@\n // Install Service Worker and cache assets\n self.addEventListener('install', (event) => {\n   event.waitUntil(\n     caches.open(CACHE_NAME).then((cache) => {\n+      console.log('SW install: caching assets', ASSETS_TO_CACHE);\n       return cache.addAll(ASSETS_TO_CACHE);\n     })\n   );\n   self.skipWaiting();\n"
+                },
+                {
+                    "date": 1780376380741,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-const CACHE_NAME = 'dzongkha-dict-v1.6'; // Bump to force re-cache during fixes\n+const CACHE_NAME = 'dzongkha-dict-v1.7'; // Bumped for tense data fix\n const ASSETS_TO_CACHE = [\n   './',\n   './index.html',\n   './style.css',\n@@ -8,8 +8,9 @@\n   './manifest.json',\n   './english_to_dzongkha.json',\n   './dzongkha_to_english.json',\n   './dzongkha_to_dzongkha.json',\n+  './final_tense.json',\n   './colloquial_terminology.json',\n   './assets/app-logo.png',\n   './assets/jamyang-loday.png',\n   './assets/icon-192.png',\n"
+                },
+                {
+                    "date": 1780376454182,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-const CACHE_NAME = 'dzongkha-dict-v1.7'; // Bumped for tense data fix\n+const CACHE_NAME = 'dzongkha-dict-v1.6'; // Bump to force re-cache during fixes\n const ASSETS_TO_CACHE = [\n   './',\n   './index.html',\n   './style.css',\n@@ -8,9 +8,8 @@\n   './manifest.json',\n   './english_to_dzongkha.json',\n   './dzongkha_to_english.json',\n   './dzongkha_to_dzongkha.json',\n-  './final_tense.json',\n   './colloquial_terminology.json',\n   './assets/app-logo.png',\n   './assets/jamyang-loday.png',\n   './assets/icon-192.png',\n"
+                }
+            ],
+            "date": 1780375757622,
+            "name": "Commit-0",
+            "content": "const CACHE_NAME = 'dzongkha-dict-v1.6'; // Bumped version for tense data fix\nconst ASSETS_TO_CACHE = [\n  './',\n  './index.html',\n  './style.css',\n  './script.js',\n  './admin.js',\n  './manifest.json',\n  './english_to_dzongkha.json',\n  './dzongkha_to_english.json',\n  './dzongkha_to_dzongkha.json',\n  './final_tense.json',\n  './colloquial_terminology.json',\n  './assets/app-logo.png',\n  './assets/jamyang-loday.png',\n  './assets/icon-192.png',\n  './assets/icon-512.png'\n];\n\n// Install Service Worker and cache assets\nself.addEventListener('install', (event) => {\n  event.waitUntil(\n    caches.open(CACHE_NAME).then((cache) => {\n      return cache.addAll(ASSETS_TO_CACHE);\n    })\n  );\n  self.skipWaiting();\n});\n\n// Activate and clean up old caches\nself.addEventListener('activate', (event) => {\n  event.waitUntil(\n    caches.keys().then((cacheNames) => {\n      return Promise.all(\n        cacheNames.map((cache) => {\n          if (cache !== CACHE_NAME) {\n            return caches.delete(cache);\n          }\n        })\n      );\n    })\n  );\n  self.clients.claim();\n});\n\n// Fetch strategy: Network First for JSON data, Cache First for assets\nself.addEventListener('fetch', (event) => {\n  const url = new URL(event.request.url);\n  const isDataFile = url.pathname.endsWith('.json');\n\n  event.respondWith(\n    isDataFile \n      ? fetch(event.request)\n          .then((response) => {\n            if (!response.ok) return response; // Don't cache errors\n            const clone = response.clone();\n            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));\n            return response;\n          })\n          .catch(() => caches.match(event.request, { ignoreSearch: true }))\n      : caches.match(event.request).then((response) => response || fetch(event.request))\n  );\n});"
+        }
+    ]
+}

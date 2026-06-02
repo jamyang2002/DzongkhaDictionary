@@ -46,7 +46,7 @@ COLUMN_MAP = {
 
     # Tense Specifics
     "future": "future",
-    "present": "root",
+    "present": "present",
     "past": "past",
     "imperative": "imperative",
 }
@@ -90,6 +90,9 @@ def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optio
             if pd.isna(value):
                 continue
             record[key] = str(value).strip()
+
+        if not record.get("root"):
+            record["root"] = record.get("present") or record.get("future") or record.get("past") or record.get("imperative")
 
         if not record.get("root"):
             continue

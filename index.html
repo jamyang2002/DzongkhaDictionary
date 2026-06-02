@@ -29,6 +29,10 @@
                     <strong id="splashDzDzCount">20,622</strong>
                     <span>Dzongkha definitions</span>
                 </div>
+                <div>
+                    <strong id="splashTensesCount">0</strong>
+                    <span>Tenses</span>
+                </div>
             </div>
 
             <div class="splash-actions">
@@ -42,6 +46,7 @@
     </div>
 
     <main class="app-shell">
+        <div id="loadStatus" class="load-status" aria-live="polite"></div>
         <aside class="side-nav" aria-label="App navigation">
             <div class="side-brand">
                 <img src="assets/app-logo.png" alt="Bilingual Dictionary logo">
@@ -98,6 +103,10 @@
                         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
                         <span data-theme-label>Dark</span>
                     </button>
+                    <button id="loadJsonButton" class="icon-button" type="button" title="Import dictionary JSON">
+                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17h16v4H4z"/></svg>
+                        <span>Import JSON</span>
+                    </button>
                     <a href="admin.html" class="icon-button" title="Open admin">
                         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm1 5v5h4v2h-6V7h2Z"/></svg>
                         <span>Admin</span>
@@ -135,6 +144,10 @@
                                 <div>
                                     <strong id="homeDzDzCount">20,622</strong>
                                     <span>Dzongkha definitions</span>
+                                </div>
+                                <div>
+                                    <strong id="homeTensesCount">0</strong>
+                                    <span>Tenses</span>
                                 </div>
                             </div>
                         </div>
@@ -185,6 +198,7 @@
                             </section>
 
                             <section id="suggestions" class="suggestions" hidden></section>
+
                         </section>
 
                         <section class="results-area" aria-label="Dictionary result">
@@ -251,6 +265,7 @@
         </section>
     </main>
 
+    <input id="jsonFileInput" type="file" accept=".json" multiple hidden>
     <script src="script.js"></script>
 </body>
 </html>

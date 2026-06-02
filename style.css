@@ -1010,9 +1010,21 @@ img {
 }
 
 .load-status {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 10001;
+    max-width: min(420px, calc(100vw - 28px));
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--panel);
     color: var(--soft);
     font-size: 0.88rem;
+    font-weight: 700;
     line-height: 1.5;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
 }
 
 .results-area {
@@ -1996,6 +2008,13 @@ img {
 
     .dictionary-entry .word {
         font-size: clamp(1.8rem, 10vw, 2.5rem);
+        letter-spacing: 0;
+    }
+
+    .dictionary-entry .word .lang-flag,
+    .audio-btn,
+    .fav-btn {
+        flex: 0 0 auto;
     }
 
     .creator-photo-wrap,

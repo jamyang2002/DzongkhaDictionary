@@ -71,6 +71,7 @@ const dzEnEntries = [
 ];
 
 const dzDzEntries = [];
+const tenseEntries = [];
 
 const suggestions = document.getElementById('suggestions');
 const resultElement = document.getElementById('result');
@@ -102,7 +103,8 @@ const dictionaryCountEls = {
     dzDz: document.querySelectorAll('#homeDzDzCount, #lookupDzDzCount'),
     browseDzEn: document.getElementById('browseDzEnCount'),
     browseEnDz: document.getElementById('browseEnDzCount'),
-    browseDzDz: document.getElementById('browseDzDzCount')
+    browseDzDz: document.getElementById('browseDzDzCount'),
+    browseTenses: document.getElementById('browseTensesCount')
 };
 
 function formatCount(count) {
@@ -113,14 +115,17 @@ function updateDictionaryCounts() {
     const dzEn = document.querySelectorAll('#homeDzEnCount, #splashDzEnCount');
     const enDz = document.querySelectorAll('#homeEnDzCount, #splashEnDzCount');
     const dzDz = document.querySelectorAll('#homeDzDzCount, #splashDzDzCount');
+    const tenses = document.querySelectorAll('#homeTensesCount, #splashTensesCount');
 
     dzEn.forEach(el => el.textContent = formatCount(dzEnEntries.length));
     enDz.forEach(el => el.textContent = formatCount(enDzEntries.length));
     dzDz.forEach(el => el.textContent = formatCount(dzDzEntries.length));
+    tenses.forEach(el => el.textContent = formatCount(tenseEntries.length));
 
     if (dictionaryCountEls.browseDzEn) dictionaryCountEls.browseDzEn.textContent = `${formatCount(dzEnEntries.length)} entries`;
     if (dictionaryCountEls.browseEnDz) dictionaryCountEls.browseEnDz.textContent = `${formatCount(enDzEntries.length)} entries`;
     if (dictionaryCountEls.browseDzDz) dictionaryCountEls.browseDzDz.textContent = `${formatCount(dzDzEntries.length)} entries`;
+    if (dictionaryCountEls.browseTenses) dictionaryCountEls.browseTenses.textContent = `${formatCount(tenseEntries.length)} entries`;
 }
 
 function applyTheme(theme) {
@@ -212,7 +217,7 @@ const LOCAL_EN_DZ_JSON = 'english_to_dzongkha.json';
 const LOCAL_DZ_EN_JSON = 'dzongkha_to_english.json';
 const LOCAL_DZ_DZ_JSON = 'dzongkha_to_dzongkha.json';
 const LOCAL_DZ_DZ_COLLOQUIAL_JSON = 'colloquial_terminology.json';
-const canFetchLocalJson = location.protocol === 'http:' || location.protocol === 'https:';
+const LOCAL_TENSE_JSON = 'final_tense.json';
 
 let direction = 'dz-en';
 let currentEntries = dzEnEntries;
@@ -221,12 +226,15 @@ let currentEntries = dzEnEntries;
 let dzEnIndex = {};
 let dzDzIndex = {};
 let enDzIndex = {};
+let tenseIndex = {};
+let isBulkLoadingDictionaries = false;
 
 function inferDirectionFromFileName(fileName) {
     const lower = fileName.toLowerCase();
     if (lower.includes('english_to_dzongkha') || lower.includes('en_dz') || lower.includes('english-to-dzongkha')) return 'en-dz';
     if (lower.includes('dzongkha_to_english') || lower.includes('dz_en') || lower.includes('dzongkha-to-english')) return 'dz-en';
     if (lower.includes('dzongkha_to_dzongkha') || lower.includes('dz_dz') || lower.includes('dzongkha-to-dzongkha')) return 'dz-dz';
+    if (lower.includes('tense')) return 'tense';
     if (lower.includes('colloquial')) return 'dz-dz';
     return null;
 }
@@ -246,70 +254,139 @@ function readJsonFile(file) {
     });
 }
 
-async function fetchLocalJson(path) {
-    try {
-        const response = await fetch(path, { cache: 'no-store' });
-        if (!response.ok) {
-            return null;
+function normalizeJsonArray(data) {
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object') {
+        const candidates = ['data', 'entries', 'records', 'items', 'words'];
+        for (const key of candidates) {
+            if (Array.isArray(data[key])) return data[key];
         }
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-            console.warn(`Local JSON ${path} did not contain an array.`);
-            return null;
+        for (const value of Object.values(data)) {
+            if (Array.isArray(value)) return value;
         }
-        return data;
-    } catch (error) {
-        console.warn(`Could not load local JSON ${path}:`, error);
-        return null;
     }
+    return null;
+}
+
+function fetchLocalJsonWithXHR(path) {
+    return new Promise((resolve) => {
+        const request = new XMLHttpRequest();
+        request.open('GET', path, true);
+        request.timeout = 8000;
+        request.overrideMimeType('application/json');
+        request.onload = () => {
+            if (request.status === 200 || request.status === 0) {
+                try {
+                    const data = JSON.parse(request.responseText);
+                    const normalized = normalizeJsonArray(data);
+                    if (normalized) {
+                        resolve(normalized);
+                        return;
+                    }
+                    console.warn(`Local JSON ${path} did not contain an array.`);
+                } catch (error) {
+                    console.warn(`Could not parse local JSON ${path}:`, error);
+                }
+            }
+            resolve(null);
+        };
+        request.onerror = () => resolve(null);
+        request.ontimeout = () => resolve(null);
+        request.send();
+    });
+}
+
+async function fetchLocalJson(path) {
+    const candidates = [path];
+    if (!path.startsWith('./') && !path.startsWith('/') && !path.match(/^https?:\/\//i)) {
+        candidates.push(`./${path}`);
+    }
+
+    // Try XHR first because local file loading can be blocked for fetch in some browsers.
+    for (const candidate of candidates) {
+        const xhrData = await fetchLocalJsonWithXHR(candidate);
+        if (xhrData) return xhrData;
+    }
+
+    for (const candidate of candidates) {
+        try {
+            const response = await fetch(candidate, { cache: 'no-store' });
+            if (response.ok) {
+                const data = await response.json();
+                const normalized = normalizeJsonArray(data);
+                if (normalized) return normalized;
+                console.warn(`Local JSON ${candidate} did not contain an array.`);
+            }
+        } catch (error) {
+            console.warn(`Could not load local JSON ${candidate} with fetch:`, error);
+        }
+    }
+
+    return null;
+}
+
+function withTimeout(promise, timeoutMs, fallback = null) {
+    let timeoutId;
+    const timeout = new Promise((resolve) => {
+        timeoutId = setTimeout(() => resolve(fallback), timeoutMs);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+}
+
+async function loadLocalDataset(path) {
+    return withTimeout(fetchLocalJson(path), 10000, null);
 }
 
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
-    if (!canFetchLocalJson) {
-        if (statusEl) statusEl.textContent = 'Browser security (file://) blocked auto-loading. Please use "Import JSON" or run a local server.';
-        // Try to load from localStorage modifications even if fetch is blocked
-        const localEnDz = JSON.parse(localStorage.getItem('dz_data_enDz') || '[]');
-        const localDzEn = JSON.parse(localStorage.getItem('dz_data_dzEn') || '[]');
-        const localDzDz = JSON.parse(localStorage.getItem('dz_data_dzDz') || '[]');
-        
-        if (localEnDz.length) loadDictionaryData(localEnDz, 'en-dz', 'Local Overrides');
-        if (localDzEn.length) loadDictionaryData(localDzEn, 'dz-en', 'Local Overrides');
-        if (localDzDz.length) loadDictionaryData(localDzDz, 'dz-dz', 'Local Overrides');
-
-        if (localEnDz.length || localDzEn.length || localDzDz.length) {
-            if (statusEl) statusEl.textContent = 'Loaded modified dictionary entries from browser storage.';
-        }
-        return;
-    }
-
     if (statusEl) statusEl.textContent = 'Searching for local dictionary data...';
 
-    const [enDzData, dzEnData, dzDzData, dzDzColloquialData] = await Promise.all([
-        fetchLocalJson(LOCAL_EN_DZ_JSON),
-        fetchLocalJson(LOCAL_DZ_EN_JSON),
-        fetchLocalJson(LOCAL_DZ_DZ_JSON),
-        fetchLocalJson(LOCAL_DZ_DZ_COLLOQUIAL_JSON)
+    const [enDzData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
+        loadLocalDataset(LOCAL_EN_DZ_JSON),
+        loadLocalDataset(LOCAL_DZ_EN_JSON),
+        loadLocalDataset(LOCAL_DZ_DZ_JSON),
+        loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
+        loadLocalDataset(LOCAL_TENSE_JSON)
     ]);
 
+    const totalLoaded = (enDzData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
+
+    if (totalLoaded > 0) {
+        enDzEntries.length = 0;
+        dzEnEntries.length = 0;
+        dzDzEntries.length = 0;
+        tenseEntries.length = 0;
+    }
+
+    isBulkLoadingDictionaries = true;
     if (enDzData) loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON);
     if (dzEnData) loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON);
     if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
+    if (tenseData) loadDictionaryData(tenseData, 'tense', LOCAL_TENSE_JSON);
 
     // Merge with any manual edits from the Admin Panel
-    const overrides = { enDz: 'en-dz', dzEn: 'dz-en', dzDz: 'dz-dz' };
-    Object.entries(overrides).forEach(([key, direction]) => {
-        const saved = JSON.parse(localStorage.getItem(`dz_data_${key}`) || '[]');
-        if (saved.length) loadDictionaryData(saved, direction, 'Local Overrides');
+    const overrides = { enDz: 'en-dz', dzEn: 'dz-en', dzDz: 'dz-dz', tenses: 'tense' };
+    Object.entries(overrides).forEach(([key, savedDirection]) => {
+        const saved = readSavedEntries(key);
+        if (saved.length) loadDictionaryData(saved, savedDirection, 'Local Overrides');
     });
+    isBulkLoadingDictionaries = false;
+    rebuildSearchIndices();
+    currentEntries = getEntriesForDirection(direction);
 
-    const totalLoaded = (enDzData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0);
-    
     if (statusEl) {
-        statusEl.textContent = totalLoaded > 0 
-            ? `Loaded ${formatCount(totalLoaded)} total entries from local files.` 
-            : 'No local JSON files found. Dictionary is running with sample data only.';
+        if (totalLoaded > 0) {
+            statusEl.textContent = `Loaded ${formatCount(totalLoaded)} total entries from local files.`;
+            // Auto-hide status after 3 seconds to prevent interface distortion
+            setTimeout(() => {
+                statusEl.style.transition = 'opacity 0.5s ease';
+                statusEl.style.opacity = '0';
+                setTimeout(() => { statusEl.style.display = 'none'; }, 500);
+            }, 3000);
+        } else {
+            statusEl.textContent = 'No local JSON files found. If you opened this app directly from the file system, use the import button or run a local server.';
+        }
     }
 
     updateDictionaryCounts();
@@ -341,17 +418,67 @@ const fieldLabels = {
     dzDz: [
         { key: 'root', label: 'Root word' },
         { key: 'meaning', label: 'Meaning' }
+    ],
+    tense: [
+        { key: 'past', label: 'Past' },
+        { key: 'present', label: 'Present' },
+        { key: 'future', label: 'Future' },
+        { key: 'imperative', label: 'Imperative' }
     ]
 };
 
 function normalizeEnglish(value) {
-    return value.trim().toLowerCase();
+    return String(value).trim().toLowerCase();
 }
 
 function normalizeDzongkha(value) {
     return String(value)
         .trim()
         .replace(/[་།\s]+$/g, '');
+}
+
+function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function matchesNormalizedQuery(text, normalizedQuery, hasDz) {
+    if (!text || !normalizedQuery) return false;
+    const normalizedText = hasDz ? normalizeDzongkha(text) : normalizeEnglish(text);
+    if (!normalizedText) return false;
+
+    if (normalizedText === normalizedQuery) return true;
+    if (hasDz) {
+        const pattern = new RegExp(`(?:^|[་།\\s])${escapeRegExp(normalizedQuery)}(?:$|[་།\\s])`);
+        return pattern.test(normalizedText);
+    }
+
+    const pattern = new RegExp(`(?:^|\\W)${escapeRegExp(normalizedQuery)}(?:$|\\W)`);
+    return pattern.test(normalizedText);
+}
+
+function getDirectionLabel(searchDirection) {
+    if (searchDirection === 'all') return 'All dictionaries';
+    if (searchDirection === 'en-dz') return 'English → Dzongkha';
+    if (searchDirection === 'dz-dz') return 'Dzongkha → Dzongkha';
+    if (searchDirection === 'tense') return 'Tenses';
+    return 'Dzongkha → English';
+}
+
+function getEntriesForDirection(directionKey) {
+    if (directionKey === 'en-dz') return enDzEntries;
+    if (directionKey === 'dz-dz') return dzDzEntries;
+    if (directionKey === 'tense') return tenseEntries;
+    return dzEnEntries;
+}
+
+function readSavedEntries(key) {
+    try {
+        const saved = JSON.parse(localStorage.getItem(`dz_data_${key}`) || '[]');
+        return Array.isArray(saved) ? saved : [];
+    } catch (error) {
+        console.warn(`Ignoring invalid saved ${key} entries:`, error);
+        return [];
+    }
 }
 
 // --- Favorites storage ---
@@ -372,7 +499,7 @@ function saveHistory(list) {
 function addSearchHistory(query, searchDirection) {
     const cleanQuery = query.trim();
     if (!cleanQuery) return;
-    const label = searchDirection === 'en-dz' ? 'English → Dzongkha' : (searchDirection === 'dz-dz' ? 'Dzongkha → Dzongkha' : 'Dzongkha → English');
+    const label = getDirectionLabel(searchDirection);
     const list = loadHistory().filter((item) => item.query !== cleanQuery);
     list.unshift({ query: cleanQuery, direction: searchDirection, label, savedAt: Date.now() });
     saveHistory(list.slice(0, 8));
@@ -462,7 +589,7 @@ if (favoritesButton) {
 // --- Word of the Day ---
 function updateWordOfTheDay() {
     try {
-        const combined = [...dzDzEntries, ...dzEnEntries, ...enDzEntries].filter(Boolean);
+        const combined = [...dzDzEntries, ...dzEnEntries, ...enDzEntries, ...tenseEntries].filter(Boolean);
         if (!combined.length || !wordOfDayEl) return;
         const days = Math.floor(Date.now() / 86400000);
         const idx = days % combined.length;
@@ -539,35 +666,37 @@ function showLatestNotification() {
 }
 
 function loadDictionaryData(data, directionKey, fileName) {
-    if (!Array.isArray(data)) {
-        throw new Error('Imported file must contain a JSON array.');
-    }
+    const normalized = normalizeJsonArray(data);
+    if (!normalized) return;
 
-    const cleaned = data.map((entry) => {
-        if (!entry.root) {
-            throw new Error('Each entry must include a root property.');
+    const cleaned = [];
+    for (const entry of normalized) {
+        try {
+            if (!entry.root && !(entry.present || entry.future || entry.past || entry.imperative)) {
+                continue; // Skip invalid entries without crashing
+            }
+            const e = { ...entry };
+            if (!e.root) e.root = e.present || e.future || e.past || e.imperative;
+            if (!e.source) e.source = fileName;
+            cleaned.push(e);
+        } catch (err) {
+            console.warn(`Skipping invalid entry in ${fileName}:`, err);
         }
-        const e = { ...entry };
-        if (!e.source) e.source = fileName;
-        return e;
-    });
+    }
 
     if (directionKey === 'en-dz') {
-        enDzEntries.length = 0;
-        enDzEntries.push(...cleaned);
+        cleaned.forEach(item => enDzEntries.push(item));
     } else if (directionKey === 'dz-dz') {
-        dzDzEntries.push(...cleaned);
+        cleaned.forEach(item => dzDzEntries.push(item));
+    } else if (directionKey === 'tense') {
+        cleaned.forEach(item => tenseEntries.push(item));
     } else {
-        dzEnEntries.length = 0;
-        dzEnEntries.push(...cleaned);
+        cleaned.forEach(item => dzEnEntries.push(item));
     }
 
-    currentEntries = direction === 'dz-en' ? dzEnEntries : (direction === 'dz-dz' ? dzDzEntries : enDzEntries);
-    
-    // Pre-calculate indices for instant search results
-    dzEnIndex = buildIndex(dzEnEntries, false);
-    dzDzIndex = buildIndex(dzDzEntries, false);
-    enDzIndex = buildIndex(enDzEntries, true);
+    if (isBulkLoadingDictionaries) return;
+
+    rebuildSearchIndices();
 
     updateDictionaryCounts();
     renderBrowseTable(directionKey);
@@ -588,7 +717,7 @@ if (loadJsonButton && jsonFileInput) {
         for (const file of files) {
             try {
                 const data = await readJsonFile(file);
-                const directionKey = inferDirectionFromFileName(file.name) || (Array.isArray(data) && data[0] && 'equivalentTerm' in data[0] ? 'dz-en' : 'dz-dz');
+                const directionKey = inferDirectionFromFileName(file.name) || (Array.isArray(data) && data[0] && ('past' in data[0] || 'future' in data[0] || 'imperative' in data[0]) ? 'tense' : (Array.isArray(data) && data[0] && 'equivalentTerm' in data[0] ? 'dz-en' : 'dz-dz'));
                 loadDictionaryData(data, directionKey, file.name);
             } catch (error) {
                 renderMessage(`Could not parse ${file.name}: ${error.message}`, true);
@@ -600,7 +729,7 @@ if (loadJsonButton && jsonFileInput) {
 
 function setDirection(newDirection, skipDefaultMessage = false) {
     direction = newDirection;
-    currentEntries = direction === 'dz-en' ? dzEnEntries : (direction === 'dz-dz' ? dzDzEntries : enDzEntries);
+    currentEntries = getEntriesForDirection(direction);
     directionButtons.forEach((button) => {
         button.classList.toggle('active', button.dataset.direction === newDirection);
     });
@@ -609,6 +738,8 @@ function setDirection(newDirection, skipDefaultMessage = false) {
         inputElement.placeholder = 'Enter Dzongkha Word (e.g. རྫོང་ཁ།)';
     } else if (newDirection === 'dz-dz') {
         inputElement.placeholder = 'Enter a Dzongkha word for Dzongkha definitions';
+    } else if (newDirection === 'tense') {
+        inputElement.placeholder = 'Search any tense form';
     } else {
         inputElement.placeholder = 'Enter English word (e.g. mother)';
     }
@@ -683,9 +814,10 @@ function renderCard(entry, entryType) {
             let valueClass = entryType === 'enDz' ? (field.key === 'equivalent' ? 'dzongkha-word' : 'english-word') : 'dzongkha-word';
             if (entryType === 'dzEn' && field.key === 'equivalentTerm') valueClass = 'english-word';
             if (entryType === 'dzDz') valueClass = 'dzongkha-word';
+            if (entryType === 'tense') valueClass = 'dzongkha-word';
 
             const rawValue = entry[field.key];
-            const clickableKeys = ['equivalent', 'equivalentTerm', 'also'];
+            const clickableKeys = ['equivalent', 'equivalentTerm', 'also', 'past', 'present', 'future', 'imperative'];
             const rawDisplay = (clickableKeys.includes(field.key) || (field.key === 'meaning' && entryType !== 'dzDz'))
                 ? renderClickableText(rawValue, valueClass)
                 : `<span class="${valueClass}">${rawValue}</span>`;
@@ -702,9 +834,9 @@ function renderCard(entry, entryType) {
         })
         .join('');
 
-    const directionLabel = entryType === 'enDz' ? 'English → Dzongkha' : (entryType === 'dzEn' ? 'Dzongkha → English' : 'Dzongkha → Dzongkha');
+    const directionLabel = entryType === 'enDz' ? 'English → Dzongkha' : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha'));
     const mainWordClass = entryType === 'enDz' ? 'english-word' : 'uchen-word';
-    const caption = entryType === 'enDz' ? (entry.equivalent || '') : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : '');
+    const caption = entryType === 'enDz' ? (entry.equivalent || '') : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : (entryType === 'tense' ? 'Verb tense forms' : ''));
     const captionClass = entryType === 'dzDz' ? 'dzongkha-word' : (entryType === 'enDz' ? 'dzongkha-word' : 'english-word');
 
     return `
@@ -752,6 +884,20 @@ function getBrowseConfig(directionKey) {
             columns: [
                 { key: 'root', label: 'Root word', className: 'uchen-word' },
                 { key: 'meaning', label: 'Meaning', className: 'dzongkha-word wide' }
+            ]
+        };
+    }
+
+    if (directionKey === 'tense') {
+        return {
+            title: 'Tense entries',
+            entries: tenseEntries,
+            type: 'tense',
+            columns: [
+                { key: 'past', label: 'Past', className: 'dzongkha-word' },
+                { key: 'present', label: 'Present', className: 'dzongkha-word' },
+                { key: 'future', label: 'Future', className: 'dzongkha-word' },
+                { key: 'imperative', label: 'Imperative', className: 'dzongkha-word' }
             ]
         };
     }
@@ -948,21 +1094,177 @@ function renderEntry(entry, entryType) {
     resultElement.innerHTML = renderCard(entry, entryType);
 }
 
-function buildIndex(entries, isEnglish = false) {
+function addIndexedEntry(map, key, entry) {
+    const cleanKey = String(key).trim();
+    if (!cleanKey) return;
+    if (!map[cleanKey]) map[cleanKey] = [];
+    if (!map[cleanKey].includes(entry)) map[cleanKey].push(entry);
+}
+
+function getIndexedMatches(index, ...keys) {
+    const matches = [];
+    keys.forEach((key) => {
+        (index[key] || []).forEach((entry) => {
+            if (!matches.includes(entry)) matches.push(entry);
+        });
+    });
+    return matches;
+}
+
+function getEntrySignature(entry, entryType) {
+    const fields = entryType === 'tense'
+        ? ['past', 'present', 'future', 'imperative']
+        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'type', 'also'];
+    return fields.map((field) => entry[field] || '').join('|');
+}
+
+function uniqueEntries(entries, entryType) {
+    const seen = new Set();
+    return entries.filter((entry) => {
+        const signature = getEntrySignature(entry, entryType);
+        if (seen.has(signature)) return false;
+        seen.add(signature);
+        return true;
+    });
+}
+
+function uniqueEntriesByLabel(entries) {
+    const seen = new Set();
+    return entries.filter((entry) => {
+        const label = String(entry.root || entry.present || entry.future || entry.past || entry.imperative || '').trim();
+        if (!label) return false;
+        const key = label.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+function indexEntryField(map, entry, value) {
+    if (!value) return;
+    const text = String(value).trim();
+    if (!text) return;
+
+    const dzKey = normalizeDzongkha(text);
+    const enKey = normalizeEnglish(text);
+
+    if (dzKey) addIndexedEntry(map, dzKey, entry);
+    if (enKey) addIndexedEntry(map, enKey, entry);
+    if (text !== dzKey && text !== enKey) addIndexedEntry(map, text, entry);
+}
+
+function buildIndex(entries, directionKey) {
     return entries.reduce((map, entry) => {
         if (!entry.root) return map;
-        const raw = entry.root.trim();
-        const key = isEnglish ? normalizeEnglish(raw) : normalizeDzongkha(raw);
-        map[key] = entry;
-        if (!isEnglish) {
-            map[raw] = entry;
-        }
-        if (isEnglish) {
-            const norm = normalizeEnglish(entry.root);
-            map[norm] = entry;
-        }
+
+        const fieldsToIndex = directionKey === 'en-dz'
+            ? ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent']
+            : directionKey === 'dz-dz'
+                ? ['root', 'meaning']
+                : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
+
+        fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));
         return map;
     }, {});
+}
+
+function buildTenseIndex(entries) {
+    return entries.reduce((map, entry) => {
+        ['root', 'past', 'present', 'future', 'imperative', 'meaning'].forEach((field) => {
+            const value = entry[field];
+            if (!value) return;
+            const values = String(value).split(/[\s,;|/]+/).filter(Boolean);
+            values.push(String(value));
+            values.forEach((item) => {
+                const dzKey = normalizeDzongkha(item);
+                const enKey = normalizeEnglish(item);
+                if (dzKey) addIndexedEntry(map, dzKey, entry);
+                if (enKey && enKey !== dzKey) addIndexedEntry(map, enKey, entry);
+            });
+        });
+        return map;
+    }, {});
+}
+
+function rebuildSearchIndices() {
+    dzEnIndex = buildIndex(dzEnEntries, 'dz-en');
+    enDzIndex = buildIndex(enDzEntries, 'en-dz');
+    dzDzIndex = buildIndex(dzDzEntries, 'dz-dz');
+    tenseIndex = buildTenseIndex(tenseEntries);
+}
+
+function findTenseMatches(query) {
+    const dzNorm = normalizeDzongkha(query);
+    const enNorm = normalizeEnglish(query);
+    const keys = [dzNorm, enNorm, query].filter(Boolean);
+    const matches = getIndexedMatches(tenseIndex, ...keys);
+    if (matches.length) return uniqueEntries(matches, 'tense');
+    return searchEntriesByQuery(tenseEntries, 'tense', query, dzNorm || enNorm, /[\u0F00-\u0FFF]/.test(query));
+}
+
+function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
+    const fields = directionKey === 'en-dz'
+        ? ['root', 'also', 'plural', 'verbalForm', 'comparative']
+        : directionKey === 'dz-dz'
+            ? ['root', 'meaning']
+            : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
+
+    return fields.some((field) => {
+        const value = entry[field];
+        if (!value) return false;
+        return matchesNormalizedQuery(value, normalizedQuery, hasDz);
+    });
+}
+
+function suggestionMatchesQuery(entry, normalizedQuery, hasDz) {
+    const fields = hasDz
+        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm']
+        : ['root', 'also', 'plural', 'verbalForm', 'comparative'];
+
+    return fields.some((field) => {
+        const value = entry[field];
+        if (!value) return false;
+        return matchesNormalizedQuery(value, normalizedQuery, hasDz);
+    });
+}
+
+function searchEntriesByQuery(entries, directionKey, query, normalizedQuery, hasDz) {
+    const index = directionKey === 'dz-en'
+        ? dzEnIndex
+        : directionKey === 'dz-dz'
+            ? dzDzIndex
+            : directionKey === 'en-dz'
+                ? enDzIndex
+                : tenseIndex;
+
+    const exactMatches = uniqueEntries(getIndexedMatches(index, normalizedQuery, query), directionKey === 'dz-en' ? 'dzEn' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
+    if (exactMatches.length) return exactMatches;
+
+    const filtered = entries.filter((entry) => entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey));
+    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
+}
+
+function getSearchGroups(query, normalizedQuery) {
+    return {
+        dzEn: searchEntriesByQuery(dzEnEntries, 'dz-en', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
+        dzDz: searchEntriesByQuery(dzDzEntries, 'dz-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
+        enDz: searchEntriesByQuery(enDzEntries, 'en-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
+        tense: findTenseMatches(query)
+    };
+}
+
+function renderSearchCards(query, groups, similarDirection) {
+    const cards = [];
+    groups.forEach(({ entries, type }) => {
+        entries.slice(0, 20).forEach((entry) => cards.push(renderCard(entry, type)));
+    });
+
+    if (!cards.length) return false;
+    resultElement.innerHTML = cards.join('');
+    const similar = renderSimilar(query, similarDirection || direction);
+    if (similar) resultElement.appendChild(similar);
+    scrollToResults();
+    return true;
 }
 
 function searchWord() {
@@ -972,54 +1274,25 @@ function searchWord() {
         scrollToResults();
         return;
     }
-    addSearchHistory(query, direction);
+    addSearchHistory(query, 'all');
 
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
+    const groups = getSearchGroups(query, normalizedQuery);
 
-    if (hasDz) {
-        const dzEnEntry = dzEnIndex[normalizedQuery] || dzEnIndex[query];
-        const dzDzEntry = dzDzIndex[normalizedQuery] || dzDzIndex[query];
+    const searchGroups = hasDz
+        ? [
+            { entries: groups.dzEn, type: 'dzEn' },
+            { entries: groups.dzDz, type: 'dzDz' },
+            { entries: groups.tense, type: 'tense' }
+        ]
+        : [
+            { entries: groups.enDz, type: 'enDz' }
+        ];
 
-        if (dzEnEntry && dzDzEntry) {
-            resultElement.innerHTML = renderCard(dzEnEntry, 'dzEn') + renderCard(dzDzEntry, 'dzDz');
-            const similar = renderSimilar(query, 'dz-en');
-            if (similar) resultElement.appendChild(similar);
-            scrollToResults();
-            return;
-        }
+    if (renderSearchCards(query, searchGroups, hasDz ? 'all-dz' : 'en-dz')) return;
 
-        if (dzEnEntry) {
-            renderEntry(dzEnEntry, 'dzEn');
-            const similar = renderSimilar(query, 'dz-en');
-            if (similar) resultElement.appendChild(similar);
-            scrollToResults();
-            return;
-        }
-
-        if (dzDzEntry) {
-            renderEntry(dzDzEntry, 'dzDz');
-            const similar = renderSimilar(query, 'dz-dz');
-            if (similar) resultElement.appendChild(similar);
-            scrollToResults();
-            return;
-        }
-
-        renderMessage(`No Dzongkha entry found for “${query}”. Try a different spelling or check the source data.`, true);
-        scrollToResults();
-        return;
-    }
-
-    const enDzEntry = enDzIndex[normalizedQuery] || enDzIndex[query];
-    if (enDzEntry) {
-        renderEntry(enDzEntry, 'enDz');
-        const similar = renderSimilar(query, 'en-dz');
-        if (similar) resultElement.appendChild(similar);
-        scrollToResults();
-        return;
-    }
-
-    renderMessage(`No entry found for “${query}”. Try a different spelling or check the source data.`, true);
+    renderMessage(`No entry found for "${query}". Try a different spelling or check the source data.`, true);
     scrollToResults();
 }
 
@@ -1058,12 +1331,10 @@ function updateSuggestions() {
     searchButton.classList.toggle('dzongkha-word', hasDz);
     searchButton.classList.toggle('english-word', !hasDz);
 
-    const sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries] : enDzEntries;
+    const sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries, ...tenseEntries] : enDzEntries;
+
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
-    const matches = sourceList.filter((entry) => {
-        const key = hasDz ? normalizeDzongkha(entry.root) : normalizeEnglish(entry.root);
-        return key.includes(normalizedQuery);
-    }).slice(0, 8);
+    const matches = uniqueEntriesByLabel(sourceList.filter((entry) => suggestionMatchesQuery(entry, normalizedQuery, hasDz))).slice(0, 8);
 
     if (matches.length === 0) {
         suggestions.hidden = true;
@@ -1072,7 +1343,7 @@ function updateSuggestions() {
 
     suggestions.hidden = false;
     suggestions.innerHTML = matches.map((entry) => {
-        const label = entry.root;
+        const label = entry.root || entry.present || entry.future || entry.past || entry.imperative;
         const display = hasDz ? `<span class="dzongkha-word">${label}</span>` : `<span class="english-word">${label}</span>`;
         return `<button type="button" class="suggestion-item" data-value="${label}">${display}</button>`;
     }).join('');
@@ -1094,14 +1365,7 @@ resultElement.addEventListener('click', (e) => {
     if (!val) return;
     const hasDz = /[\u0F00-\u0FFF]/.test(val);
     suggestions.hidden = true;
-    try {
-        const previousValue = inputElement.value;
-        if (hasDz) setDirection('dz-en');
-        else setDirection('en-dz');
-        inputElement.value = val;
-    } catch (e) {
-        inputElement.value = val;
-    }
+    inputElement.value = val;
     searchWord();
 });
 
@@ -1144,12 +1408,31 @@ function renderSimilar(query, effectiveDirection) {
     container.appendChild(heading);
 
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
-    const sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries] : enDzEntries;
+    let sourceList;
+    const suggestionDirection = effectiveDirection || direction;
+    if (suggestionDirection === 'en-dz') {
+        sourceList = enDzEntries;
+    } else if (suggestionDirection === 'dz-dz') {
+        sourceList = dzDzEntries;
+    } else if (suggestionDirection === 'tense') {
+        sourceList = tenseEntries;
+    } else {
+        sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries, ...tenseEntries] : enDzEntries;
+    }
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
-    const matches = sourceList.filter((entry) => {
-        const key = hasDz ? normalizeDzongkha(entry.root) : normalizeEnglish(entry.root);
-        return key !== normalizedQuery && key.includes(normalizedQuery);
-    }).slice(0, 8);
+    const matches = uniqueEntriesByLabel(sourceList.filter((entry) => {
+        if (!hasDz) {
+            const key = normalizeEnglish(entry.root || '');
+            return key !== normalizedQuery && matchesNormalizedQuery(entry.root || '', normalizedQuery, false);
+        }
+        return ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalentTerm']
+            .some((field) => {
+                const value = entry[field];
+                if (!value) return false;
+                const normalized = normalizeDzongkha(value);
+                return normalized !== normalizedQuery && matchesNormalizedQuery(value, normalizedQuery, true);
+            });
+    })).slice(0, 8);
 
     if (matches.length === 0) return null;
 
@@ -1249,12 +1532,10 @@ if (historyPanel) {
 }
 
 setDirection(direction, true);
-updateDictionaryCounts();
-renderBrowseTable(direction);
-initializeLocalDictionaries();
 updateWordOfTheDay();
 showLatestNotification();
 renderHistoryPanel();
+initializeLocalDictionaries();
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {

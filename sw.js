@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v1.5'; // Enabled auto-update and offline persistence
+const CACHE_NAME = 'dzongkha-dict-v1.9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,17 +10,23 @@ const ASSETS_TO_CACHE = [
   './dzongkha_to_english.json',
   './dzongkha_to_dzongkha.json',
   './colloquial_terminology.json',
+  './final_tense.json',
   './assets/app-logo.png',
   './assets/jamyang-loday.png',
-  './assets/icon-192.png',
-  './assets/icon-512.png'
+  './assets/icon-192.png'
 ];
 
 // Install Service Worker and cache assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return Promise.all(
+        ASSETS_TO_CACHE.map((asset) =>
+          cache.add(asset).catch((error) => {
+            console.warn('SW install: skipped cache asset', asset, error);
+          })
+        )
+      );
     })
   );
   self.skipWaiting();
