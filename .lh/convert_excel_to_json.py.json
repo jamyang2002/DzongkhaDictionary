@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1780393783411,
@@ -12,6 +12,10 @@
                 {
                     "date": 1780394459495,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,10 +32,12 @@\n     \"capital\": \"equivalent\",\n     \"source\": \"source\",\n     \"ཚིག་སྡེ།\": \"type\",\n     \"རྫོང་ཁའི་དོ་མཉམ།\": \"equivalent\",\n-    \"རྒྱལ་ཁབ།\": \"root\",\n-    \"རྒྱལ་ས།\": \"equivalent\",\n+    \"country\": \"root\",\n+    \"capital\": \"equivalent\",\n+    \"རྒྱལ་ཁབ།\": \"countryDz\",\n+    \"རྒྱལ་ས།\": \"capitalDz\",\n     \"meaning\": \"meaning\",\n \n     # Dzongkha → English\n     \"tenses\": \"tenses\",\n"
+                },
+                {
+                    "date": 1780395589628,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,10 +32,10 @@\n     \"capital\": \"equivalent\",\n     \"source\": \"source\",\n     \"ཚིག་སྡེ།\": \"type\",\n     \"རྫོང་ཁའི་དོ་མཉམ།\": \"equivalent\",\n-    \"country\": \"root\",\n-    \"capital\": \"equivalent\",\n+    \"ཨིང་སྐད།\": \"root\",\n+    \"རྫོང་ཁ།\": \"equivalent\",\n     \"རྒྱལ་ཁབ།\": \"countryDz\",\n     \"རྒྱལ་ས།\": \"capitalDz\",\n     \"meaning\": \"meaning\",\n \n"
                 }
             ],
             "date": 1780393783411,

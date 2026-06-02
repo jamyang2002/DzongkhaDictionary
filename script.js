@@ -220,6 +220,7 @@ const LOCAL_DZ_EN_JSON = 'dzongkha_to_english.json';
 const LOCAL_DZ_DZ_JSON = 'dzongkha_to_dzongkha.json';
 const LOCAL_DZ_DZ_COLLOQUIAL_JSON = 'colloquial_terminology.json';
 const LOCAL_TENSE_JSON = 'final_tense.json';
+const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 
 let direction = 'dz-en';
 let currentEntries = dzEnEntries;
@@ -229,8 +230,10 @@ let dzEnIndex = {};
 let dzDzIndex = {};
 let enDzIndex = {};
 let countriesIndex = {};
+let publicServiceIndex = {};
 let tenseIndex = {};
 let countryEntries = [];
+let publicServiceEntries = [];
 let isBulkLoadingDictionaries = false;
 
 function inferDirectionFromFileName(fileName) {
@@ -239,6 +242,7 @@ function inferDirectionFromFileName(fileName) {
     if (lower.includes('dzongkha_to_english') || lower.includes('dz_en') || lower.includes('dzongkha-to-english')) return 'dz-en';
     if (lower.includes('dzongkha_to_dzongkha') || lower.includes('dz_dz') || lower.includes('dzongkha-to-dzongkha')) return 'dz-dz';
     if (lower.includes('countries') || lower.includes('country') || lower.includes('capital')) return 'countries';
+    if (lower.includes('public service') || lower.includes('public_service') || lower.includes('public-service')) return 'public-service';
     if (lower.includes('tense')) return 'tense';
     if (lower.includes('colloquial')) return 'dz-dz';
     return null;
@@ -345,10 +349,11 @@ async function loadLocalDataset(path) {
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
 
-    const [enDzData, collectedData, countriesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
+    const [enDzData, collectedData, countriesData, publicServiceData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
         loadLocalDataset(LOCAL_COUNTRIES_JSON),
+        loadLocalDataset(LOCAL_PUBLIC_SERVICE_JSON),
         loadLocalDataset(LOCAL_DZ_EN_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
@@ -368,6 +373,7 @@ async function initializeLocalDictionaries() {
     if (enDzData) loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON);
     if (collectedData) loadDictionaryData(collectedData, 'en-dz', LOCAL_COLLECTED_TERMINOLOGY_JSON);
     if (countriesData) loadDictionaryData(countriesData, 'countries', LOCAL_COUNTRIES_JSON);
+    if (publicServiceData) loadDictionaryData(publicServiceData, 'public-service', LOCAL_PUBLIC_SERVICE_JSON);
     if (dzEnData) loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON);
     if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
@@ -407,6 +413,10 @@ const fieldLabels = {
         { key: 'countryDz', label: 'Country (Dzongkha)' },
         { key: 'equivalent', label: 'Capital' },
         { key: 'capitalDz', label: 'Capital (Dzongkha)' }
+    ],
+    publicService: [
+        { key: 'root', label: 'English term' },
+        { key: 'equivalent', label: 'Dzongkha translation' }
     ],
     dzEn: [
         { key: 'root', label: 'Root word' },
@@ -466,6 +476,7 @@ function getDirectionLabel(searchDirection) {
     if (searchDirection === 'all') return 'All dictionaries';
     if (searchDirection === 'en-dz') return 'English → Dzongkha';
     if (searchDirection === 'countries') return 'Names of countries and capital';
+    if (searchDirection === 'public-service') return 'Public Service Terminology';
     if (searchDirection === 'dz-dz') return 'Dzongkha → Dzongkha';
     if (searchDirection === 'tense') return 'Tenses';
     return 'Dzongkha → English';
@@ -474,6 +485,7 @@ function getDirectionLabel(searchDirection) {
 function getEntriesForDirection(directionKey) {
     if (directionKey === 'en-dz') return enDzEntries;
     if (directionKey === 'countries') return countryEntries;
+    if (directionKey === 'public-service') return publicServiceEntries;
     if (directionKey === 'dz-dz') return dzDzEntries;
     if (directionKey === 'tense') return tenseEntries;
     return dzEnEntries;
@@ -686,6 +698,12 @@ function loadDictionaryData(data, directionKey, fileName) {
             const e = { ...entry };
             if (!e.root) e.root = e.present || e.future || e.past || e.imperative;
             if (!e.source) e.source = fileName;
+            if (fileName === LOCAL_COLLECTED_TERMINOLOGY_JSON) {
+                e.dictionaryLabel = 'Collected terminology';
+            }
+            if (fileName === LOCAL_PUBLIC_SERVICE_JSON) {
+                e.dictionaryLabel = 'Public Service Terminology';
+            }
             cleaned.push(e);
         } catch (err) {
             console.warn(`Skipping invalid entry in ${fileName}:`, err);
@@ -696,6 +714,8 @@ function loadDictionaryData(data, directionKey, fileName) {
         cleaned.forEach(item => enDzEntries.push(item));
     } else if (directionKey === 'countries') {
         cleaned.forEach(item => countryEntries.push(item));
+    } else if (directionKey === 'public-service') {
+        cleaned.forEach(item => publicServiceEntries.push(item));
     } else if (directionKey === 'dz-dz') {
         cleaned.forEach(item => dzDzEntries.push(item));
     } else if (directionKey === 'tense') {
@@ -864,12 +884,15 @@ function renderCard(entry, entryType) {
         })
         .join('');
 
-    const directionLabel = entryType === 'enDz'
-        ? 'English → Dzongkha'
-        : entryType === 'countries'
-            ? 'Names of countries and capital'
-            : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha'));
-    const mainWordClass = entryType === 'enDz' || entryType === 'countries' ? 'english-word' : 'uchen-word';
+    const directionLabel = entry.dictionaryLabel
+        || (entryType === 'enDz'
+            ? 'English → Dzongkha'
+            : entryType === 'countries'
+                ? 'Names of countries and capital'
+                : entryType === 'publicService'
+                    ? 'Public Service Terminology'
+                    : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
+    const mainWordClass = entryType === 'enDz' || entryType === 'countries' || entryType === 'publicService' ? 'english-word' : 'uchen-word';
     const caption = entryType === 'enDz'
         ? (entry.equivalent || '')
         : entryType === 'countries'
@@ -935,6 +958,27 @@ function getBrowseConfig(directionKey) {
                         : key === 'capitalDz' ? 'Capital (Dzongkha)'
                         : toLabel(key),
                     className: key === 'equivalent' || key === 'root' ? 'english-word' : 'dzongkha-word wide'
+                }))
+        };
+    }
+
+    if (directionKey === 'public-service') {
+        const keys = new Set();
+        publicServiceEntries.forEach((entry) => Object.keys(entry).forEach((key) => keys.add(key)));
+        const orderedKeys = ['root', 'equivalent', ...Array.from(keys).filter((key) => !['root', 'equivalent', 'source', 'no'].includes(key)).sort()];
+
+        return {
+            title: 'Public Service Terminology',
+            entries: publicServiceEntries,
+            type: 'publicService',
+            columns: orderedKeys
+                .filter((key) => key !== 'source')
+                .map((key) => ({
+                    key,
+                    label: key === 'root' ? 'English term'
+                        : key === 'equivalent' ? 'Dzongkha translation'
+                        : toLabel(key),
+                    className: key === 'equivalent' ? 'dzongkha-word wide' : 'english-word'
                 }))
         };
     }
@@ -1255,6 +1299,7 @@ function rebuildSearchIndices() {
     dzEnIndex = buildIndex(dzEnEntries, 'dz-en');
     enDzIndex = buildIndex(enDzEntries, 'en-dz');
     countriesIndex = buildIndex(countryEntries, 'countries');
+    publicServiceIndex = buildIndex(publicServiceEntries, 'public-service');
     dzDzIndex = buildIndex(dzDzEntries, 'dz-dz');
     tenseIndex = buildTenseIndex(tenseEntries);
 }
@@ -1271,8 +1316,8 @@ function findTenseMatches(query) {
 function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
     const fields = directionKey === 'en-dz'
         ? ['root', 'also', 'plural', 'verbalForm', 'comparative']
-        : directionKey === 'countries'
-            ? Object.keys(entry).filter((key) => key !== 'source')
+        : directionKey === 'countries' || directionKey === 'public-service'
+            ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
             : directionKey === 'dz-dz'
                 ? ['root']
                 : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
@@ -1301,15 +1346,17 @@ function searchEntriesByQuery(entries, directionKey, query, normalizedQuery, has
         ? dzEnIndex
         : directionKey === 'countries'
             ? countriesIndex
-            : directionKey === 'dz-dz'
-                ? dzDzIndex
-                : directionKey === 'en-dz'
-                    ? enDzIndex
-                    : tenseIndex;
+            : directionKey === 'public-service'
+                ? publicServiceIndex
+                : directionKey === 'dz-dz'
+                    ? dzDzIndex
+                    : directionKey === 'en-dz'
+                        ? enDzIndex
+                        : tenseIndex;
 
     const exactMatches = uniqueEntries(
         getIndexedMatches(index, normalizedQuery, query),
-        directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense'
+        directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'public-service' ? 'publicService' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense'
     );
     if (exactMatches.length) return exactMatches;
 
@@ -1323,6 +1370,7 @@ function getSearchGroups(query, normalizedQuery) {
         dzDz: searchEntriesByQuery(dzDzEntries, 'dz-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         enDz: searchEntriesByQuery(enDzEntries, 'en-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         countries: searchEntriesByQuery(countryEntries, 'countries', query, normalizedQuery, false),
+        publicService: searchEntriesByQuery(publicServiceEntries, 'public-service', query, normalizedQuery, false),
         tense: findTenseMatches(query)
     };
 }
@@ -1362,6 +1410,7 @@ function searchWord() {
         ]
         : [
             { entries: groups.enDz, type: 'enDz' },
+            { entries: groups.publicService, type: 'publicService' },
             { entries: groups.countries, type: 'countries' }
         ];
 
