@@ -33,8 +33,10 @@ COLUMN_MAP = {
     "source": "source",
     "ཚིག་སྡེ།": "type",
     "རྫོང་ཁའི་དོ་མཉམ།": "equivalent",
-    "རྒྱལ་ཁབ།": "root",
-    "རྒྱལ་ས།": "equivalent",
+    "country": "root",
+    "capital": "equivalent",
+    "རྒྱལ་ཁབ།": "countryDz",
+    "རྒྱལ་ས།": "capitalDz",
     "meaning": "meaning",
 
     # Dzongkha → English

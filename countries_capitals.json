@@ -1,1057 +1,1479 @@
 [
   {
+    "no": "1",
     "root": "Afghanistan",
+    "countryDz": "ཨཕ་ག་ནིས་ཏཱན།",
     "equivalent": "Kabul",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀ་བྷུལ།"
   },
   {
+    "no": "2",
     "root": "Albania",
+    "countryDz": "ཨཱལ་བེ་ནི་ཡ།",
     "equivalent": "Tirane",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊ་ར་ནི།"
   },
   {
+    "no": "3",
     "root": "Algeria",
+    "countryDz": "ཨཱལ་ཇི་རི་ཡ།",
     "equivalent": "Algiers",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨལ་ཇི་ཡས།"
   },
   {
+    "no": "4",
     "root": "Andorra",
+    "countryDz": "ཨཱན་དོ་ར།",
     "equivalent": "Andorra la Vella",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨཱན་དོ་ར་ ལ་ བེ་ལི་ཡ།"
   },
   {
+    "no": "5",
     "root": "Angola",
+    "countryDz": "ཨང་གྷོ་ལ།",
     "equivalent": "Luanda",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལུ་ཝེན་ཌ།"
   },
   {
+    "no": "6",
     "root": "Antigua and Barbuda",
+    "countryDz": "ཨན་ཊི་གུ་ཝ་ ཨེནཌ་ བྷར་བྷུ་ཌ།",
     "equivalent": "Saint John’s",
-    "source": "Names of countries and capital"
+    "capitalDz": "སེནཊ་ ཇཱོན།"
   },
   {
+    "no": "7",
     "root": "Argentina",
+    "countryDz": "ཨར་ཇེན་ཊི་ན།",
     "equivalent": "Buenos Aires",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷུའི་ནོས་ ཨའི་རིས།"
   },
   {
+    "no": "8",
     "root": "Armenia",
+    "countryDz": "ཨར་མི་ནི་ཡ།",
     "equivalent": "Yerevan",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཡི་ར་བཱན།"
   },
   {
+    "no": "9",
     "root": "Australia",
+    "countryDz": "ཨཱོས་ཊེ་ལི་ཡ།",
     "equivalent": "Canberra",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀེམ་བཱ་ར།"
   },
   {
+    "no": "10",
     "root": "Austria",
+    "countryDz": "ཨཱོས་ཊི་ཡ།",
     "equivalent": "Vienna",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཝི་ཡེ་ན།"
   },
   {
+    "no": "11",
     "root": "Azerbaijan",
+    "countryDz": "ཨ་ཛར་བྷའི་ཇཱན།",
     "equivalent": "Baku",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷ་ཀུ།"
   },
   {
+    "no": "12",
     "root": "Bahamas (the)",
+    "countryDz": "བྷ་ཧ་མཱས།",
     "equivalent": "Nassau",
-    "source": "Names of countries and capital"
+    "capitalDz": "ན་སཽ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "13",
     "root": "Bahrain",
+    "countryDz": "བྷ་རེན།",
     "equivalent": "Manama",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་ན་མ།"
   },
   {
+    "no": "14",
     "root": "Bangladesh",
+    "countryDz": "བྷང་ལ་དེཤ།",
     "equivalent": "Dhaka",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌཱ་ཀ།"
   },
   {
+    "no": "15",
     "root": "Barbados",
+    "countryDz": "བྷར་བེ་ཌོས།",
     "equivalent": "Bridgetown",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྲྀཇ་ཊ་འུན།"
   },
   {
+    "no": "16",
     "root": "Belarus",
+    "countryDz": "བྷེ་ལ་རུས།",
     "equivalent": "Minsk",
-    "source": "Names of countries and capital"
+    "capitalDz": "མིནསཀ།"
   },
   {
+    "no": "17",
     "root": "Belgium",
+    "countryDz": "བྷེལ་ཇམ།",
     "equivalent": "Brussels",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྲ་སེལས།"
   },
   {
+    "no": "18",
     "root": "Belize",
+    "countryDz": "བྷེ་ལིཛ།",
     "equivalent": "Belmopan",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷེལ་མོ་པེན།"
   },
   {
+    "no": "19",
     "root": "Benin",
+    "countryDz": "བྷེ་ནིན།",
     "equivalent": "Porto Novo",
-    "source": "Names of countries and capital"
+    "capitalDz": "པོར་ཏོ་ནོ་བོ།"
   },
   {
+    "no": "20",
     "root": "Bhutan",
+    "countryDz": "བྷུ་ཊཱན། (འབྲུག)",
     "equivalent": "Thimphu",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཐིམ་ཕུག"
   },
   {
+    "no": "21",
     "root": "Bolivia",
+    "countryDz": "བྷེ་ལི་བི་ཡ།",
     "equivalent": "La Paz",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལ་པཱཛ།"
   },
   {
+    "no": "22",
     "root": "Bosnia-Herzegovina",
+    "countryDz": "བྷོས་ནི་ཡ་ ཧར་ཛི་གྷོ་བི་ན།",
     "equivalent": "Sarajevo",
-    "source": "Names of countries and capital"
+    "capitalDz": "ས་ར་ཡེ་བོ།"
   },
   {
+    "no": "23",
     "root": "Botswana",
+    "countryDz": "བྷོཙ་ཝ་ན།",
     "equivalent": "Gaborone",
-    "source": "Names of countries and capital"
+    "capitalDz": "གྷ་བྷོ་རོ་ནེ།"
   },
   {
+    "no": "24",
     "root": "Brazil",
+    "countryDz": "བྲ་ཛིལ།",
     "equivalent": "Brasilia",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྲ་ཛི་ལི་ཡ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "25",
     "root": "Brunei",
+    "countryDz": "བྷྲུ་ནའི།",
     "equivalent": "Bandar Seri Begawan",
-    "source": "Names of countries and capital"
+    "capitalDz": "བཱན་དྷར་ ཤྲཱི་ བྷ་ག་ཝཱན།"
   },
   {
+    "no": "26",
     "root": "Bulgaria",
+    "countryDz": "བཱལ་གེ་རི་ཡ།",
     "equivalent": "Sofia",
-    "source": "Names of countries and capital"
+    "capitalDz": "སོ་ཕི་ཡ།"
   },
   {
+    "no": "27",
     "root": "Burkina Faso",
+    "countryDz": "བྷར་ཀི་ན་ ཕེ་སོ།",
     "equivalent": "Ouagadougou",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཝ་གཱ་ཌུ་གུ།"
   },
   {
+    "no": "28",
     "root": "Burundi",
+    "countryDz": "བྷུ་རུན་ཌི།",
     "equivalent": "Bujumbura",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷུ་ཇུམ་བྷུ་ར།"
   },
   {
+    "no": "29",
     "root": "Cambodia",
+    "countryDz": "ཀེམ་བྷོ་ཌི་ཡ།",
     "equivalent": "Phnom Penh",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཕེ་ནོམ་པེན།"
   },
   {
+    "no": "30",
     "root": "Cameroon",
+    "countryDz": "ཀེ་མ་རུན།",
     "equivalent": "Yaounde",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཡ་འུན་ཌི།"
   },
   {
+    "no": "31",
     "root": "Canada",
+    "countryDz": "ཀེ་ན་ཌ།",
     "equivalent": "Ottawa",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨོ་ཊ་ཝ།"
   },
   {
+    "no": "32",
     "root": "Cape Verde",
+    "countryDz": "ཀེཔ་བཱཌ།",
     "equivalent": "Praia",
-    "source": "Names of countries and capital"
+    "capitalDz": "པྲ་ཡ།"
   },
   {
+    "no": "33",
     "root": "Central African Republic (the)",
+    "countryDz": "སེན་ཊལ་ ཨཕ་རི་ཀཱན་ རི་པབ་ལིཀ།",
     "equivalent": "Bangui",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷང་གི།"
   },
   {
+    "no": "34",
     "root": "Chad",
+    "countryDz": "ཅཱཌ།",
     "equivalent": "N’Djamena",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨོན་ཇཱ་མི་ན།"
   },
   {
+    "no": "35",
     "root": "Chile",
+    "countryDz": "ཅི་ལི།",
     "equivalent": "Santiago",
-    "source": "Names of countries and capital"
+    "capitalDz": "སཱན་ཊི་ཡ་གྷོ།"
   },
   {
+    "no": "36",
     "root": "China",
+    "countryDz": "ཅཱའི་ན། (རྒྱ་ནག)",
     "equivalent": "Beijing",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷེ་ཇིང་།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "37",
     "root": "Colombia",
+    "countryDz": "ཀོ་ལོམ་བྷི་ཡ།",
     "equivalent": "Bogota",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷོ་ག་ཊ།"
   },
   {
+    "no": "38",
     "root": "Comoros",
+    "countryDz": "ཀོ་མོ་རོས།",
     "equivalent": "Moroni",
-    "source": "Names of countries and capital"
+    "capitalDz": "མོ་རོ་ནི།"
   },
   {
+    "no": "39",
     "root": "Republic of Congo (the)",
+    "countryDz": "རི་པབ་ལིཀ་ ཨོཕ་ ཀོང་གྷོ།",
     "equivalent": "Brazzaville",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷྲ་ཛ་བིལ།"
   },
   {
+    "no": "40",
     "root": "Democratic Republic of Congo (the)",
+    "countryDz": "ཌེ་མོ་ཀེརེ་ཊིཀ་ རི་པབ་ལིཀ་ ཨོཕ་ ཀོང་གྷོ།",
     "equivalent": "Kinshasa",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀིན་ཤ་ས།"
   },
   {
+    "no": "41",
     "root": "Costa Rica",
+    "countryDz": "ཀོས་ཊ་རི་ཀ།",
     "equivalent": "San Jose",
-    "source": "Names of countries and capital"
+    "capitalDz": "སེན་ཧོ་ཟེ།"
   },
   {
+    "no": "42",
     "root": "Cote d’Ivoire",
+    "countryDz": "ཀོཊ་ ཌི་ཝཱ།",
     "equivalent": "Yamoussoukro",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཡ་མོ་སུ་ཀྲོ།"
   },
   {
+    "no": "43",
     "root": "Croatia",
+    "countryDz": "ཀྲོ་ཨེ་ཤ།",
     "equivalent": "Zagreb",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཛཱ་གྲྀབ།"
   },
   {
+    "no": "44",
     "root": "Cuba",
+    "countryDz": "ཀིའུ་བྷ།",
     "equivalent": "Havana",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཧ་བེ་ན།"
   },
   {
+    "no": "45",
     "root": "Cyprus",
+    "countryDz": "སཱའི་པྲས།",
     "equivalent": "Nicosia",
-    "source": "Names of countries and capital"
+    "capitalDz": "ནི་ཀ་སི་ཡ།"
   },
   {
+    "no": "46",
     "root": "Czech Republic (the)",
+    "countryDz": "ཅེཀ་ རི་པབ་ལིཀ།",
     "equivalent": "Prague",
-    "source": "Names of countries and capital"
+    "capitalDz": "པྲག"
   },
   {
+    "no": "47",
     "root": "Denmark",
+    "countryDz": "ཌེན་མཱཀ།",
     "equivalent": "Copenhagen",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀོ་པེན་ཧེ་གེན།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "48",
     "root": "Djibouti",
+    "countryDz": "ཇི་བྷུ་ཊི།",
     "equivalent": "Djibouti",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཇི་བྷུ་ཊི།"
   },
   {
+    "no": "49",
     "root": "Dominica",
+    "countryDz": "ཌོ་མི་ནི་ཀ།",
     "equivalent": "Roseau",
-    "source": "Names of countries and capital"
+    "capitalDz": "རོ་ཟཽ།"
   },
   {
+    "no": "50",
     "root": "Dominican Republic",
+    "countryDz": "ཌོ་མི་ནི་ཀཱན་ རི་པབ་ལིཀ།",
     "equivalent": "Santo Domingo",
-    "source": "Names of countries and capital"
+    "capitalDz": "སཱན་ཊོ་ ཌོ་མིང་གྷོ།"
   },
   {
+    "no": "51",
     "root": "East Timor",
+    "countryDz": "ཨིས་ ཊི་མོར།",
     "equivalent": "Dili",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌི་ལི།"
   },
   {
+    "no": "52",
     "root": "Ecuador",
+    "countryDz": "ཨེ་ཀུ་ཌཽ།",
     "equivalent": "Quito",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀི་ཊཽ།"
   },
   {
+    "no": "53",
     "root": "Egypt",
+    "countryDz": "ཨི་ཇིབཊ།",
     "equivalent": "Cairo",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀཱའི་རོ།"
   },
   {
+    "no": "54",
     "root": "El Salvador",
+    "countryDz": "ཨེལ་ སཱལ་བ་ཌཽ།",
     "equivalent": "San Salvador",
-    "source": "Names of countries and capital"
+    "capitalDz": "སེན་ སཱལ་བ་ཌཽ།"
   },
   {
+    "no": "55",
     "root": "Equatorial Guinea",
+    "countryDz": "ཨེ་ཀུ་ཊོ་རེལ་ གི་ནི།",
     "equivalent": "Malabo",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་ལ་བྷོ།"
   },
   {
+    "no": "56",
     "root": "Eritrea",
+    "countryDz": "ཨེ་རི་ཊེ་ཡ།",
     "equivalent": "Asmara",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨཱས་མ་ར།"
   },
   {
+    "no": "57",
     "root": "Estonia",
+    "countryDz": "ཨེས་ཊོ་ནི་ཡ།",
     "equivalent": "Tallinn",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊཱ་ལཱིན།"
   },
   {
+    "no": "58",
     "root": "Ethiopia",
+    "countryDz": "ཨི་ཐི་ཡོ་པི་ཡ།",
     "equivalent": "Addis Ababa",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨ་ཌིས་ ཨ་བྷ་བྷ།"
   },
   {
+    "no": "59",
     "root": "Fiji",
+    "countryDz": "ཕི་ཇི།",
     "equivalent": "Suva",
-    "source": "Names of countries and capital"
+    "capitalDz": "སུ་བཱ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "60",
     "root": "Finland",
+    "countryDz": "ཕིན་ལེནཌ།",
     "equivalent": "Helsinki",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཧེལ་སིང་ཀི།"
   },
   {
+    "no": "61",
     "root": "France",
+    "countryDz": "ཕྲནས།",
     "equivalent": "Paris",
-    "source": "Names of countries and capital"
+    "capitalDz": "པེ་རིས།"
   },
   {
+    "no": "62",
     "root": "Gabon",
+    "countryDz": "གྷེ་བྷོན།",
     "equivalent": "Libreville",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལི་བྷྲ་བིལ།"
   },
   {
+    "no": "63",
     "root": "Gambia (the)",
+    "countryDz": "གྷེམ་བི་ཡ།",
     "equivalent": "Banjul",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷཱན་ཇུལ།"
   },
   {
+    "no": "64",
     "root": "Georgia",
+    "countryDz": "ཇཽ་ཇཱ།",
     "equivalent": "Tbilisi",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊི་བི་ལི་སི།"
   },
   {
+    "no": "65",
     "root": "Germany",
+    "countryDz": "ཇཱར་མ་ནི།",
     "equivalent": "Berlin",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷར་ལིན།"
   },
   {
+    "no": "66",
     "root": "Ghana",
+    "countryDz": "གྷ་ན།",
     "equivalent": "Accra",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨེཀ་ཀྲ།"
   },
   {
+    "no": "67",
     "root": "Greece",
+    "countryDz": "གྲྀས།",
     "equivalent": "Athens",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨེ་ཐེནས།"
   },
   {
+    "no": "68",
     "root": "Grenada",
+    "countryDz": "གྲྀ་ན་ཌ།",
     "equivalent": "Saint George’s",
-    "source": "Names of countries and capital"
+    "capitalDz": "སེནཊ་ ཇོར་ཇེས།"
   },
   {
+    "no": "69",
     "root": "Guatemala",
+    "countryDz": "གྷོ་ཊ་མ་ལ།",
     "equivalent": "Guatemala City",
-    "source": "Names of countries and capital"
+    "capitalDz": "གྷོ་ཊ་མ་ལ་ སི་ཊི།"
   },
   {
+    "no": "70",
     "root": "Guinea",
+    "countryDz": "གྷི་ནི།",
     "equivalent": "Conakry",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀོ་ན་ཀྲྀ།"
   },
   {
+    "no": "71",
     "root": "Guinea Bissau",
+    "countryDz": "གྷི་ནི་ བྷི་སཱའུ།",
     "equivalent": "Bissau",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷི་སཱའུ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "72",
     "root": "Guyana",
+    "countryDz": "གྷ་ཡ་ན།",
     "equivalent": "Georgetown",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཇཽཅ་ཊ་འུན།"
   },
   {
+    "no": "73",
     "root": "Haiti",
+    "countryDz": "ཧེ་ཊི།",
     "equivalent": "Port au Prince",
-    "source": "Names of countries and capital"
+    "capitalDz": "པཽཊ་ ཨའུ་ པྲྀནས།"
   },
   {
+    "no": "74",
     "root": "Honduras",
+    "countryDz": "ཧཱན་ཌུ་རཱས།",
     "equivalent": "Tegucigalpa",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊི་གུ་སི་གཱལ་པ།"
   },
   {
+    "no": "75",
     "root": "Hungary",
+    "countryDz": "ཧཱང་གྷ་རི།",
     "equivalent": "Budapest",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷུ་ཌ་པེསཊ།"
   },
   {
+    "no": "76",
     "root": "Iceland",
+    "countryDz": "ཨཱའིས་ལེནཌ།",
     "equivalent": "Reykjavik",
-    "source": "Names of countries and capital"
+    "capitalDz": "རེ་ཁི་ཡ་བིཀ།"
   },
   {
+    "no": "77",
     "root": "India",
+    "countryDz": "ཨིན་ཌི་ཡ། (རྒྱ་གར)",
     "equivalent": "New Delhi",
-    "source": "Names of countries and capital"
+    "capitalDz": "ནིའུ་ཌེ་ལི།"
   },
   {
+    "no": "78",
     "root": "Indonesia",
+    "countryDz": "ཨིན་ཌོ་ནེ་ཤི་ཡ།",
     "equivalent": "Jakarta",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཇཱ་ཀར་ཊ།"
   },
   {
+    "no": "79",
     "root": "Iran",
+    "countryDz": "ཨི་རཱན།",
     "equivalent": "Tehran",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊེ་རཱན།"
   },
   {
+    "no": "80",
     "root": "Iraq",
+    "countryDz": "ཨི་རཱཀ།",
     "equivalent": "Baghdad",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷག་ཌཌ།"
   },
   {
+    "no": "81",
     "root": "Ireland",
+    "countryDz": "ཨཱ་ཡ་ལེནཌ།",
     "equivalent": "Dublin",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌབ་ལིན།"
   },
   {
+    "no": "82",
     "root": "Israel",
+    "countryDz": "ཨིས་རེལ།",
     "equivalent": "Jerusalem",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཇུ་རུ་ས་ལེམ།"
   },
   {
+    "no": "83",
     "root": "Italy",
+    "countryDz": "ཨི་ཊ་ལི།",
     "equivalent": "Rome",
-    "source": "Names of countries and capital"
+    "capitalDz": "རཽམ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "84",
     "root": "Jamaica",
+    "countryDz": "ཇཱ་མཻ་ཀ།",
     "equivalent": "Kingston",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀིངས་ཊན།"
   },
   {
+    "no": "85",
     "root": "Japan",
+    "countryDz": "ཇཱ་པཱན།",
     "equivalent": "Tokyo",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊོ་ཀི་ཡོ།"
   },
   {
+    "no": "86",
     "root": "Jordan",
+    "countryDz": "ཇོར་ཌན།",
     "equivalent": "Amman",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨ་མཱན།"
   },
   {
+    "no": "87",
     "root": "Kazakhstan",
+    "countryDz": "ཀ་ཛགས་ཏཱན།",
     "equivalent": "Astana/Almaty",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨཱས་ཊ་ན་/ཨཱལ་མ་ཊི།"
   },
   {
+    "no": "88",
     "root": "Kenya",
+    "countryDz": "ཀེན་ཡ།",
     "equivalent": "Nairobi",
-    "source": "Names of countries and capital"
+    "capitalDz": "ནཱའི་རོ་བི།"
   },
   {
+    "no": "89",
     "root": "Kiribati",
+    "countryDz": "ཀི་རི་བྷ་ཊི།",
     "equivalent": "Tarawa Atoll /Bairiki",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཏ་ར་ཝ་ཨ་ཊོལ་/བྷེ་རི་ཀི།"
   },
   {
+    "no": "90",
     "root": "Kosovo",
+    "countryDz": "ཀོ་སོ་བྷོ།",
     "equivalent": "Pristina",
-    "source": "Names of countries and capital"
+    "capitalDz": "པྲྀཤ་ཊི་ན།"
   },
   {
+    "no": "91",
     "root": "Kuwait",
+    "countryDz": "ཀུ་ཝེཊ།",
     "equivalent": "Kuwait City",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀུ་ཝེཊ་ སི་ཊི།"
   },
   {
+    "no": "92",
     "root": "Kyrgyzstan",
+    "countryDz": "ཀིར་གིས་ཏཱན།",
     "equivalent": "Bishkek",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷིཤ་ཀེཀ།"
   },
   {
+    "no": "93",
     "root": "Laos",
+    "countryDz": "ལཱ་ཝོས།",
     "equivalent": "Vientiane",
-    "source": "Names of countries and capital"
+    "capitalDz": "བི་ཡཱན་ཊི་ཡཱན།"
   },
   {
+    "no": "94",
     "root": "Latvia",
+    "countryDz": "ལཊ་བི་ཡ།",
     "equivalent": "Riga",
-    "source": "Names of countries and capital"
+    "capitalDz": "རི་གྷ།"
   },
   {
+    "no": "95",
     "root": "Lebanon",
+    "countryDz": "ལེ་བ་ནོན།",
     "equivalent": "Beirut",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷེ་རུཊ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "96",
     "root": "Lesotho",
+    "countryDz": "ལེ་སོ་ཐྲོ།",
     "equivalent": "Maseru",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་ས་རུ།"
   },
   {
+    "no": "97",
     "root": "Liberia",
+    "countryDz": "ལཱའི་བེ་རི་ཡ།",
     "equivalent": "Monrovia",
-    "source": "Names of countries and capital"
+    "capitalDz": "མཱན་རོ་བི་ཡ།"
   },
   {
+    "no": "98",
     "root": "Libya",
+    "countryDz": "ལི་བི་ཡ།",
     "equivalent": "Tripoli",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊི་པ་ལི།"
   },
   {
+    "no": "99",
     "root": "Liechtenstein",
+    "countryDz": "ལིཀ་ཏནས་ཏ་ཡིན།",
     "equivalent": "Vaduz",
-    "source": "Names of countries and capital"
+    "capitalDz": "བ་དུདས།"
   },
   {
+    "no": "100",
     "root": "Lithuania",
+    "countryDz": "ལི་ཐུ་ཝེ་ནི་ཡ།",
     "equivalent": "Vilnius",
-    "source": "Names of countries and capital"
+    "capitalDz": "བིལ་ནི་ཡཱས།"
   },
   {
+    "no": "101",
     "root": "Luxembourg",
+    "countryDz": "ལག་སམ་བྷཀ།",
     "equivalent": "Luxembourg",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལག་སམ་བྷཀ།"
   },
   {
+    "no": "102",
     "root": "Macedonia",
+    "countryDz": "མ་སེ་ཌོ་ནི་ཡ།",
     "equivalent": "Skopje",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨིས་ཀོབ་པི་ཡེ།"
   },
   {
+    "no": "103",
     "root": "Madagascar",
+    "countryDz": "མ་དཱ་གེས་ཀར།",
     "equivalent": "Antananarivo",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨཱན་ཏ་ན་ན་དི་བོ།"
   },
   {
+    "no": "104",
     "root": "Malawi",
+    "countryDz": "མ་ལ་ཝི།",
     "equivalent": "Lilongwe",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལི་ལོང་ཝེ།"
   },
   {
+    "no": "105",
     "root": "Malaysia",
+    "countryDz": "མ་ལེ་ཤི་ཡ།",
     "equivalent": "Kuala Lumpur",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀཽ་ལ་ ལམ་པུར།"
   },
   {
+    "no": "106",
     "root": "Maldives",
+    "countryDz": "མཱལ་དིབས།",
     "equivalent": "Male",
-    "source": "Names of countries and capital"
+    "capitalDz": "མཱ་ལེ།"
   },
   {
+    "no": "107",
     "root": "Mali",
+    "countryDz": "མཱ་ལི།",
     "equivalent": "Bamako",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷ་མ་ཀོ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "108",
     "root": "Malta",
+    "countryDz": "མོལ་ཊ།",
     "equivalent": "Valletta",
-    "source": "Names of countries and capital"
+    "capitalDz": "བཱ་ལེ་ཊ།"
   },
   {
+    "no": "109",
     "root": "Marshall Islands (the)",
+    "countryDz": "མར་ཤལ་ ཨཱའི་ལེནཌས།",
     "equivalent": "Majuro",
-    "source": "Names of countries and capital"
+    "capitalDz": "མེ་ཇུ་རོ།"
   },
   {
+    "no": "110",
     "root": "Mauritania",
+    "countryDz": "མོ་རི་ཊེ་ནི་ཡ།",
     "equivalent": "Nouakchott",
-    "source": "Names of countries and capital"
+    "capitalDz": "ནུ་ཨཀ་ཤཽཊ།"
   },
   {
+    "no": "111",
     "root": "Mauritius",
+    "countryDz": "མོ་རི་ཤཱས།",
     "equivalent": "Port Louis",
-    "source": "Names of countries and capital"
+    "capitalDz": "པཽཊ་ ལུ་ཡི།"
   },
   {
+    "no": "112",
     "root": "Mexico",
+    "countryDz": "མེཀ་སི་ཀོ།",
     "equivalent": "Mexico City",
-    "source": "Names of countries and capital"
+    "capitalDz": "མེཀ་སི་ཀོ་ སི་ཊི།"
   },
   {
+    "no": "113",
     "root": "Federated States of Micronesia",
+    "countryDz": "ཕེ་ཌ་རེ་ཊེཌ་ ཨིས་ཊེཊས་ ཨོཕ་ མའི་ཀྲོ་ནི་ཤི་ཡ།",
     "equivalent": "Palikir",
-    "source": "Names of countries and capital"
+    "capitalDz": "པཱ་ལི་ཀིར།"
   },
   {
+    "no": "114",
     "root": "Moldova",
+    "countryDz": "མོལ་དོ་བཱ།",
     "equivalent": "Chisinau",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀི་ཤི་ནཱཝ།"
   },
   {
+    "no": "115",
     "root": "Monaco",
+    "countryDz": "མོ་ན་ཀོ།",
     "equivalent": "Monaco",
-    "source": "Names of countries and capital"
+    "capitalDz": "མོ་ན་ཀོ།"
   },
   {
+    "no": "116",
     "root": "Mongolia",
+    "countryDz": "མོང་གྷོ་ལི་ཡ། (སོག་པོ)",
     "equivalent": "Ulaanbaatar",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨུ་ལཱན་བྷ་ཏོར།"
   },
   {
+    "no": "117",
     "root": "Montenegro",
+    "countryDz": "མོན་ཊེ་ནེ་གྲོ།",
     "equivalent": "Podgorica",
-    "source": "Names of countries and capital"
+    "capitalDz": "པོཌ་གྷོ་རི་ཙ།"
   },
   {
+    "no": "118",
     "root": "Morocco",
+    "countryDz": "མོ་རོ་ཀོ།",
     "equivalent": "Rabat",
-    "source": "Names of countries and capital"
+    "capitalDz": "ར་བྷཊ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "119",
     "root": "Mozambique",
+    "countryDz": "མོ་ཛམ་བྷིཀ།",
     "equivalent": "Maputo",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་པུ་ཏོ།"
   },
   {
+    "no": "120",
     "root": "Myanmar (Burma)",
+    "countryDz": "མི་ཡཱན་མར། (བྷར་མ)",
     "equivalent": "Rangoon (Yangon)",
-    "source": "Names of countries and capital"
+    "capitalDz": "རང་གྷུན། (ཡང་གྷོན)"
   },
   {
+    "no": "121",
     "root": "Namibia",
+    "countryDz": "ན་མི་བི་ཡ།",
     "equivalent": "Windhoek",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཝིནཌ་ཧུཀ།"
   },
   {
+    "no": "122",
     "root": "Nauru",
+    "countryDz": "ནཱཝ་རུ།",
     "equivalent": "Yaren",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཡཱ་རེན།"
   },
   {
+    "no": "123",
     "root": "Nepal",
+    "countryDz": "ནེ་པཱལ། (བལ་པོ)",
     "equivalent": "Kathmandu",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀཱཊ་མཱན་ཌུ།"
   },
   {
+    "no": "124",
     "root": "Netherlands (the)",
+    "countryDz": "ནེ་དྷར་ལེནཌས།",
     "equivalent": "Amsterdam",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨམས་ཊར་ཌམ།"
   },
   {
+    "no": "125",
     "root": "New Zealand",
+    "countryDz": "ནིའུ་ཛི་ལེནཌ།",
     "equivalent": "Wellington",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཝེ་ལིང་ཊན།"
   },
   {
+    "no": "126",
     "root": "Nicaragua",
+    "countryDz": "ནི་ཀྲ་གི་ཝ།",
     "equivalent": "Managua",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་ན་གུ་ཝ།"
   },
   {
+    "no": "127",
     "root": "Niger",
+    "countryDz": "ནཱའི་ཇཱ།",
     "equivalent": "Niamey",
-    "source": "Names of countries and capital"
+    "capitalDz": "ནི་ཡ་མེ།"
   },
   {
+    "no": "128",
     "root": "Nigeria",
+    "countryDz": "ནཱའི་ཇི་རི་ཡ།",
     "equivalent": "Abuja",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨ་བྷུ་ཇཱ།"
   },
   {
+    "no": "129",
     "root": "Norway",
+    "countryDz": "ནོར་ཝེ།",
     "equivalent": "Oslo",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨཽས་ལོ།"
   },
   {
+    "no": "130",
     "root": "North Korea",
+    "countryDz": "ནོརཐ་ ཀོ་རི་ཡ།",
     "equivalent": "Pyongyang",
-    "source": "Names of countries and capital"
+    "capitalDz": "པི་ཡོང་ཡང་།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "131",
     "root": "Oman",
+    "countryDz": "ཨོ་མཱན།",
     "equivalent": "Muscat",
-    "source": "Names of countries and capital"
+    "capitalDz": "མཱས་ཀེཊ།"
   },
   {
+    "no": "132",
     "root": "Pakistan",
+    "countryDz": "པ་ཀིས་ཏཱན།",
     "equivalent": "Islamabad",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨིས་ལ་མ་བྷཌ།"
   },
   {
+    "no": "133",
     "root": "Palau",
+    "countryDz": "པ་ལཱཝ།",
     "equivalent": "ngerulmud",
-    "source": "Names of countries and capital"
+    "capitalDz": "ངེ་རུལ་མུཌ།"
   },
   {
+    "no": "134",
     "root": "Panama",
+    "countryDz": "པ་ན་མ།",
     "equivalent": "Panama City",
-    "source": "Names of countries and capital"
+    "capitalDz": "པ་ན་མ་ སི་ཊི།"
   },
   {
+    "no": "135",
     "root": "Papua New Guinea",
+    "countryDz": "པ་པུ་ ནིའུ་ གི་ནི།",
     "equivalent": "Port Moresby",
-    "source": "Names of countries and capital"
+    "capitalDz": "པཽཊ་ མཽས་བྷི།"
   },
   {
+    "no": "136",
     "root": "Paraguay",
+    "countryDz": "པ་ར་གུ་ཝའི།",
     "equivalent": "Asuncion",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨ་སུན་སི་འོན།"
   },
   {
+    "no": "137",
     "root": "Peru",
+    "countryDz": "པ་རུ།",
     "equivalent": "Lima",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལི་མ།"
   },
   {
+    "no": "138",
     "root": "Philippines (the)",
+    "countryDz": "ཕི་ལི་པིནས།",
     "equivalent": "Manila",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་ནི་ལ།"
   },
   {
+    "no": "139",
     "root": "Poland",
+    "countryDz": "པོ་ལེནཌ།",
     "equivalent": "Warsaw",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཝར་སོ།"
   },
   {
+    "no": "140",
     "root": "Portugal",
+    "countryDz": "པོར་ཅུ་གཱལ།",
     "equivalent": "Lisbon",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལིས་བཱན།"
   },
   {
+    "no": "141",
     "root": "Qatar",
+    "countryDz": "ཀ་ཊར།",
     "equivalent": "Doha",
-    "source": "Names of countries and capital"
+    "capitalDz": "དྷོ་ཧ།"
   },
   {
+    "no": "142",
     "root": "Romania",
+    "countryDz": "རོ་མེ་ནི་ཡ།",
     "equivalent": "Bucharest",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷུ་ཀ་རེསཊ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "143",
     "root": "Russia",
+    "countryDz": "རཱ་ཤི་ཡ།",
     "equivalent": "Moscow",
-    "source": "Names of countries and capital"
+    "capitalDz": "མཽས་ཀོ།"
   },
   {
+    "no": "144",
     "root": "Rwanda",
+    "countryDz": "རུ་ཝན་ཌ།",
     "equivalent": "Kigali",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀི་གྷ་ལི།"
   },
   {
+    "no": "145",
     "root": "Saint Kitts Nevis",
+    "countryDz": "སེནཊ་ ཀིཊས་ ནེ་བིས།",
     "equivalent": "Basseterre",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷཱས་ཊེ་ཡར།"
   },
   {
+    "no": "146",
     "root": "Saint Lucia",
+    "countryDz": "སེནཊ་ ལུ་སི་ཡ།",
     "equivalent": "Castries",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀེས་ཏྲྀས།"
   },
   {
+    "no": "147",
     "root": "Saint Vincent",
+    "countryDz": "སེནཊ་ བིན་སེནཊ།",
     "equivalent": "Kingstown",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀིངས་ཊ་འུན།"
   },
   {
+    "no": "148",
     "root": "Samoa",
+    "countryDz": "ས་མོ་ཝ།",
     "equivalent": "Apia",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨ་པི་ཡ།"
   },
   {
+    "no": "149",
     "root": "San Marino",
+    "countryDz": "སན་ མ་རི་ནོ།",
     "equivalent": "San Marino",
-    "source": "Names of countries and capital"
+    "capitalDz": "སན་ མ་རི་ནོ།"
   },
   {
+    "no": "150",
     "root": "Sao Tome and Principe",
+    "countryDz": "སཝ་ ཊོ་མེ་ ཨེནཌ་ པྲྀན་སི་པེ།",
     "equivalent": "Sao Tome",
-    "source": "Names of countries and capital"
+    "capitalDz": "སཝ་ ཊོ་མེ།"
   },
   {
+    "no": "151",
     "root": "Saudi Arabia",
+    "countryDz": "སཱཝ་དི་ ཨ་རེ་བྷི་ཡ།",
     "equivalent": "Riyadh",
-    "source": "Names of countries and capital"
+    "capitalDz": "རི་ཡཱཌ།"
   },
   {
+    "no": "152",
     "root": "Senegal",
+    "countryDz": "སེ་ནི་གྷལ།",
     "equivalent": "Dakar",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌཱ་ཀར།"
   },
   {
+    "no": "153",
     "root": "Serbia",
+    "countryDz": "སཱར་བྷི་ཡ།",
     "equivalent": "Belgrade",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷེལ་གེ་རེཌ།"
   },
   {
+    "no": "154",
     "root": "Seychelles",
+    "countryDz": "སེ་ཤཱལས།",
     "equivalent": "Victoria",
-    "source": "Names of countries and capital"
+    "capitalDz": "བིཀ་ཊོ་རི་ཡ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "155",
     "root": "Sierra Leone",
+    "countryDz": "སི་ར་ ལི་འོན།",
     "equivalent": "Freetown",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཕྲྀ་ཊ་འུན།"
   },
   {
+    "no": "156",
     "root": "Singapore",
+    "countryDz": "སིང་ག་པོར།",
     "equivalent": "Singapore",
-    "source": "Names of countries and capital"
+    "capitalDz": "སིང་ག་པོར།"
   },
   {
+    "no": "157",
     "root": "Slovakia",
+    "countryDz": "སུ་ལོ་བཱ་ཀི་ཡ།",
     "equivalent": "Bratislava",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷྲ་ཊིས་ལ་བ།"
   },
   {
+    "no": "158",
     "root": "Slovenia",
+    "countryDz": "སུ་ལོ་བི་ནི་ཡ།",
     "equivalent": "Ljubljana",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལུབ་ལི་ཡ་ན།"
   },
   {
+    "no": "159",
     "root": "Solomon Islands",
+    "countryDz": "སོ་ལོ་མོན་ ཨཱའི་ལེནཌས།",
     "equivalent": "Honiara",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཧོ་ནི་ཡ་ར།"
   },
   {
+    "no": "160",
     "root": "Somalia",
+    "countryDz": "སོ་མ་ལི་ཡ།",
     "equivalent": "Mogadishu",
-    "source": "Names of countries and capital"
+    "capitalDz": "མོ་གཱ་ཌི་ཤུ།"
   },
   {
+    "no": "161",
     "root": "South Africa",
+    "countryDz": "སཱའུཐ་ ཨཕ་རི་ཀ།",
     "equivalent": "Pretoria and Cape Town",
-    "source": "Names of countries and capital"
+    "capitalDz": "པྲྀ་ཊོ་རི་ཡ་ ཨེནཌ་ ཀེབ་ ཊ་འུན།"
   },
   {
+    "no": "162",
     "root": "South Korea",
+    "countryDz": "སཱའུཐ་ ཀོ་རི་ཡ།",
     "equivalent": "Seoul",
-    "source": "Names of countries and capital"
+    "capitalDz": "སོའུལ།"
   },
   {
+    "no": "163",
     "root": "Spain",
+    "countryDz": "ཨིས་པེན།",
     "equivalent": "Madrid",
-    "source": "Names of countries and capital"
+    "capitalDz": "མ་ཌེ་རེཌ།"
   },
   {
+    "no": "164",
     "root": "Sri Lanka",
+    "countryDz": "ཤྲི་ལང་ཀ།",
     "equivalent": "Colombo",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀོ་ལོམ་བྷོ།"
   },
   {
+    "no": "165",
     "root": "Sudan",
+    "countryDz": "སུ་ཌཱན།",
     "equivalent": "Khartoum",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཁཱར་ཊུམ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "166",
     "root": "Suriname",
+    "countryDz": "སུ་རི་ནཱམ།",
     "equivalent": "Paramaribo",
-    "source": "Names of countries and capital"
+    "capitalDz": "པ་ར་མ་རི་བྷོ།"
   },
   {
+    "no": "167",
     "root": "Swaziland",
+    "countryDz": "སུ་ཝ་ཛི་ལེནཌ།",
     "equivalent": "Mbabane",
-    "source": "Names of countries and capital"
+    "capitalDz": "འུམ་བྷ་བྷ་ནི།"
   },
   {
+    "no": "168",
     "root": "Sweden",
+    "countryDz": "སུའི་ཌེན།",
     "equivalent": "Stockholm",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨིས་ཊོཀ་ཧཽམ།"
   },
   {
+    "no": "169",
     "root": "Switzerland",
+    "countryDz": "སུ་ཝིཊ་ཛར་ལེནཌ།",
     "equivalent": "Bern",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷཱན།"
   },
   {
+    "no": "170",
     "root": "Syria",
+    "countryDz": "སི་རི་ཡ།",
     "equivalent": "Damascus",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌ་མཱས་ཀཱས།"
   },
   {
+    "no": "171",
     "root": "Taiwan",
+    "countryDz": "ཊཱའི་ཝཱན།",
     "equivalent": "Taipei",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊཱའི་པེ།"
   },
   {
+    "no": "172",
     "root": "Tajikistan",
+    "countryDz": "ཏ་ཇི་ཀིས་ཏཱན།",
     "equivalent": "Dushanbe",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌུ་ཤཱན་བེ།"
   },
   {
+    "no": "173",
     "root": "Tanzania",
+    "countryDz": "ཊཱན་ཛཱ་ནི་ཡ།",
     "equivalent": "Dodoma",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཌོ་ཌོ་མ།"
   },
   {
+    "no": "174",
     "root": "Thailand",
+    "countryDz": "ཐཱའི་ལེནཌ།",
     "equivalent": "Bangkok",
-    "source": "Names of countries and capital"
+    "capitalDz": "བྷེང་ཀོཀ།"
   },
   {
+    "no": "175",
     "root": "Togo",
+    "countryDz": "ཊོ་གྷོ།",
     "equivalent": "Lome",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལོ་མེ།"
   },
   {
+    "no": "176",
     "root": "Tonga",
+    "countryDz": "ཊོང་གྷ།",
     "equivalent": "Nuku’alofa",
-    "source": "Names of countries and capital"
+    "capitalDz": "ནུ་ཀུ་ཨ་ལོ་ཕ།"
   },
   {
+    "no": "177",
     "root": "Trinidad and Tobago",
+    "countryDz": "ཊི་ནི་ཌཱཌ་ ཨེནཌ་ ཊོ་བྷེ་གྷོ།",
     "equivalent": "Port-of-Spain",
-    "source": "Names of countries and capital"
+    "capitalDz": "པཽཊ་ ཨོཕ་ ཨིས་པཻན།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "178",
     "root": "Tunisia",
+    "countryDz": "ཊུ་ནི་ཤི་ཡ།",
     "equivalent": "Tunis",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊུ་ནིས།"
   },
   {
+    "no": "179",
     "root": "Turkey",
+    "countryDz": "ཊཱར་ཀི།",
     "equivalent": "Ankara",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨེང་ཀ་ར།"
   },
   {
+    "no": "180",
     "root": "Turkmenistan",
+    "countryDz": "ཊཱཀ་མེ་ནིས་ཏཱན།",
     "equivalent": "Ashgabat",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨཱཤ་གཱ་བྷཊ།"
   },
   {
+    "no": "181",
     "root": "Tuvalu",
+    "countryDz": "ཊུ་བྷ་ལུ།",
     "equivalent": "Vaiaku",
-    "source": "Names of countries and capital"
+    "capitalDz": "བ་ཡ་ཀུ།"
   },
   {
+    "no": "182",
     "root": "Uganda",
+    "countryDz": "ཡུ་གྷེན་ཌ།",
     "equivalent": "Kampala",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀེམ་པ་ལ།"
   },
   {
+    "no": "183",
     "root": "Ukraine",
+    "countryDz": "ཡུ་ཀེ་རེན།",
     "equivalent": "Kyiv/Kiev",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀི་ཡེབ།"
   },
   {
+    "no": "184",
     "root": "United Arab Emirates (the)",
+    "countryDz": "ཡུ་ནཱའི་ཊེཌ་ ཨ་རབ་ ཨེ་མེ་རེཊས།",
     "equivalent": "Abu Dhabi",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཨ་བྷུ་ཌ་བྷི།"
   },
   {
+    "no": "185",
     "root": "United Kingdom (UK)",
+    "countryDz": "ཡུ་ནཱའི་ཊེཌ་ ཀིང་ཌམ། (ཡུ་ཀེ)",
     "equivalent": "London",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལཱན་ཌཱན།"
   },
   {
+    "no": "186",
     "root": "United States of America (the)",
+    "countryDz": "ཡུ་ནཱའི་ཊེཌ་ ཨིས་ཊེཌས་ ཨོཕ་ ཨ་ མེ་རི་ཀ།",
     "equivalent": "Washington",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཝཱ་ཤིང་ཊཱན།"
   },
   {
+    "no": "187",
     "root": "Uruguay",
+    "countryDz": "ཡུ་རུ་གུ་ཝའི།",
     "equivalent": "Montevideo",
-    "source": "Names of countries and capital"
+    "capitalDz": "མོན་ཊེ་བྷི་ཌིའོ།"
   },
   {
+    "no": "188",
     "root": "Uzbekistan",
+    "countryDz": "ཨུས་བེ་ཀིས་ཏཱན།",
     "equivalent": "Tashkent",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཊཱཤ་ཀེནཊ།"
   },
   {
+    "no": "No.",
     "root": "Country",
+    "countryDz": "རྒྱལ་ཁབ།",
     "equivalent": "Capital",
-    "source": "Names of countries and capital"
+    "capitalDz": "རྒྱལ་ས།"
   },
   {
+    "no": "189",
     "root": "Vanuatu",
+    "countryDz": "བཱན་ཝ་ཊུ།",
     "equivalent": "Port Vila",
-    "source": "Names of countries and capital"
+    "capitalDz": "པཽཊ་ བི་ལ།"
   },
   {
+    "no": "190",
     "root": "Vatican City",
+    "countryDz": "བེ་ཊི་ཀཱན་ སི་ཊི།",
     "equivalent": "Vatican City",
-    "source": "Names of countries and capital"
+    "capitalDz": "བེ་ཊི་ཀཱན་ སི་ཊི།"
   },
   {
+    "no": "191",
     "root": "Venezuela",
+    "countryDz": "བེ་ནི་ཛུ་ཝེ་ལ།",
     "equivalent": "Caracas",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཀ་ར་ཀཱས།"
   },
   {
+    "no": "192",
     "root": "Vietnam",
+    "countryDz": "བེཊ་ནཱམ།",
     "equivalent": "Hanoi",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཧ་ནོའི།"
   },
   {
+    "no": "193",
     "root": "Yemen",
+    "countryDz": "ཡེ་མེན།",
     "equivalent": "Sanaa",
-    "source": "Names of countries and capital"
+    "capitalDz": "ས་ནཱ།"
   },
   {
+    "no": "194",
     "root": "Zambia",
+    "countryDz": "ཛམ་བྷི་ཡ།",
     "equivalent": "Lusaka",
-    "source": "Names of countries and capital"
+    "capitalDz": "ལུ་སཱ་ཀ།"
   },
   {
+    "no": "195",
     "root": "Zimbabwe",
+    "countryDz": "ཛིམ་བྷབ་ཝེ།",
     "equivalent": "Harare",
-    "source": "Names of countries and capital"
+    "capitalDz": "ཧ་རཱ་རེ།"
   }
 ]

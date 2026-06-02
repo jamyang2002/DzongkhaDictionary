@@ -415,7 +415,9 @@ const fieldLabels = {
     ],
     countries: [
         { key: 'root', label: 'Country' },
-        { key: 'equivalent', label: 'Capital' }
+        { key: 'countryDz', label: 'Country (Dzongkha)' },
+        { key: 'equivalent', label: 'Capital' },
+        { key: 'capitalDz', label: 'Capital (Dzongkha)' }
     ],
     dzEn: [
         { key: 'root', label: 'Root word' },
@@ -938,8 +940,12 @@ function getBrowseConfig(directionKey) {
                 .filter((key) => key !== 'source')
                 .map((key) => ({
                     key,
-                    label: key === 'root' ? 'Country' : key === 'equivalent' ? 'Capital' : toLabel(key),
-                    className: key === 'equivalent' ? 'dzongkha-word wide' : 'english-word'
+                    label: key === 'root' ? 'Country'
+                        : key === 'equivalent' ? 'Capital'
+                        : key === 'countryDz' ? 'Country (Dzongkha)'
+                        : key === 'capitalDz' ? 'Capital (Dzongkha)'
+                        : toLabel(key),
+                    className: key === 'equivalent' || key === 'root' ? 'english-word' : 'dzongkha-word wide'
                 }))
         };
     }
@@ -1228,7 +1234,7 @@ function buildIndex(entries, directionKey) {
         const fieldsToIndex = directionKey === 'en-dz'
             ? ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent']
             : directionKey === 'countries'
-                ? Object.keys(entry).filter((key) => key !== 'source')
+                ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
                 : directionKey === 'dz-dz'
                     ? ['root']
                     : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
