@@ -344,7 +344,6 @@ async function loadLocalDataset(path) {
 
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
-    if (statusEl) statusEl.textContent = 'Searching for local dictionary data...';
 
     const [enDzData, collectedData, countriesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
@@ -385,17 +384,7 @@ async function initializeLocalDictionaries() {
     currentEntries = getEntriesForDirection(direction);
 
     if (statusEl) {
-        if (totalLoaded > 0) {
-            statusEl.textContent = `Loaded ${formatCount(totalLoaded)} total entries from local files.`;
-            // Auto-hide status after 3 seconds to prevent interface distortion
-            setTimeout(() => {
-                statusEl.style.transition = 'opacity 0.5s ease';
-                statusEl.style.opacity = '0';
-                setTimeout(() => { statusEl.style.display = 'none'; }, 500);
-            }, 3000);
-        } else {
-            statusEl.textContent = 'No local JSON files found. If you opened this app directly from the file system, use the import button or run a local server.';
-        }
+        statusEl.style.display = 'none';
     }
 
     updateDictionaryCounts();

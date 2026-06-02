@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 30,
+            "activePatchIndex": 32,
             "patches": [
                 {
                     "date": 1780324315163,
@@ -128,6 +128,14 @@
                 {
                     "date": 1780394538851,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -939,10 +939,14 @@\n             columns: orderedKeys\n                 .filter((key) => key !== 'source')\n                 .map((key) => ({\n                     key,\n-                    label: key === 'root' ? 'Country' : key === 'equivalent' ? 'Capital' : toLabel(key),\n-                    className: key === 'equivalent' ? 'dzongkha-word wide' : 'english-word'\n+                    label: key === 'root' ? 'Country'\n+                        : key === 'equivalent' ? 'Capital'\n+                        : key === 'countryDz' ? 'Country (Dzongkha)'\n+                        : key === 'capitalDz' ? 'Capital (Dzongkha)'\n+                        : toLabel(key),\n+                    className: key === 'equivalent' || key === 'root' ? 'english-word' : 'dzongkha-word wide'\n                 }))\n         };\n     }\n \n"
+                },
+                {
+                    "date": 1780394751593,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -343,9 +343,8 @@\n }\n \n async function initializeLocalDictionaries() {\n     const statusEl = document.getElementById('loadStatus');\n-    if (statusEl) statusEl.textContent = 'Searching for local dictionary data...';\n \n     const [enDzData, collectedData, countriesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([\n         loadLocalDataset(LOCAL_EN_DZ_JSON),\n         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),\n"
+                },
+                {
+                    "date": 1780394795992,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -383,19 +383,9 @@\n     rebuildSearchIndices();\n     currentEntries = getEntriesForDirection(direction);\n \n     if (statusEl) {\n-        if (totalLoaded > 0) {\n-            statusEl.textContent = `Loaded ${formatCount(totalLoaded)} total entries from local files.`;\n-            // Auto-hide status after 3 seconds to prevent interface distortion\n-            setTimeout(() => {\n-                statusEl.style.transition = 'opacity 0.5s ease';\n-                statusEl.style.opacity = '0';\n-                setTimeout(() => { statusEl.style.display = 'none'; }, 500);\n-            }, 3000);\n-        } else {\n-            statusEl.textContent = 'No local JSON files found. If you opened this app directly from the file system, use the import button or run a local server.';\n-        }\n+        statusEl.style.display = 'none';\n     }\n \n     updateDictionaryCounts();\n     renderBrowseTable(direction);\n"
                 }
             ],
             "date": 1780324315163,
