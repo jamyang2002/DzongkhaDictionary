@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 4,
             "patches": [
                 {
                     "date": 1780393783411,
@@ -16,6 +16,14 @@
                 {
                     "date": 1780395589628,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,10 +32,10 @@\n     \"capital\": \"equivalent\",\n     \"source\": \"source\",\n     \"ཚིག་སྡེ།\": \"type\",\n     \"རྫོང་ཁའི་དོ་མཉམ།\": \"equivalent\",\n-    \"country\": \"root\",\n-    \"capital\": \"equivalent\",\n+    \"ཨིང་སྐད།\": \"root\",\n+    \"རྫོང་ཁ།\": \"equivalent\",\n     \"རྒྱལ་ཁབ།\": \"countryDz\",\n     \"རྒྱལ་ས།\": \"capitalDz\",\n     \"meaning\": \"meaning\",\n \n"
+                },
+                {
+                    "date": 1780399058235,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -34,8 +34,15 @@\n     \"ཚིག་སྡེ།\": \"type\",\n     \"རྫོང་ཁའི་དོ་མཉམ།\": \"equivalent\",\n     \"ཨིང་སྐད།\": \"root\",\n     \"རྫོང་ཁ།\": \"equivalent\",\n+    \"village(standardized)\": \"root\",\n+    \"village(dzongkha)\": \"equivalent\",\n+    \"chiwogstandardized\": \"chiwog\",\n+    \"chiwog(dzongkha)\": \"chiwogDz\",\n+    \"gewog(standardized)\": \"gewog\",\n+    \"gewog(dzongkha)\": \"gewogDz\",\n+    \"dzongkhag\": \"dzongkhag\",\n     \"རྒྱལ་ཁབ།\": \"countryDz\",\n     \"རྒྱལ་ས།\": \"capitalDz\",\n     \"meaning\": \"meaning\",\n \n"
+                },
+                {
+                    "date": 1780399101113,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -35,13 +35,18 @@\n     \"རྫོང་ཁའི་དོ་མཉམ།\": \"equivalent\",\n     \"ཨིང་སྐད།\": \"root\",\n     \"རྫོང་ཁ།\": \"equivalent\",\n     \"village(standardized)\": \"root\",\n+    \"villagestandardized\": \"root\",\n     \"village(dzongkha)\": \"equivalent\",\n+    \"villagedzongkha\": \"equivalent\",\n     \"chiwogstandardized\": \"chiwog\",\n     \"chiwog(dzongkha)\": \"chiwogDz\",\n+    \"chiwogdzongkha\": \"chiwogDz\",\n     \"gewog(standardized)\": \"gewog\",\n+    \"gewogstandardized\": \"gewog\",\n     \"gewog(dzongkha)\": \"gewogDz\",\n+    \"gewogdzongkha\": \"gewogDz\",\n     \"dzongkhag\": \"dzongkhag\",\n     \"རྒྱལ་ཁབ།\": \"countryDz\",\n     \"རྒྱལ་ས།\": \"capitalDz\",\n     \"meaning\": \"meaning\",\n"
                 }
             ],
             "date": 1780393783411,

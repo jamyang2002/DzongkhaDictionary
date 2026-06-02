@@ -221,6 +221,7 @@ const LOCAL_DZ_DZ_JSON = 'dzongkha_to_dzongkha.json';
 const LOCAL_DZ_DZ_COLLOQUIAL_JSON = 'colloquial_terminology.json';
 const LOCAL_TENSE_JSON = 'final_tense.json';
 const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
+const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 
 let direction = 'dz-en';
 let currentEntries = dzEnEntries;
@@ -231,9 +232,11 @@ let dzDzIndex = {};
 let enDzIndex = {};
 let countriesIndex = {};
 let publicServiceIndex = {};
+let placeNamesIndex = {};
 let tenseIndex = {};
 let countryEntries = [];
 let publicServiceEntries = [];
+let placeNamesEntries = [];
 let isBulkLoadingDictionaries = false;
 
 function inferDirectionFromFileName(fileName) {
@@ -242,6 +245,7 @@ function inferDirectionFromFileName(fileName) {
     if (lower.includes('dzongkha_to_english') || lower.includes('dz_en') || lower.includes('dzongkha-to-english')) return 'dz-en';
     if (lower.includes('dzongkha_to_dzongkha') || lower.includes('dz_dz') || lower.includes('dzongkha-to-dzongkha')) return 'dz-dz';
     if (lower.includes('countries') || lower.includes('country') || lower.includes('capital')) return 'countries';
+    if (lower.includes('places') || lower.includes('place') || lower.includes('dzongkhag') || lower.includes('gewog') || lower.includes('chiwog')) return 'place-names';
     if (lower.includes('public service') || lower.includes('public_service') || lower.includes('public-service')) return 'public-service';
     if (lower.includes('tense')) return 'tense';
     if (lower.includes('colloquial')) return 'dz-dz';
@@ -349,18 +353,19 @@ async function loadLocalDataset(path) {
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
 
-    const [enDzData, collectedData, countriesData, publicServiceData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
+    const [enDzData, collectedData, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
         loadLocalDataset(LOCAL_COUNTRIES_JSON),
         loadLocalDataset(LOCAL_PUBLIC_SERVICE_JSON),
+        loadLocalDataset(LOCAL_PLACE_NAMES_JSON),
         loadLocalDataset(LOCAL_DZ_EN_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
         loadLocalDataset(LOCAL_TENSE_JSON)
     ]);
 
-    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (countriesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
+    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
 
     if (totalLoaded > 0) {
         enDzEntries.length = 0;
@@ -374,6 +379,7 @@ async function initializeLocalDictionaries() {
     if (collectedData) loadDictionaryData(collectedData, 'en-dz', LOCAL_COLLECTED_TERMINOLOGY_JSON);
     if (countriesData) loadDictionaryData(countriesData, 'countries', LOCAL_COUNTRIES_JSON);
     if (publicServiceData) loadDictionaryData(publicServiceData, 'public-service', LOCAL_PUBLIC_SERVICE_JSON);
+    if (placeNamesData) loadDictionaryData(placeNamesData, 'place-names', LOCAL_PLACE_NAMES_JSON);
     if (dzEnData) loadDictionaryData(dzEnData, 'dz-en', LOCAL_DZ_EN_JSON);
     if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
@@ -417,6 +423,15 @@ const fieldLabels = {
     publicService: [
         { key: 'root', label: 'English term' },
         { key: 'equivalent', label: 'Dzongkha translation' }
+    ],
+    placeNames: [
+        { key: 'root', label: 'Village (Standardized)' },
+        { key: 'equivalent', label: 'Village (Dzongkha)' },
+        { key: 'chiwog', label: 'Chiwog (Standardized)' },
+        { key: 'chiwogDz', label: 'Chiwog (Dzongkha)' },
+        { key: 'gewog', label: 'Gewog (Standardized)' },
+        { key: 'gewogDz', label: 'Gewog (Dzongkha)' },
+        { key: 'dzongkhag', label: 'Dzongkhag' }
     ],
     dzEn: [
         { key: 'root', label: 'Root word' },
@@ -477,6 +492,7 @@ function getDirectionLabel(searchDirection) {
     if (searchDirection === 'en-dz') return 'English → Dzongkha';
     if (searchDirection === 'countries') return 'Names of countries and capital';
     if (searchDirection === 'public-service') return 'Public Service Terminology';
+    if (searchDirection === 'place-names') return 'Place names of Bhutan';
     if (searchDirection === 'dz-dz') return 'Dzongkha → Dzongkha';
     if (searchDirection === 'tense') return 'Tenses';
     return 'Dzongkha → English';
@@ -486,6 +502,7 @@ function getEntriesForDirection(directionKey) {
     if (directionKey === 'en-dz') return enDzEntries;
     if (directionKey === 'countries') return countryEntries;
     if (directionKey === 'public-service') return publicServiceEntries;
+    if (directionKey === 'place-names') return placeNamesEntries;
     if (directionKey === 'dz-dz') return dzDzEntries;
     if (directionKey === 'tense') return tenseEntries;
     return dzEnEntries;
@@ -704,6 +721,9 @@ function loadDictionaryData(data, directionKey, fileName) {
             if (fileName === LOCAL_PUBLIC_SERVICE_JSON) {
                 e.dictionaryLabel = 'Public Service Terminology';
             }
+            if (fileName === LOCAL_PLACE_NAMES_JSON) {
+                e.dictionaryLabel = 'Place names of Bhutan';
+            }
             cleaned.push(e);
         } catch (err) {
             console.warn(`Skipping invalid entry in ${fileName}:`, err);
@@ -716,6 +736,8 @@ function loadDictionaryData(data, directionKey, fileName) {
         cleaned.forEach(item => countryEntries.push(item));
     } else if (directionKey === 'public-service') {
         cleaned.forEach(item => publicServiceEntries.push(item));
+    } else if (directionKey === 'place-names') {
+        cleaned.forEach(item => placeNamesEntries.push(item));
     } else if (directionKey === 'dz-dz') {
         cleaned.forEach(item => dzDzEntries.push(item));
     } else if (directionKey === 'tense') {
@@ -891,8 +913,10 @@ function renderCard(entry, entryType) {
                 ? 'Names of countries and capital'
                 : entryType === 'publicService'
                     ? 'Public Service Terminology'
-                    : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
-    const mainWordClass = entryType === 'enDz' || entryType === 'countries' || entryType === 'publicService' ? 'english-word' : 'uchen-word';
+                    : entryType === 'placeNames'
+                        ? 'Place names of Bhutan'
+                        : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
+    const mainWordClass = entryType === 'enDz' || entryType === 'countries' || entryType === 'publicService' || entryType === 'placeNames' ? 'english-word' : 'uchen-word';
     const caption = entryType === 'enDz'
         ? (entry.equivalent || '')
         : entryType === 'countries'
@@ -979,6 +1003,31 @@ function getBrowseConfig(directionKey) {
                         : key === 'equivalent' ? 'Dzongkha translation'
                         : toLabel(key),
                     className: key === 'equivalent' ? 'dzongkha-word wide' : 'english-word'
+                }))
+        };
+    }
+
+    if (directionKey === 'place-names') {
+        const keys = new Set();
+        placeNamesEntries.forEach((entry) => Object.keys(entry).forEach((key) => keys.add(key)));
+        const orderedKeys = ['root', 'equivalent', ...Array.from(keys).filter((key) => !['root', 'equivalent', 'source', 'no'].includes(key)).sort()];
+
+        return {
+            title: 'Place names of Bhutan',
+            entries: placeNamesEntries,
+            type: 'placeNames',
+            columns: orderedKeys
+                .filter((key) => key !== 'source')
+                .map((key) => ({
+                    key,
+                    label: key === 'root' ? 'Village (Standardized)'
+                        : key === 'equivalent' ? 'Village (Dzongkha)'
+                        : key === 'chiwog' ? 'Chiwog (Standardized)'
+                        : key === 'chiwogDz' ? 'Chiwog (Dzongkha)'
+                        : key === 'gewog' ? 'Gewog (Standardized)'
+                        : key === 'gewogDz' ? 'Gewog (Dzongkha)'
+                        : key === 'dzongkhag' ? 'Dzongkhag' : toLabel(key),
+                    className: key === 'equivalent' || key === 'chiwogDz' || key === 'gewogDz' ? 'dzongkha-word wide' : 'english-word'
                 }))
         };
     }
@@ -1266,7 +1315,7 @@ function buildIndex(entries, directionKey) {
 
         const fieldsToIndex = directionKey === 'en-dz'
             ? ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent']
-            : directionKey === 'countries'
+            : directionKey === 'countries' || directionKey === 'public-service' || directionKey === 'place-names'
                 ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
                 : directionKey === 'dz-dz'
                     ? ['root']
@@ -1300,6 +1349,7 @@ function rebuildSearchIndices() {
     enDzIndex = buildIndex(enDzEntries, 'en-dz');
     countriesIndex = buildIndex(countryEntries, 'countries');
     publicServiceIndex = buildIndex(publicServiceEntries, 'public-service');
+    placeNamesIndex = buildIndex(placeNamesEntries, 'place-names');
     dzDzIndex = buildIndex(dzDzEntries, 'dz-dz');
     tenseIndex = buildTenseIndex(tenseEntries);
 }
@@ -1331,8 +1381,8 @@ function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
 
 function suggestionMatchesQuery(entry, normalizedQuery, hasDz) {
     const fields = hasDz
-        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm']
-        : ['root', 'also', 'plural', 'verbalForm', 'comparative'];
+        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm', 'countryDz', 'capitalDz', 'chiwogDz', 'gewogDz']
+        : ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent', 'chiwog', 'gewog', 'dzongkhag'];
 
     return fields.some((field) => {
         const value = entry[field];
@@ -1348,20 +1398,22 @@ function searchEntriesByQuery(entries, directionKey, query, normalizedQuery, has
             ? countriesIndex
             : directionKey === 'public-service'
                 ? publicServiceIndex
-                : directionKey === 'dz-dz'
-                    ? dzDzIndex
-                    : directionKey === 'en-dz'
-                        ? enDzIndex
-                        : tenseIndex;
+                : directionKey === 'place-names'
+                    ? placeNamesIndex
+                    : directionKey === 'dz-dz'
+                        ? dzDzIndex
+                        : directionKey === 'en-dz'
+                            ? enDzIndex
+                            : tenseIndex;
 
     const exactMatches = uniqueEntries(
         getIndexedMatches(index, normalizedQuery, query),
-        directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'public-service' ? 'publicService' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense'
+        directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'public-service' ? 'publicService' : directionKey === 'place-names' ? 'placeNames' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense'
     );
     if (exactMatches.length) return exactMatches;
 
     const filtered = entries.filter((entry) => entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey));
-    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
+    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'public-service' ? 'publicService' : directionKey === 'place-names' ? 'placeNames' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');
 }
 
 function getSearchGroups(query, normalizedQuery) {
@@ -1371,6 +1423,7 @@ function getSearchGroups(query, normalizedQuery) {
         enDz: searchEntriesByQuery(enDzEntries, 'en-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         countries: searchEntriesByQuery(countryEntries, 'countries', query, normalizedQuery, false),
         publicService: searchEntriesByQuery(publicServiceEntries, 'public-service', query, normalizedQuery, false),
+        placeNames: searchEntriesByQuery(placeNamesEntries, 'place-names', query, normalizedQuery, false),
         tense: findTenseMatches(query)
     };
 }
@@ -1411,6 +1464,7 @@ function searchWord() {
         : [
             { entries: groups.enDz, type: 'enDz' },
             { entries: groups.publicService, type: 'publicService' },
+            { entries: groups.placeNames, type: 'placeNames' },
             { entries: groups.countries, type: 'countries' }
         ];
 
@@ -1455,7 +1509,9 @@ function updateSuggestions() {
     searchButton.classList.toggle('dzongkha-word', hasDz);
     searchButton.classList.toggle('english-word', !hasDz);
 
-    const sourceList = hasDz ? [...dzEnEntries, ...dzDzEntries, ...tenseEntries] : enDzEntries;
+    const sourceList = hasDz 
+        ? [...dzEnEntries, ...dzDzEntries, ...tenseEntries, ...countryEntries, ...publicServiceEntries, ...placeNamesEntries] 
+        : [...enDzEntries, ...countryEntries, ...publicServiceEntries, ...placeNamesEntries];
 
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
     const matches = uniqueEntriesByLabel(sourceList.filter((entry) => suggestionMatchesQuery(entry, normalizedQuery, hasDz))).slice(0, 8);

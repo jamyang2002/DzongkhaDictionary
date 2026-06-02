@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 4,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1780375757622,
@@ -24,6 +24,10 @@
                 {
                     "date": 1780397850612,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,28 +1,36 @@\n-const CACHE_NAME = 'dzongkha-dict-v1.6'; // Bump to force re-cache during fixes\n+const CACHE_NAME = 'dzongkha-dict-v1.10';\n const ASSETS_TO_CACHE = [\n   './',\n   './index.html',\n   './style.css',\n   './script.js',\n   './admin.js',\n   './manifest.json',\n   './english_to_dzongkha.json',\n+  './collected_terminology.json',\n+  './countries_capitals.json',\n+  './public_service.json',\n   './dzongkha_to_english.json',\n   './dzongkha_to_dzongkha.json',\n   './colloquial_terminology.json',\n+  './final_tense.json',\n   './assets/app-logo.png',\n   './assets/jamyang-loday.png',\n-  './assets/icon-192.png',\n-  './assets/icon-512.png'\n+  './assets/icon-192.png'\n ];\n \n // Install Service Worker and cache assets\n self.addEventListener('install', (event) => {\n   event.waitUntil(\n     caches.open(CACHE_NAME).then((cache) => {\n-      console.log('SW install: caching assets', ASSETS_TO_CACHE);\n-      return cache.addAll(ASSETS_TO_CACHE);\n+      return Promise.all(\n+        ASSETS_TO_CACHE.map((asset) =>\n+          cache.add(asset).catch((error) => {\n+            console.warn('SW install: skipped cache asset', asset, error);\n+          })\n+        )\n+      );\n     })\n   );\n   self.skipWaiting();\n });\n@@ -59,5 +67,5 @@\n           })\n           .catch(() => caches.match(event.request, { ignoreSearch: true }))\n       : caches.match(event.request).then((response) => response || fetch(event.request))\n   );\n-});\n\\ No newline at end of file\n+});\n"
+                },
+                {
+                    "date": 1780399029985,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-const CACHE_NAME = 'dzongkha-dict-v1.10';\n+const CACHE_NAME = 'dzongkha-dict-v1.11';\n const ASSETS_TO_CACHE = [\n   './',\n   './index.html',\n   './style.css',\n@@ -9,8 +9,9 @@\n   './english_to_dzongkha.json',\n   './collected_terminology.json',\n   './countries_capitals.json',\n   './public_service.json',\n+  './place_names.json',\n   './dzongkha_to_english.json',\n   './dzongkha_to_dzongkha.json',\n   './colloquial_terminology.json',\n   './final_tense.json',\n"
                 }
             ],
             "date": 1780375757622,
