@@ -1153,6 +1153,7 @@ function renderBrowseTable(directionKey = 'dz-en') {
     // Create scrollable table container
     const tableContainer = document.createElement('div');
     tableContainer.className = 'browse-table-container';
+    tableContainer.style.overflowX = 'auto'; // Force horizontal scroll for wide tables on mobile
 
     const table = document.createElement('table');
     table.className = 'dictionary-table';
@@ -1478,7 +1479,7 @@ function searchWord() {
  * Smoothly scrolls to the results area on mobile devices
  */
 function scrollToResults() {
-    if (window.innerWidth <= 1040) {
+    if (document.documentElement.clientWidth <= 1040) {
         const resultsArea = document.querySelector('.results-area');
         if (resultsArea) {
             const offset = 72; // Account for the sticky top bar
@@ -1504,10 +1505,12 @@ function updateSuggestions() {
 
     // Toggle input/search button font dynamically when the user types Dzongkha
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
-    inputElement.classList.toggle('dzongkha-word', hasDz);
-    inputElement.classList.toggle('english-word', !hasDz);
-    searchButton.classList.toggle('dzongkha-word', hasDz);
-    searchButton.classList.toggle('english-word', !hasDz);
+    if (inputElement.classList.contains('dzongkha-word') !== hasDz) {
+        inputElement.classList.toggle('dzongkha-word', hasDz);
+        inputElement.classList.toggle('english-word', !hasDz);
+        searchButton.classList.toggle('dzongkha-word', hasDz);
+        searchButton.classList.toggle('english-word', !hasDz);
+    }
 
     const sourceList = hasDz 
         ? [...dzEnEntries, ...dzDzEntries, ...tenseEntries, ...countryEntries, ...publicServiceEntries, ...placeNamesEntries] 
