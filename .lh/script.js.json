@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 38,
+            "activePatchIndex": 39,
             "patches": [
                 {
                     "date": 1780324315163,
@@ -160,6 +160,10 @@
                 {
                     "date": 1780399187237,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1006,8 +1006,33 @@\n                 }))\n         };\n     }\n \n+    if (directionKey === 'place-names') {\n+        const keys = new Set();\n+        placeNamesEntries.forEach((entry) => Object.keys(entry).forEach((key) => keys.add(key)));\n+        const orderedKeys = ['root', 'equivalent', ...Array.from(keys).filter((key) => !['root', 'equivalent', 'source', 'no'].includes(key)).sort()];\n+\n+        return {\n+            title: 'Place names of Bhutan',\n+            entries: placeNamesEntries,\n+            type: 'placeNames',\n+            columns: orderedKeys\n+                .filter((key) => key !== 'source')\n+                .map((key) => ({\n+                    key,\n+                    label: key === 'root' ? 'Village (Standardized)'\n+                        : key === 'equivalent' ? 'Village (Dzongkha)'\n+                        : key === 'chiwog' ? 'Chiwog (Standardized)'\n+                        : key === 'chiwogDz' ? 'Chiwog (Dzongkha)'\n+                        : key === 'gewog' ? 'Gewog (Standardized)'\n+                        : key === 'gewogDz' ? 'Gewog (Dzongkha)'\n+                        : key === 'dzongkhag' ? 'Dzongkhag' : toLabel(key),\n+                    className: key === 'equivalent' || key === 'chiwogDz' || key === 'gewogDz' ? 'dzongkha-word wide' : 'english-word'\n+                }))\n+        };\n+    }\n+\n     if (directionKey === 'dz-dz') {\n         return {\n             title: 'Dzongkha definition entries',\n             entries: dzDzEntries,\n@@ -1387,9 +1412,9 @@\n     );\n     if (exactMatches.length) return exactMatches;\n \n     const filtered = entries.filter((entry) => entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey));\n-    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');\n+    return uniqueEntries(filtered, directionKey === 'dz-en' ? 'dzEn' : directionKey === 'countries' ? 'countries' : directionKey === 'public-service' ? 'publicService' : directionKey === 'place-names' ? 'placeNames' : directionKey === 'dz-dz' ? 'dzDz' : directionKey === 'en-dz' ? 'enDz' : 'tense');\n }\n \n function getSearchGroups(query, normalizedQuery) {\n     return {\n"
+                },
+                {
+                    "date": 1780402358438,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1380,10 +1380,10 @@\n }\n \n function suggestionMatchesQuery(entry, normalizedQuery, hasDz) {\n     const fields = hasDz\n-        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm']\n-        : ['root', 'also', 'plural', 'verbalForm', 'comparative'];\n+        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm', 'countryDz', 'capitalDz', 'chiwogDz', 'gewogDz']\n+        : ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent', 'chiwog', 'gewog', 'dzongkhag'];\n \n     return fields.some((field) => {\n         const value = entry[field];\n         if (!value) return false;\n"
                 }
             ],
             "date": 1780324315163,
