@@ -441,17 +441,19 @@ function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function matchesNormalizedQuery(text, normalizedQuery, hasDz) {
+function matchesNormalizedQuery(text, normalizedQuery, hasDz, exactOnly = false) {
     if (!text || !normalizedQuery) return false;
     const normalizedText = hasDz ? normalizeDzongkha(text) : normalizeEnglish(text);
     if (!normalizedText) return false;
 
     if (normalizedText === normalizedQuery) return true;
     if (hasDz) {
+        if (exactOnly) return false;
         const pattern = new RegExp(`(?:^|[་།\\s])${escapeRegExp(normalizedQuery)}(?:$|[་།\\s])`);
         return pattern.test(normalizedText);
     }
 
+    if (exactOnly) return false;
     const pattern = new RegExp(`(?:^|\\W)${escapeRegExp(normalizedQuery)}(?:$|\\W)`);
     return pattern.test(normalizedText);
 }
@@ -1160,7 +1162,7 @@ function buildIndex(entries, directionKey) {
         const fieldsToIndex = directionKey === 'en-dz'
             ? ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent']
             : directionKey === 'dz-dz'
-                ? ['root', 'meaning']
+                ? ['root']
                 : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
         fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));
@@ -1206,13 +1208,13 @@ function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
     const fields = directionKey === 'en-dz'
         ? ['root', 'also', 'plural', 'verbalForm', 'comparative']
         : directionKey === 'dz-dz'
-            ? ['root', 'meaning']
+            ? ['root']
             : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
     return fields.some((field) => {
         const value = entry[field];
         if (!value) return false;
-        return matchesNormalizedQuery(value, normalizedQuery, hasDz);
+        return matchesNormalizedQuery(value, normalizedQuery, hasDz, directionKey === 'dz-dz');
     });
 }
 

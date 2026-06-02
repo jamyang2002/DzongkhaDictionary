@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 14,
+            "activePatchIndex": 16,
             "patches": [
                 {
                     "date": 1780324315163,
@@ -64,6 +64,14 @@
                 {
                     "date": 1780388972940,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -447,9 +447,9 @@\n     if (!normalizedText) return false;\n \n     if (normalizedText === normalizedQuery) return true;\n     if (hasDz) {\n-        const pattern = new RegExp(`(?:^|[་།\\\\s)${escapeRegExp(normalizedQuery)}(?:$|[་།\\\\s])`);\n+        const pattern = new RegExp(`(?:^|[་།\\\\s])${escapeRegExp(normalizedQuery)}(?:$|[་།\\\\s])`);\n         return pattern.test(normalizedText);\n     }\n \n     const pattern = new RegExp(`(?:^|\\\\W)${escapeRegExp(normalizedQuery)}(?:$|\\\\W)`);\n"
+                },
+                {
+                    "date": 1780389660820,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1159,9 +1159,9 @@\n \n         const fieldsToIndex = directionKey === 'en-dz'\n             ? ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent']\n             : directionKey === 'dz-dz'\n-                ? ['root', 'meaning']\n+                ? ['root']\n                 : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];\n \n         fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));\n         return map;\n@@ -1205,9 +1205,9 @@\n function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {\n     const fields = directionKey === 'en-dz'\n         ? ['root', 'also', 'plural', 'verbalForm', 'comparative']\n         : directionKey === 'dz-dz'\n-            ? ['root', 'meaning']\n+            ? ['root']\n             : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];\n \n     return fields.some((field) => {\n         const value = entry[field];\n"
+                },
+                {
+                    "date": 1780389944514,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -440,19 +440,21 @@\n function escapeRegExp(value) {\n     return String(value).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n }\n \n-function matchesNormalizedQuery(text, normalizedQuery, hasDz) {\n+function matchesNormalizedQuery(text, normalizedQuery, hasDz, exactOnly = false) {\n     if (!text || !normalizedQuery) return false;\n     const normalizedText = hasDz ? normalizeDzongkha(text) : normalizeEnglish(text);\n     if (!normalizedText) return false;\n \n     if (normalizedText === normalizedQuery) return true;\n     if (hasDz) {\n+        if (exactOnly) return false;\n         const pattern = new RegExp(`(?:^|[་།\\\\s])${escapeRegExp(normalizedQuery)}(?:$|[་།\\\\s])`);\n         return pattern.test(normalizedText);\n     }\n \n+    if (exactOnly) return false;\n     const pattern = new RegExp(`(?:^|\\\\W)${escapeRegExp(normalizedQuery)}(?:$|\\\\W)`);\n     return pattern.test(normalizedText);\n }\n \n@@ -1211,9 +1213,9 @@\n \n     return fields.some((field) => {\n         const value = entry[field];\n         if (!value) return false;\n-        return matchesNormalizedQuery(value, normalizedQuery, hasDz);\n+        return matchesNormalizedQuery(value, normalizedQuery, hasDz, directionKey === 'dz-dz');\n     });\n }\n \n function suggestionMatchesQuery(entry, normalizedQuery, hasDz) {\n"
                 }
             ],
             "date": 1780324315163,
