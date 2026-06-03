@@ -115,12 +115,10 @@ function updateDictionaryCounts() {
     const dzEn = document.querySelectorAll('#homeDzEnCount, #splashDzEnCount');
     const enDz = document.querySelectorAll('#homeEnDzCount, #splashEnDzCount');
     const dzDz = document.querySelectorAll('#homeDzDzCount, #splashDzDzCount');
-    const tenses = document.querySelectorAll('#homeTensesCount, #splashTensesCount');
 
     dzEn.forEach(el => el.textContent = formatCount(dzEnEntries.length));
     enDz.forEach(el => el.textContent = formatCount(enDzEntries.length));
     dzDz.forEach(el => el.textContent = formatCount(dzDzEntries.length));
-    tenses.forEach(el => el.textContent = formatCount(tenseEntries.length));
 
     if (dictionaryCountEls.browseDzEn) dictionaryCountEls.browseDzEn.textContent = `${formatCount(dzEnEntries.length)} entries`;
     if (dictionaryCountEls.browseEnDz) dictionaryCountEls.browseEnDz.textContent = `${formatCount(enDzEntries.length)} entries`;
