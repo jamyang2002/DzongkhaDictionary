@@ -213,6 +213,7 @@ function switchView(viewName) {
 
 const LOCAL_EN_DZ_JSON = 'english_to_dzongkha.json';
 const LOCAL_COLLECTED_TERMINOLOGY_JSON = 'collected_terminology.json';
+const LOCAL_TERMINOLOGY_2026_JSON = 'terminology_2026.json';
 const LOCAL_COUNTRIES_JSON = 'countries_capitals.json';
 const LOCAL_DZ_EN_JSON = 'dzongkha_to_english.json';
 const LOCAL_DZ_DZ_JSON = 'dzongkha_to_dzongkha.json';
@@ -351,9 +352,10 @@ async function loadLocalDataset(path) {
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
 
-    const [enDzData, collectedData, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
+    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
+        loadLocalDataset(LOCAL_TERMINOLOGY_2026_JSON),
         loadLocalDataset(LOCAL_COUNTRIES_JSON),
         loadLocalDataset(LOCAL_PUBLIC_SERVICE_JSON),
         loadLocalDataset(LOCAL_PLACE_NAMES_JSON),
@@ -363,7 +365,7 @@ async function initializeLocalDictionaries() {
         loadLocalDataset(LOCAL_TENSE_JSON)
     ]);
 
-    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
+    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
 
     if (totalLoaded > 0) {
         enDzEntries.length = 0;
@@ -375,6 +377,7 @@ async function initializeLocalDictionaries() {
     isBulkLoadingDictionaries = true;
     if (enDzData) loadDictionaryData(enDzData, 'en-dz', LOCAL_EN_DZ_JSON);
     if (collectedData) loadDictionaryData(collectedData, 'en-dz', LOCAL_COLLECTED_TERMINOLOGY_JSON);
+    if (terminology2026Data) loadDictionaryData(terminology2026Data, 'en-dz', LOCAL_TERMINOLOGY_2026_JSON);
     if (countriesData) loadDictionaryData(countriesData, 'countries', LOCAL_COUNTRIES_JSON);
     if (publicServiceData) loadDictionaryData(publicServiceData, 'public-service', LOCAL_PUBLIC_SERVICE_JSON);
     if (placeNamesData) loadDictionaryData(placeNamesData, 'place-names', LOCAL_PLACE_NAMES_JSON);
@@ -716,6 +719,9 @@ function loadDictionaryData(data, directionKey, fileName) {
             if (fileName === LOCAL_COLLECTED_TERMINOLOGY_JSON) {
                 e.dictionaryLabel = 'Collected terminology';
             }
+            if (fileName === LOCAL_TERMINOLOGY_2026_JSON && !e.dictionaryLabel) {
+                e.dictionaryLabel = 'Terminology 2026';
+            }
             if (fileName === LOCAL_PUBLIC_SERVICE_JSON) {
                 e.dictionaryLabel = 'Public Service Terminology';
             }
@@ -863,7 +869,7 @@ function toLabel(key) {
 
 function getFieldDefinitions(entry, entryType) {
     const fields = fieldLabels[entryType] ? [...fieldLabels[entryType]] : [];
-    const knownKeys = new Set(fields.map((field) => field.key).concat(['root', 'source']));
+    const knownKeys = new Set(fields.map((field) => field.key).concat(['root', 'source', 'dictionaryLabel']));
     Object.keys(entry)
         .filter((key) => !knownKeys.has(key))
         .sort()
@@ -1269,7 +1275,7 @@ function getIndexedMatches(index, ...keys) {
 function getEntrySignature(entry, entryType) {
     const fields = entryType === 'tense'
         ? ['past', 'present', 'future', 'imperative']
-        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'type', 'also'];
+        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'type', 'also', 'dictionaryLabel', 'source'];
     return fields.map((field) => entry[field] || '').join('|');
 }
 

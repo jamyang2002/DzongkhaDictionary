@@ -31,6 +31,9 @@ COLUMN_MAP = {
     "country": "root",
     "capital": "equivalent",
     "source": "source",
+    "dictionary direction": "dictionaryLabel",
+    "dictionarydirection": "dictionaryLabel",
+    "dictionary_direction": "dictionaryLabel",
     "ཚིག་སྡེ།": "type",
     "རྫོང་ཁའི་དོ་མཉམ།": "equivalent",
     "ཨིང་སྐད།": "root",
@@ -69,6 +72,8 @@ COLUMN_MAP = {
     "imperative": "imperative",
 }
 
+DZONGKHA_RE = re.compile(r"[\u0F00-\u0FFF]")
+
 
 def normalize_header(name: str) -> str:
     if name is None:
@@ -87,6 +92,20 @@ def normalize_header(name: str) -> str:
     )
 
 
+def split_bilingual_cell(value: str) -> tuple[Optional[str], Optional[str]]:
+    """Split cells like 'རྫོང་ཁ།\nEnglish Name' into English/Dzongkha parts."""
+    lines = [line.strip() for line in str(value).splitlines() if line and line.strip()]
+    if len(lines) < 2:
+        return None, None
+
+    dzongkha_lines = [line for line in lines if DZONGKHA_RE.search(line)]
+    english_lines = [line for line in lines if not DZONGKHA_RE.search(line)]
+    if not dzongkha_lines or not english_lines:
+        return None, None
+
+    return " ".join(english_lines), " ".join(dzongkha_lines)
+
+
 def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optional[str]):
     if not input_path.exists():
         raise FileNotFoundError(f"Input file does not exist: {input_path}")
@@ -99,7 +118,15 @@ def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optio
         else:
             df = df[sheet_name]
 
-    df = df.rename(columns={col: normalize_header(col) for col in df.columns})
+    has_english_column = any(str(col).strip().lower() == "english" for col in df.columns)
+    rename_map = {}
+    for col in df.columns:
+        normalized = normalize_header(col)
+        if has_english_column and str(col).strip().lower() == "dzongkha":
+            normalized = "equivalent"
+        rename_map[col] = normalized
+
+    df = df.rename(columns=rename_map)
     records = []
 
     for row_index, row in df.iterrows():
@@ -111,6 +138,12 @@ def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optio
 
         if not record.get("root"):
             record["root"] = record.get("present") or record.get("future") or record.get("past") or record.get("imperative")
+
+        if record.get("root") and not record.get("equivalent"):
+            english, dzongkha = split_bilingual_cell(record["root"])
+            if english and dzongkha:
+                record["root"] = english
+                record["equivalent"] = dzongkha
 
         if not record.get("root"):
             continue
