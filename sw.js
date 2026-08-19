@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v1.13';
+const CACHE_NAME = 'dzongkha-dict-v1.15';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const ASSETS_TO_CACHE = [
   './countries_capitals.json',
   './public_service.json',
   './place_names.json',
+  './additional_terminology.json',
   './dzongkha_to_english.json',
   './dzongkha_to_dzongkha.json',
   './colloquial_terminology.json',

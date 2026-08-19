@@ -685,6 +685,31 @@ img {
     backdrop-filter: blur(20px);
 }
 
+.notification-bar > div {
+    display: grid;
+    gap: 3px;
+}
+
+.notification-bar > div span {
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 650;
+}
+
+.notification-action {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 850;
+}
+
 .word-of-day {
     position: relative;
     min-height: 220px;
@@ -1586,6 +1611,89 @@ img {
     box-shadow: none !important;
 }
 
+.dictionary-update-status {
+    margin-bottom: 18px;
+    padding: 20px;
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--panel)), var(--panel-soft));
+    box-shadow: var(--shadow-sm);
+}
+
+.update-status-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.update-status-header h3 {
+    margin: 3px 0 0;
+    font-size: 1.25rem;
+}
+
+.update-status-pill {
+    padding: 6px 10px;
+    border: 1px solid color-mix(in srgb, #1d8a5a 36%, var(--line));
+    border-radius: 999px;
+    background: color-mix(in srgb, #1d8a5a 13%, var(--panel));
+    color: #187448;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.update-status-copy {
+    max-width: 700px;
+    margin: 10px 0 18px;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.update-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.update-status-grid div {
+    display: grid;
+    gap: 3px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--panel) 72%, transparent);
+}
+
+.update-status-grid strong {
+    color: var(--accent);
+    font-size: 1.15rem;
+}
+
+.update-status-grid span,
+.notif-tags span {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 750;
+}
+
+.update-category-list,
+.notif-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 14px;
+}
+
+.update-category-list span,
+.notif-tags span {
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+}
+
 .notif-item {
     display: flex;
     gap: 16px;
@@ -1849,6 +1957,19 @@ img {
 @media (max-width: 640px) {
     .app-main {
         padding: 10px 10px 88px;
+    }
+
+    .notification-bar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .notification-action {
+        width: 100%;
+    }
+
+    .update-status-grid {
+        grid-template-columns: 1fr;
     }
 
     #searchSection .screen-heading,

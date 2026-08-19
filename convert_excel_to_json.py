@@ -106,18 +106,7 @@ def split_bilingual_cell(value: str) -> tuple[Optional[str], Optional[str]]:
     return " ".join(english_lines), " ".join(dzongkha_lines)
 
 
-def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optional[str]):
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file does not exist: {input_path}")
-
-    df = pd.read_excel(input_path, sheet_name=sheet_name)
-    if isinstance(df, dict):
-        if sheet_name is None:
-            first_sheet = next(iter(df))
-            df = df[first_sheet]
-        else:
-            df = df[sheet_name]
-
+def dataframe_to_records(df: pd.DataFrame) -> list[dict[str, str]]:
     has_english_column = any(str(col).strip().lower() == "english" for col in df.columns)
     rename_map = {}
     for col in df.columns:
@@ -150,6 +139,38 @@ def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optio
 
         records.append(record)
 
+    return records
+
+
+def convert_excel_to_json(input_path: Path, output_path: Path, sheet_name: Optional[str]):
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file does not exist: {input_path}")
+
+    df = pd.read_excel(input_path, sheet_name=sheet_name)
+    if isinstance(df, dict):
+        if sheet_name is None:
+            first_sheet = next(iter(df))
+            df = df[first_sheet]
+        else:
+            df = df[sheet_name]
+
+    records = dataframe_to_records(df)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Converted {len(records)} rows from {input_path.name} to {output_path.name}")
+
+
+def convert_excel_workbook_to_json(input_path: Path, output_path: Path):
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file does not exist: {input_path}")
+
+    workbook = pd.ExcelFile(input_path)
+    records = []
+    for sheet_name in workbook.sheet_names:
+        sheet_records = dataframe_to_records(pd.read_excel(workbook, sheet_name=sheet_name))
+        records.extend(sheet_records)
+        print(f"Converted {len(sheet_records)} rows from sheet {sheet_name!r}")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Converted {len(records)} rows from {input_path.name} to {output_path.name}")
@@ -162,9 +183,13 @@ def main() -> None:
     parser.add_argument("input", type=Path, help="Input Excel file path (.xlsx or .xls)")
     parser.add_argument("output", type=Path, help="Output JSON file path")
     parser.add_argument("--sheet", type=str, default=None, help="Sheet name to convert (default: first sheet)")
+    parser.add_argument("--all-sheets", action="store_true", help="Combine every sheet into one JSON file")
 
     args = parser.parse_args()
-    convert_excel_to_json(args.input, args.output, args.sheet)
+    if args.all_sheets:
+        convert_excel_workbook_to_json(args.input, args.output)
+    else:
+        convert_excel_to_json(args.input, args.output, args.sheet)
 
 
 if __name__ == "__main__":

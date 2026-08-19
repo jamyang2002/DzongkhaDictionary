@@ -221,6 +221,15 @@ const LOCAL_DZ_DZ_COLLOQUIAL_JSON = 'colloquial_terminology.json';
 const LOCAL_TENSE_JSON = 'final_tense.json';
 const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
+const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
+const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
+const ADDITIONAL_UPDATE_COUNT = 3876;
+const ADDITIONAL_UPDATE_CATEGORIES = [
+    'Computer Terminology -Compiled by Kunzang Dorji (Gov Tech)',
+    'Terminologies-Compiled by Kunzang Dorji (Gov Tech)',
+    'Essential Items Terminology (Dorji Wangda)',
+    'Animal Pictorial Terminology'
+];
 
 let direction = 'dz-en';
 let currentEntries = dzEnEntries;
@@ -352,7 +361,7 @@ async function loadLocalDataset(path) {
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
 
-    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData] = await Promise.all([
+    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData, additionalTerminologyData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
         loadLocalDataset(LOCAL_TERMINOLOGY_2026_JSON),
@@ -362,10 +371,11 @@ async function initializeLocalDictionaries() {
         loadLocalDataset(LOCAL_DZ_EN_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
-        loadLocalDataset(LOCAL_TENSE_JSON)
+        loadLocalDataset(LOCAL_TENSE_JSON),
+        loadLocalDataset(LOCAL_ADDITIONAL_TERMINOLOGY_JSON)
     ]);
 
-    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0);
+    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0) + (additionalTerminologyData?.length || 0);
 
     if (totalLoaded > 0) {
         enDzEntries.length = 0;
@@ -385,6 +395,7 @@ async function initializeLocalDictionaries() {
     if (dzDzData) loadDictionaryData(dzDzData, 'dz-dz', LOCAL_DZ_DZ_JSON);
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
     if (tenseData) loadDictionaryData(tenseData, 'tense', LOCAL_TENSE_JSON);
+    if (additionalTerminologyData) loadDictionaryData(additionalTerminologyData, 'en-dz', LOCAL_ADDITIONAL_TERMINOLOGY_JSON);
 
     // Merge with any manual edits from the Admin Panel
     const overrides = { enDz: 'en-dz', dzEn: 'dz-en', dzDz: 'dz-dz', tenses: 'tense' };
@@ -403,6 +414,7 @@ async function initializeLocalDictionaries() {
     updateDictionaryCounts();
     renderBrowseTable(direction);
     updateWordOfTheDay();
+    renderDictionaryUpdateStatus(additionalTerminologyData?.length || 0);
 }
 
 const fieldLabels = {
@@ -655,6 +667,43 @@ function updateWordOfTheDay() {
 function getNotifications() { try { return JSON.parse(localStorage.getItem('dz_notifications') || '[]'); } catch (e) { return []; } }
 function saveNotifications(list) { try { localStorage.setItem('dz_notifications', JSON.stringify(list)); } catch (e) {} }
 
+function publishAdditionalTerminologyNotice() {
+    const list = getNotifications();
+    if (list.some((notification) => notification.id === ADDITIONAL_UPDATE_ID)) return;
+
+    saveNotifications([...list, {
+        id: ADDITIONAL_UPDATE_ID,
+        title: 'Dictionary update available',
+        message: `A new terminology update adds ${ADDITIONAL_UPDATE_COUNT.toLocaleString()} entries across four dictionaries. Reopen the app while connected to the internet to sync the latest data.`,
+        createdAt: '2026-08-19T00:00:00.000Z',
+        categories: ADDITIONAL_UPDATE_CATEGORIES
+    }]);
+}
+
+function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
+    const statusPanel = document.getElementById('dictionaryUpdateStatus');
+    if (!statusPanel) return;
+
+    statusPanel.innerHTML = `
+        <div class="update-status-header">
+            <div>
+                <p class="section-kicker">Latest data sync</p>
+                <h3>Additional terminology is live</h3>
+            </div>
+            <span class="update-status-pill">Synced</span>
+        </div>
+        <p class="update-status-copy">The app checks for the newest dictionary data whenever it reconnects. No reinstall is required.</p>
+        <div class="update-status-grid">
+            <div><strong>${loadedCount.toLocaleString()}</strong><span>new entries</span></div>
+            <div><strong>4</strong><span>dictionary directions</span></div>
+            <div><strong>Online</strong><span>sync status</span></div>
+        </div>
+        <div class="update-category-list">
+            ${ADDITIONAL_UPDATE_CATEGORIES.map((category) => `<span>${escapeHtml(category)}</span>`).join('')}
+        </div>
+    `;
+}
+
 function updateNotificationBadge() {
     const list = getNotifications();
     const readCount = parseInt(localStorage.getItem('dz_notif_read_count') || '0');
@@ -690,7 +739,9 @@ function renderNotificationSection() {
                 <svg class="icon" viewBox="0 0 24 24"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Zm-8 5h4a2 2 0 0 1-4 0Z"/></svg>
             </div>
             <div class="notif-body">
+                <strong class="notif-title">${escapeHtml(n.title || 'Dictionary update')}</strong>
                 <p class="notif-msg ${fontClass}">${escapeHtml(n.message)}</p>
+                ${Array.isArray(n.categories) ? `<div class="notif-tags">${n.categories.map((category) => `<span>${escapeHtml(category)}</span>`).join('')}</div>` : ''}
                 <span class="notif-time">${new Date(n.createdAt).toLocaleDateString()} at ${new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
             </div>
         </div>
@@ -699,8 +750,25 @@ function renderNotificationSection() {
 }
 
 function showLatestNotification() {
+    publishAdditionalTerminologyNotice();
     updateNotificationBadge();
     renderNotificationSection();
+    renderDictionaryUpdateStatus();
+
+    if (notificationBar) {
+        notificationBar.innerHTML = `
+            <div>
+                <strong>Dictionary updated</strong>
+                <span>${ADDITIONAL_UPDATE_COUNT.toLocaleString()} new entries are ready across four dictionaries.</span>
+            </div>
+            <button class="notification-action" type="button" id="viewUpdateButton">View update</button>
+        `;
+        notificationBar.hidden = false;
+        document.getElementById('viewUpdateButton')?.addEventListener('click', () => {
+            notificationBar.hidden = true;
+            switchView('notification');
+        });
+    }
 }
 
 function loadDictionaryData(data, directionKey, fileName) {
@@ -1258,7 +1326,7 @@ function renderEntry(entry, entryType) {
 function addIndexedEntry(map, key, entry) {
     const cleanKey = String(key).trim();
     if (!cleanKey) return;
-    if (!map[cleanKey]) map[cleanKey] = [];
+    if (!Array.isArray(map[cleanKey])) map[cleanKey] = [];
     if (!map[cleanKey].includes(entry)) map[cleanKey].push(entry);
 }
 
@@ -1328,7 +1396,7 @@ function buildIndex(entries, directionKey) {
 
         fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));
         return map;
-    }, {});
+    }, Object.create(null));
 }
 
 function buildTenseIndex(entries) {
@@ -1346,7 +1414,7 @@ function buildTenseIndex(entries) {
             });
         });
         return map;
-    }, {});
+    }, Object.create(null));
 }
 
 function rebuildSearchIndices() {
