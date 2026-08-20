@@ -223,6 +223,7 @@ const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
+const ADDITIONAL_UPDATE_VIEWED_KEY = 'dz_additional_update_viewed';
 const ADDITIONAL_UPDATE_COUNT = 3876;
 const ADDITIONAL_UPDATE_CATEGORIES = [
     'Computer Terminology -Compiled by Kunzang Dorji (Gov Tech)',
@@ -755,7 +756,7 @@ function showLatestNotification() {
     renderNotificationSection();
     renderDictionaryUpdateStatus();
 
-    if (notificationBar) {
+    if (notificationBar && localStorage.getItem(ADDITIONAL_UPDATE_VIEWED_KEY) !== 'true') {
         notificationBar.innerHTML = `
             <div>
                 <strong>Dictionary updated</strong>
@@ -765,6 +766,7 @@ function showLatestNotification() {
         `;
         notificationBar.hidden = false;
         document.getElementById('viewUpdateButton')?.addEventListener('click', () => {
+            localStorage.setItem(ADDITIONAL_UPDATE_VIEWED_KEY, 'true');
             notificationBar.hidden = true;
             switchView('notification');
         });
