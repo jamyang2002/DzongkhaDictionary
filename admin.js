@@ -1,24 +1,12 @@
-function getNotifications() { try { return JSON.parse(localStorage.getItem('dz_notifications') || '[]'); } catch (e) { return []; } }
-function saveNotifications(list) { try { localStorage.setItem('dz_notifications', JSON.stringify(list)); } catch (e) {} }
-
-// Load dictionary data from localStorage (saved overrides) or use empty
-function getDictData(key) { try { return JSON.parse(localStorage.getItem(`dz_data_${key}`) || '[]'); } catch (e) { return []; } }
-function saveDictData(key, list) { try { localStorage.setItem(`dz_data_${key}`, JSON.stringify(list)); } catch (e) {} }
-
-const secret = document.getElementById('secret');
-const adminPanel = document.getElementById('adminPanel');
 const authPanel = document.getElementById('authPanel');
+const adminPanel = document.getElementById('adminPanel');
+const loginForm = document.getElementById('loginForm');
+const secret = document.getElementById('secret');
+const authStatus = document.getElementById('authStatus');
+const publishStatus = document.getElementById('publishStatus');
 const postNotif = document.getElementById('postNotif');
 const notifText = document.getElementById('notifText');
 const notifList = document.getElementById('notifList');
-const githubToken = document.getElementById('githubToken');
-const publishStatus = document.getElementById('publishStatus');
-
-const GITHUB_REPO = 'jamyang2002/DzongkhaDictionary';
-const GITHUB_BRANCH = 'main';
-const NOTIFICATIONS_PATH = 'notifications.json';
-
-// Dictionary management elements
 const dictSelector = document.getElementById('dictSelector');
 const adminSearch = document.getElementById('adminSearch');
 const entryList = document.getElementById('entryList');
@@ -30,159 +18,150 @@ const modalTitle = document.getElementById('modalTitle');
 const closeModal = document.getElementById('closeModal');
 const exportDataBtn = document.getElementById('exportDataBtn');
 
-let currentEditIndex = -1;
-
-if (secret) {
-    secret.placeholder = 'Enter password';
-}
-
-secret.addEventListener('input', () => {
-    if (secret.value === 'jamyangloday143') {
-        adminPanel.hidden = false;
-        authPanel.hidden = true;
-    }
-});
-
-// Tab Switching
-document.querySelectorAll('.admin-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById('notifSection').hidden = tab.dataset.target !== 'notifSection';
-        document.getElementById('entrySection').hidden = tab.dataset.target !== 'entrySection';
-        if (tab.dataset.target === 'entrySection') renderEntries();
-    });
-});
-
-function renderList() {
-    const list = getNotifications();
-    notifList.innerHTML = list.map((n, i) => `<li>${n.message} <button class="load-json-button" data-i="${i}">Remove</button></li>`).join('');
-    notifList.querySelectorAll('.load-json-button').forEach((b) => b.addEventListener('click', (e) => {
-        const idx = Number(b.dataset.i);
-        const l = getNotifications(); l.splice(idx,1); saveNotifications(l); renderList();
-    }));
-}
-
-postNotif.addEventListener('click', async () => {
-    const msg = (notifText.value || '').trim();
-    const token = (githubToken.value || '').trim();
-    if (!msg || !token) {
-        publishStatus.textContent = 'Enter a message and GitHub access token first.';
-        return;
-    }
-    postNotif.disabled = true;
-    publishStatus.textContent = 'Publishing notification to GitHub...';
-    try {
-        const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${NOTIFICATIONS_PATH}`;
-        const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' };
-        const currentResponse = await fetch(`${apiUrl}?ref=${GITHUB_BRANCH}`, { headers });
-        if (!currentResponse.ok) throw new Error(`Could not read notifications (${currentResponse.status})`);
-        const current = await currentResponse.json();
-        const existing = JSON.parse(decodeURIComponent(escape(atob(current.content.replace(/\s/g, '')))));
-        const notification = { id: `admin-${Date.now()}`, title: 'Dictionary update', message: msg, createdAt: new Date().toISOString() };
-        existing.push(notification);
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(existing.slice(-50), null, 2) + '\n')));
-        const updateResponse = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify({ message: `Publish notification: ${msg.slice(0, 50)}`, content, sha: current.sha, branch: GITHUB_BRANCH }) });
-        if (!updateResponse.ok) throw new Error(`GitHub rejected the update (${updateResponse.status})`);
-        const list = getNotifications(); list.push(notification); saveNotifications(list.slice(-50));
-        notifText.value = ''; renderList(); publishStatus.textContent = 'Published. All users will receive it after their app refreshes.';
-    } catch (error) {
-        publishStatus.textContent = error.message || 'Could not publish notification.';
-    } finally {
-        postNotif.disabled = false;
-    }
-});
-
-// --- Dictionary CRUD ---
-
 const schemas = {
     enDz: ['root', 'equivalent', 'type', 'also', 'plural', 'verbalForm', 'comparative'],
     dzEn: ['root', 'equivalentTerm', 'type', 'tenses', 'short', 'also', 'syn', 'app', 'hon'],
-    dzDz: ['root', 'meaning']
+    dzDz: ['root', 'meaning'],
+    kangdrang: ['root', 'meaning', 'dictionaryLabel'],
+    tenses: ['root', 'past', 'present', 'future', 'imperative']
 };
 
-function renderEntries() {
-    const dictKey = dictSelector.value;
-    const list = getDictData(dictKey);
-    const query = adminSearch.value.toLowerCase();
-    
-    const filtered = list.filter(item => 
-        (item.root || '').toLowerCase().includes(query) || 
-        (item.equivalent || item.equivalentTerm || item.meaning || '').toLowerCase().includes(query)
-    ).slice(0, 100); // Limit UI for performance
+let currentEntries = [];
+let currentSha = '';
+let currentEditIndex = -1;
+let currentNotifications = [];
+let notificationsSha = '';
 
-    entryList.innerHTML = filtered.map((item, idx) => `
-        <tr>
-            <td class="${dictKey === 'enDz' ? 'english-word' : 'uchen-word'}">${item.root}</td>
-            <td>${item.equivalent || item.equivalentTerm || item.meaning || ''}</td>
-            <td class="action-btns">
-                <button class="icon-button btn-edit" onclick="openEdit(${idx})">Edit</button>
-                <button class="icon-button btn-del" onclick="deleteEntry(${idx})">Delete</button>
-            </td>
-        </tr>
-    `).join('');
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
 }
 
-window.openEdit = (index) => {
-    const dictKey = dictSelector.value;
-    const list = getDictData(dictKey);
-    const item = index === -1 ? {} : list[index];
-    currentEditIndex = index;
-    modalTitle.textContent = index === -1 ? 'Add New Entry' : 'Edit Entry';
-    
-    formFields.innerHTML = schemas[dictKey].map(field => `
-        <label>${field.charAt(0).toUpperCase() + field.slice(1)}</label>
-        <input type="text" name="${field}" value="${item[field] || ''}">
-    `).join('');
-    
-    editModal.hidden = false;
-};
+async function apiRequest(path, options = {}) {
+    const response = await fetch(path, { ...options, credentials: 'same-origin', headers: { 'Content-Type': 'application/json', ...(options.headers || {}) } });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `Request failed (${response.status})`);
+    return body;
+}
 
-window.deleteEntry = (index) => {
-    if (!confirm('Are you sure you want to delete this entry?')) return;
-    const dictKey = dictSelector.value;
-    const list = getDictData(dictKey);
-    list.splice(index, 1);
-    saveDictData(dictKey, list);
-    renderEntries();
-};
+function setStatus(message, isError = false) {
+    publishStatus.textContent = message;
+    publishStatus.style.color = isError ? 'var(--danger)' : '';
+}
 
-entryForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const dictKey = dictSelector.value;
-    const list = getDictData(dictKey);
-    const formData = new FormData(entryForm);
-    const entry = {};
-    formData.forEach((value, key) => { entry[key] = value.trim(); });
+async function loadNotifications() {
+    const result = await apiRequest('/api/notifications');
+    currentNotifications = result.notifications || [];
+    notificationsSha = result.sha || '';
+    renderNotifications();
+}
 
-    if (!entry.root) return alert('Root word is required');
+function renderNotifications() {
+    notifList.innerHTML = currentNotifications.length
+        ? currentNotifications.slice().reverse().map((notification, reverseIndex) => `<li><span class="dzongkha-word">${escapeHtml(notification.message)}</span><button class="load-json-button" data-notification-index="${currentNotifications.length - reverseIndex - 1}">Remove</button></li>`).join('')
+        : '<li>No published notifications.</li>';
+    notifList.querySelectorAll('[data-notification-index]').forEach((button) => button.addEventListener('click', () => removeNotification(Number(button.dataset.notificationIndex))));
+}
 
-    if (currentEditIndex === -1) {
-        list.unshift(entry);
-    } else {
-        list[currentEditIndex] = entry;
-    }
+async function saveNotifications() {
+    const result = await apiRequest('/api/notifications', { method: 'PUT', body: JSON.stringify({ notifications: currentNotifications, sha: notificationsSha }) });
+    notificationsSha = result.sha || notificationsSha;
+    setStatus('Notification changes published to GitHub.');
+    renderNotifications();
+}
 
-    saveDictData(dictKey, list);
-    editModal.hidden = true;
-    renderEntries();
+async function removeNotification(index) {
+    if (!confirm('Remove this notification for users?')) return;
+    const removed = currentNotifications.splice(index, 1)[0];
+    try { await saveNotifications(); } catch (error) { currentNotifications.splice(index, 0, removed); setStatus(error.message, true); }
+}
+
+postNotif.addEventListener('click', async () => {
+    const message = notifText.value.trim();
+    if (!message) return setStatus('Enter a notification message first.', true);
+    const notification = { id: `admin-${Date.now()}`, title: 'Dictionary update', message, createdAt: new Date().toISOString() };
+    currentNotifications.push(notification);
+    postNotif.disabled = true;
+    try { await saveNotifications(); notifText.value = ''; } catch (error) { currentNotifications.pop(); setStatus(error.message, true); } finally { postNotif.disabled = false; }
 });
 
-dictSelector.addEventListener('change', renderEntries);
+async function loadDictionary() {
+    setStatus('Loading the latest dictionary data...');
+    const result = await apiRequest(`/api/dictionaries?key=${encodeURIComponent(dictSelector.value)}`);
+    currentEntries = result.entries || [];
+    currentSha = result.sha || '';
+    renderEntries();
+    setStatus(`${currentEntries.length.toLocaleString()} entries loaded from GitHub.`);
+}
+
+function renderEntries() {
+    const query = adminSearch.value.trim().toLowerCase();
+    const filtered = currentEntries.map((entry, index) => ({ entry, index })).filter(({ entry }) => JSON.stringify(entry).toLowerCase().includes(query)).slice(0, 100);
+    entryList.innerHTML = filtered.map(({ entry, index }) => `
+        <tr>
+            <td class="${dictSelector.value === 'enDz' ? 'english-word' : 'uchen-word'}">${escapeHtml(entry.root)}</td>
+            <td>${escapeHtml(entry.equivalent || entry.equivalentTerm || entry.meaning || entry.present || '')}</td>
+            <td class="action-btns"><button class="icon-button btn-edit" data-edit-index="${index}">Edit</button><button class="icon-button btn-del" data-delete-index="${index}">Delete</button></td>
+        </tr>
+    `).join('') || '<tr><td colspan="3">No matching entries.</td></tr>';
+    entryList.querySelectorAll('[data-edit-index]').forEach((button) => button.addEventListener('click', () => openEdit(Number(button.dataset.editIndex))));
+    entryList.querySelectorAll('[data-delete-index]').forEach((button) => button.addEventListener('click', () => deleteEntry(Number(button.dataset.deleteIndex))));
+}
+
+function openEdit(index) {
+    const item = index === -1 ? {} : currentEntries[index];
+    currentEditIndex = index;
+    modalTitle.textContent = index === -1 ? 'Add new entry' : 'Edit entry';
+    formFields.innerHTML = schemas[dictSelector.value].map((field) => `<label>${escapeHtml(field)}</label><textarea name="${escapeHtml(field)}" rows="${field === 'meaning' ? 4 : 2}">${escapeHtml(item[field] || '')}</textarea>`).join('');
+    editModal.hidden = false;
+}
+
+async function publishDictionary() {
+    const result = await apiRequest(`/api/dictionaries?key=${encodeURIComponent(dictSelector.value)}`, { method: 'PUT', body: JSON.stringify({ entries: currentEntries, sha: currentSha }) });
+    currentSha = result.sha || currentSha;
+    setStatus(`${result.count.toLocaleString()} entries published to GitHub.`);
+}
+
+async function deleteEntry(index) {
+    if (!confirm('Delete this entry and publish the change?')) return;
+    const removed = currentEntries.splice(index, 1)[0];
+    try { await publishDictionary(); renderEntries(); } catch (error) { currentEntries.splice(index, 0, removed); setStatus(error.message, true); }
+}
+
+entryForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const entry = Object.fromEntries(new FormData(entryForm).entries());
+    if (!entry.root.trim()) return setStatus('Root word is required.', true);
+    const oldEntry = currentEditIndex === -1 ? null : currentEntries[currentEditIndex];
+    if (currentEditIndex === -1) currentEntries.unshift(entry); else currentEntries[currentEditIndex] = entry;
+    try { await publishDictionary(); editModal.hidden = true; renderEntries(); } catch (error) { if (oldEntry) currentEntries[currentEditIndex] = oldEntry; else currentEntries.shift(); setStatus(error.message, true); }
+});
+
+loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    authStatus.textContent = 'Signing in...';
+    try {
+        await apiRequest('/api/auth/login', { method: 'POST', body: JSON.stringify({ password: secret.value }) });
+        authPanel.hidden = true;
+        adminPanel.hidden = false;
+        await Promise.all([loadNotifications(), loadDictionary()]);
+    } catch (error) { authStatus.textContent = error.message; }
+});
+
+dictSelector.addEventListener('change', () => loadDictionary().catch((error) => setStatus(error.message, true)));
 adminSearch.addEventListener('input', renderEntries);
 addNewBtn.addEventListener('click', () => openEdit(-1));
-closeModal.addEventListener('click', () => editModal.hidden = true);
-
+closeModal.addEventListener('click', () => { editModal.hidden = true; });
 exportDataBtn.addEventListener('click', () => {
-    const dictKey = dictSelector.value;
-    const list = getDictData(dictKey);
-    const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${dictKey}_updated.json`;
-    a.click();
+    const blob = new Blob([JSON.stringify(currentEntries, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${dictSelector.value}_updated.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
 });
 
-renderList();
-renderEntries();
+apiRequest('/api/auth/me').then(async () => {
+    authPanel.hidden = true;
+    adminPanel.hidden = false;
+    await Promise.all([loadNotifications(), loadDictionary()]);
+}).catch(() => {});

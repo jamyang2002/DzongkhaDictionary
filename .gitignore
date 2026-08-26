@@ -1,2 +1,6 @@
 *.xlsx
 *.xls
+.env
+.env.*
+!.env.example
+.vercel

@@ -23,12 +23,16 @@
     [hidden] { display: none !important; }
   </style>
 </head>
-<body>
-  <h1>Admin</h1>
-  <p>Manage app notifications and dictionary entries.</p>
+<body class="admin-page">
+  <h1>Dictionary administration</h1>
+  <p>Manage published dictionary data and user notifications from one secure workspace.</p>
   
   <div id="authPanel">
-    <label>Secret Key: <input id="secret" type="password" placeholder="Enter 'admin' to unlock"></label>
+    <form id="loginForm">
+      <label>Admin password: <input id="secret" type="password" autocomplete="current-password" required></label>
+      <button class="primary-button" type="submit">Sign in</button>
+    </form>
+    <p id="authStatus" aria-live="polite">Sign in to load the latest data from GitHub.</p>
   </div>
 
   <div id="adminPanel" hidden>
@@ -39,8 +43,7 @@
 
     <!-- Notification Section -->
     <section id="notifSection">
-      <label>GitHub access token (session only): <input id="githubToken" type="password" autocomplete="off" placeholder="Fine-grained token with Contents: Read and write"></label>
-      <p id="publishStatus" aria-live="polite">Use a GitHub fine-grained token for this repository. It is used only when publishing and is never stored.</p>
+      <p id="publishStatus" aria-live="polite">Changes are validated and published automatically through the secure backend.</p>
       <label>New Notification: <textarea id="notifText" rows="2"></textarea></label>
       <button id="postNotif" class="primary-button" type="button">Publish to all users</button>
       <h2>History</h2>
@@ -54,6 +57,7 @@
           <option value="dzEn">Dzongkha → English</option>
           <option value="enDz">English → Dzongkha</option>
           <option value="dzDz">Dzongkha → Dzongkha</option>
+          <option value="kangdrang">Kangdrang</option>
           <option value="tenses">Tenses</option>
         </select>
         <input id="adminSearch" type="text" placeholder="Search entries to edit..." style="flex: 1;">
@@ -81,7 +85,7 @@
       <form id="entryForm">
         <div id="formFields"></div>
         <div class="utility-row" style="margin-top: 20px;">
-          <button type="submit" class="primary-button">Save Changes</button>
+          <button type="submit" class="primary-button">Save and publish</button>
           <button type="button" id="closeModal" class="secondary-button">Cancel</button>
         </div>
       </form>
