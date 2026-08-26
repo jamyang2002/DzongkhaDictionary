@@ -173,6 +173,11 @@ if (startLookupButton && inputElement) {
 
 if (wordOfDayEl && inputElement) {
     wordOfDayEl.addEventListener('click', (event) => {
+        const alertButton = event.target.closest('[data-enable-daily-alerts]');
+        if (alertButton) {
+            enableDailyWordAlerts(alertButton);
+            return;
+        }
         const button = event.target.closest('[data-daily-word]');
         if (!button) return;
         switchView('search');
@@ -224,6 +229,8 @@ const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
 const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
+const DAILY_WORD_ALERTS_KEY = 'dz_daily_word_alerts_enabled';
+const DAILY_WORD_LAST_ALERT_KEY = 'dz_daily_word_last_alert';
 const ADDITIONAL_UPDATE_VIEWED_KEY = 'dz_additional_update_viewed';
 const ADDITIONAL_UPDATE_COUNT = 3876;
 const ADDITIONAL_UPDATE_CATEGORIES = [
@@ -661,7 +668,60 @@ function updateWordOfTheDay() {
                 <span>${escapeHtml(source)}</span>
             </div>
             <button class="daily-action" type="button" data-daily-word="${escapeHtml(root)}">Search this word</button>
+            <button class="daily-action daily-alert-action" type="button" data-enable-daily-alerts>${localStorage.getItem(DAILY_WORD_ALERTS_KEY) === 'true' ? 'Daily alerts enabled' : 'Enable daily alerts'}</button>
         `;
+        scheduleDailyWordAlert(w);
+    } catch (e) {}
+}
+
+function playDailyWordChime() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.45);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.45);
+    } catch (e) {}
+}
+
+async function enableDailyWordAlerts(button) {
+    if (!('Notification' in window)) {
+        button.textContent = 'Browser alerts unavailable';
+        return;
+    }
+    if (Notification.permission === 'default') await Notification.requestPermission();
+    if (Notification.permission !== 'granted') {
+        button.textContent = 'Notifications blocked';
+        return;
+    }
+    try { localStorage.setItem(DAILY_WORD_ALERTS_KEY, 'true'); } catch (e) {}
+    button.textContent = 'Daily alerts enabled';
+    playDailyWordChime();
+}
+
+function scheduleDailyWordAlert(word) {
+    try {
+        if (localStorage.getItem(DAILY_WORD_ALERTS_KEY) !== 'true') return;
+        const today = new Date().toISOString().slice(0, 10);
+        if (localStorage.getItem(DAILY_WORD_LAST_ALERT_KEY) === today) return;
+        localStorage.setItem(DAILY_WORD_LAST_ALERT_KEY, today);
+        const title = `Word of the day: ${word.root || 'Dzongkha'}`;
+        const body = word.equivalent || word.equivalentTerm || word.meaning || 'Open the dictionary to learn today\'s word.';
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body, icon: './assets/icon-192.png', tag: 'dzongkha-word-of-the-day' });
+            playDailyWordChime();
+        }
+        const list = getNotifications();
+        list.push({ id: `word-of-day-${today}`, title, message: body, createdAt: new Date().toISOString() });
+        saveNotifications(list.slice(-30));
+        updateNotificationBadge();
     } catch (e) {}
 }
 
