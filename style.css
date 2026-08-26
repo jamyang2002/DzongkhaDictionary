@@ -6,6 +6,13 @@
 }
 
 @font-face {
+    font-family: "DDC Joyig";
+    src: url("Font/Joyig.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
     font-family: "DDC Uchen";
     src: url("Font/DDC_Uchen.ttf") format("truetype");
     font-weight: 400;
@@ -694,6 +701,11 @@ img {
     color: var(--muted);
     font-size: 0.86rem;
     font-weight: 650;
+}
+
+.dictionary-notification-message {
+    font-family: "DDC Joyig", "Noto Sans Dzongkha", sans-serif;
+    letter-spacing: 0;
 }
 
 .notification-action {
@@ -1833,6 +1845,11 @@ img {
 .dictionary-entry .word.uchen-word,
 .daily-word.uchen-word {
     font-family: "DDC Uchen", "Noto Serif Tibetan", "Noto Sans Dzongkha", serif;
+    letter-spacing: 0;
+}
+
+.dictionary-direction-label {
+    font-family: "Joyig", "Noto Sans Dzongkha", sans-serif;
     letter-spacing: 0;
 }
 

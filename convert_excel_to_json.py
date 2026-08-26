@@ -54,6 +54,8 @@ COLUMN_MAP = {
     "རྒྱལ་ས།": "capitalDz",
     "meaning": "meaning",
     "book": "dictionaryLabel",
+    "རྩ་ཚིག།": "root",
+    "རྐང་གྲངས།": "equivalent",
 
     # Dzongkha → English
     "tenses": "tenses",

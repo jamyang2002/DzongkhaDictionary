@@ -227,9 +227,12 @@ const LOCAL_TENSE_JSON = 'final_tense.json';
 const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
+const LOCAL_KANGDRANG_JSON = 'kangdrang.json';
 const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
 const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
+const REMOVED_NOTIFICATION_IDS = new Set(['kangdrang-dictionary-update-2026-08-26']);
+const KANGDRANG_NOTIFICATION_VIEWED_KEY = 'dz_kangdrang_notification_viewed';
 const DAILY_WORD_ALERTS_KEY = 'dz_daily_word_alerts_enabled';
 const DAILY_WORD_LAST_ALERT_KEY = 'dz_daily_word_last_alert';
 const ADDITIONAL_UPDATE_VIEWED_KEY = 'dz_additional_update_viewed';
@@ -371,7 +374,7 @@ async function loadLocalDataset(path) {
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
 
-    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData, additionalTerminologyData] = await Promise.all([
+    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData, additionalTerminologyData, kangdrangData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
         loadLocalDataset(LOCAL_TERMINOLOGY_2026_JSON),
@@ -382,10 +385,11 @@ async function initializeLocalDictionaries() {
         loadLocalDataset(LOCAL_DZ_DZ_JSON),
         loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
         loadLocalDataset(LOCAL_TENSE_JSON),
-        loadLocalDataset(LOCAL_ADDITIONAL_TERMINOLOGY_JSON)
+        loadLocalDataset(LOCAL_ADDITIONAL_TERMINOLOGY_JSON),
+        loadLocalDataset(LOCAL_KANGDRANG_JSON)
     ]);
 
-    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0) + (additionalTerminologyData?.length || 0);
+    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0) + (additionalTerminologyData?.length || 0) + (kangdrangData?.length || 0);
 
     if (totalLoaded > 0) {
         enDzEntries.length = 0;
@@ -406,6 +410,7 @@ async function initializeLocalDictionaries() {
     if (dzDzColloquialData) loadDictionaryData(dzDzColloquialData, 'dz-dz', LOCAL_DZ_DZ_COLLOQUIAL_JSON);
     if (tenseData) loadDictionaryData(tenseData, 'tense', LOCAL_TENSE_JSON);
     if (additionalTerminologyData) loadDictionaryData(additionalTerminologyData, 'en-dz', LOCAL_ADDITIONAL_TERMINOLOGY_JSON);
+    if (kangdrangData) loadDictionaryData(kangdrangData, 'dz-dz', LOCAL_KANGDRANG_JSON);
 
     // Merge with any manual edits from the Admin Panel
     const overrides = { enDz: 'en-dz', dzEn: 'dz-en', dzDz: 'dz-dz', tenses: 'tense' };
@@ -736,8 +741,12 @@ async function loadSharedNotifications() {
         if (!response.ok) return;
         const shared = await response.json();
         if (!Array.isArray(shared)) return;
-        const merged = new Map(getNotifications().map((notification) => [notification.id, notification]));
-        shared.forEach((notification) => merged.set(notification.id || `shared-${notification.createdAt}`, notification));
+        const merged = new Map(getNotifications()
+            .filter((notification) => !REMOVED_NOTIFICATION_IDS.has(notification.id))
+            .map((notification) => [notification.id, notification]));
+        shared
+            .filter((notification) => !REMOVED_NOTIFICATION_IDS.has(notification.id))
+            .forEach((notification) => merged.set(notification.id || `shared-${notification.createdAt}`, notification));
         saveNotifications(Array.from(merged.values()).slice(-50));
     } catch (e) {}
 }
@@ -865,17 +874,16 @@ function showLatestNotification() {
     renderNotificationSection();
     renderDictionaryUpdateStatus();
 
-    if (notificationBar && localStorage.getItem(ADDITIONAL_UPDATE_VIEWED_KEY) !== 'true') {
+    if (notificationBar && localStorage.getItem(KANGDRANG_NOTIFICATION_VIEWED_KEY) !== 'true') {
         notificationBar.innerHTML = `
             <div>
-                <strong>Dictionary updated</strong>
-                <span>${ADDITIONAL_UPDATE_COUNT.toLocaleString()} new entries are ready across four dictionaries.</span>
+                <span class="dictionary-notification-message">སྐད་ཡིག་གོང་འཕེལ་འགོ་དཔོན་ཕུརཔ་རྣམ་རྒྱལ་གྱིས་བསྡུ་སྒྲིག་འབད་དེ་ཡོད་པའི་ ཉེར་མཁོའི་རྐང་གྲངས་ཀྱི་དཔེ་དེབ་ནང་གི་གནས་སྡུད་ཚུ་ ཚིག་མཛོད་འདི་ནང་བཙུགས་ཏེ་ཡོད།</span>
             </div>
-            <button class="notification-action" type="button" id="viewUpdateButton">View update</button>
+            <button class="notification-action" type="button" id="viewUpdateButton">View updates</button>
         `;
         notificationBar.hidden = false;
         document.getElementById('viewUpdateButton')?.addEventListener('click', () => {
-            localStorage.setItem(ADDITIONAL_UPDATE_VIEWED_KEY, 'true');
+            localStorage.setItem(KANGDRANG_NOTIFICATION_VIEWED_KEY, 'true');
             notificationBar.hidden = true;
             switchView('notification');
         });
@@ -1121,7 +1129,7 @@ function renderCard(entry, entryType) {
                 ${details}
                 <div class="details-item">
                     <strong>Dictionary direction</strong>
-                    <span>${directionLabel}</span>
+                    <span class="dictionary-direction-label">${directionLabel}</span>
                 </div>
             </div>
         </section>
