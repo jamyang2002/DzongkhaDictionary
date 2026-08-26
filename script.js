@@ -223,6 +223,7 @@ const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
+const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
 const ADDITIONAL_UPDATE_VIEWED_KEY = 'dz_additional_update_viewed';
 const ADDITIONAL_UPDATE_COUNT = 3876;
 const ADDITIONAL_UPDATE_CATEGORIES = [
@@ -681,6 +682,18 @@ function publishAdditionalTerminologyNotice() {
     }]);
 }
 
+function publishDictionaryCleanupNotice() {
+    const list = getNotifications();
+    if (list.some((notification) => notification.id === DICTIONARY_CLEANUP_UPDATE_ID)) return;
+
+    saveNotifications([...list, {
+        id: DICTIONARY_CLEANUP_UPDATE_ID,
+        title: 'Dictionary data updated',
+        message: 'Duplicate data from Collected Terminology, coined and contributed by Kunzang Dorji (Gov Tech), has been removed so search results appear only once. Collected Terminology now has its own dictionary direction name based on its category.',
+        createdAt: '2026-08-26T00:00:00.000Z'
+    }]);
+}
+
 function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
     const statusPanel = document.getElementById('dictionaryUpdateStatus');
     if (!statusPanel) return;
@@ -751,6 +764,7 @@ function renderNotificationSection() {
 }
 
 function showLatestNotification() {
+    publishDictionaryCleanupNotice();
     publishAdditionalTerminologyNotice();
     updateNotificationBadge();
     renderNotificationSection();
@@ -786,7 +800,7 @@ function loadDictionaryData(data, directionKey, fileName) {
             const e = { ...entry };
             if (!e.root) e.root = e.present || e.future || e.past || e.imperative;
             if (!e.source) e.source = fileName;
-            if (fileName === LOCAL_COLLECTED_TERMINOLOGY_JSON) {
+            if (fileName === LOCAL_COLLECTED_TERMINOLOGY_JSON && !e.dictionaryLabel) {
                 e.dictionaryLabel = 'Collected terminology';
             }
             if (fileName === LOCAL_TERMINOLOGY_2026_JSON && !e.dictionaryLabel) {

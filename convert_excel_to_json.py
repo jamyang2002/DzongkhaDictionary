@@ -53,6 +53,7 @@ COLUMN_MAP = {
     "རྒྱལ་ཁབ།": "countryDz",
     "རྒྱལ་ས།": "capitalDz",
     "meaning": "meaning",
+    "book": "dictionaryLabel",
 
     # Dzongkha → English
     "tenses": "tenses",
@@ -73,6 +74,7 @@ COLUMN_MAP = {
 }
 
 DZONGKHA_RE = re.compile(r"[\u0F00-\u0FFF]")
+DUPLICATE_DICTIONARY_LABEL = "Coined and contributed by Kundor (During NLP Corpus Editing)"
 
 
 def normalize_header(name: str) -> str:
@@ -135,6 +137,9 @@ def dataframe_to_records(df: pd.DataFrame) -> list[dict[str, str]]:
                 record["equivalent"] = dzongkha
 
         if not record.get("root"):
+            continue
+
+        if record.get("dictionaryLabel") == DUPLICATE_DICTIONARY_LABEL:
             continue
 
         records.append(record)
