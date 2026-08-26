@@ -227,6 +227,7 @@ const LOCAL_TENSE_JSON = 'final_tense.json';
 const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
+const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
 const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
 const DAILY_WORD_ALERTS_KEY = 'dz_daily_word_alerts_enabled';
@@ -728,6 +729,18 @@ function scheduleDailyWordAlert(word) {
 // --- Notifications ---
 function getNotifications() { try { return JSON.parse(localStorage.getItem('dz_notifications') || '[]'); } catch (e) { return []; } }
 function saveNotifications(list) { try { localStorage.setItem('dz_notifications', JSON.stringify(list)); } catch (e) {} }
+
+async function loadSharedNotifications() {
+    try {
+        const response = await fetch(`${SHARED_NOTIFICATIONS_JSON}?v=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) return;
+        const shared = await response.json();
+        if (!Array.isArray(shared)) return;
+        const merged = new Map(getNotifications().map((notification) => [notification.id, notification]));
+        shared.forEach((notification) => merged.set(notification.id || `shared-${notification.createdAt}`, notification));
+        saveNotifications(Array.from(merged.values()).slice(-50));
+    } catch (e) {}
+}
 
 function publishAdditionalTerminologyNotice() {
     const list = getNotifications();
@@ -1886,7 +1899,7 @@ if (historyPanel) {
 
 setDirection(direction, true);
 updateWordOfTheDay();
-showLatestNotification();
+loadSharedNotifications().finally(showLatestNotification);
 renderHistoryPanel();
 initializeLocalDictionaries();
 

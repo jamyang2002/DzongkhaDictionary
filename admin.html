@@ -39,8 +39,10 @@
 
     <!-- Notification Section -->
     <section id="notifSection">
+      <label>GitHub access token (session only): <input id="githubToken" type="password" autocomplete="off" placeholder="Fine-grained token with Contents: Read and write"></label>
+      <p id="publishStatus" aria-live="polite">Use a GitHub fine-grained token for this repository. It is used only when publishing and is never stored.</p>
       <label>New Notification: <textarea id="notifText" rows="2"></textarea></label>
-      <button id="postNotif" class="primary-button">Post Message</button>
+      <button id="postNotif" class="primary-button" type="button">Publish to all users</button>
       <h2>History</h2>
       <ul id="notifList"></ul>
     </section>

@@ -11,6 +11,12 @@ const authPanel = document.getElementById('authPanel');
 const postNotif = document.getElementById('postNotif');
 const notifText = document.getElementById('notifText');
 const notifList = document.getElementById('notifList');
+const githubToken = document.getElementById('githubToken');
+const publishStatus = document.getElementById('publishStatus');
+
+const GITHUB_REPO = 'jamyang2002/DzongkhaDictionary';
+const GITHUB_BRANCH = 'main';
+const NOTIFICATIONS_PATH = 'notifications.json';
 
 // Dictionary management elements
 const dictSelector = document.getElementById('dictSelector');
@@ -57,8 +63,34 @@ function renderList() {
     }));
 }
 
-postNotif.addEventListener('click', () => {
-    const msg = (notifText.value||'').trim(); if (!msg) return; const list = getNotifications(); list.push({ message: msg, createdAt: Date.now() }); saveNotifications(list); notifText.value = ''; renderList();
+postNotif.addEventListener('click', async () => {
+    const msg = (notifText.value || '').trim();
+    const token = (githubToken.value || '').trim();
+    if (!msg || !token) {
+        publishStatus.textContent = 'Enter a message and GitHub access token first.';
+        return;
+    }
+    postNotif.disabled = true;
+    publishStatus.textContent = 'Publishing notification to GitHub...';
+    try {
+        const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${NOTIFICATIONS_PATH}`;
+        const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' };
+        const currentResponse = await fetch(`${apiUrl}?ref=${GITHUB_BRANCH}`, { headers });
+        if (!currentResponse.ok) throw new Error(`Could not read notifications (${currentResponse.status})`);
+        const current = await currentResponse.json();
+        const existing = JSON.parse(decodeURIComponent(escape(atob(current.content.replace(/\s/g, '')))));
+        const notification = { id: `admin-${Date.now()}`, title: 'Dictionary update', message: msg, createdAt: new Date().toISOString() };
+        existing.push(notification);
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(existing.slice(-50), null, 2) + '\n')));
+        const updateResponse = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify({ message: `Publish notification: ${msg.slice(0, 50)}`, content, sha: current.sha, branch: GITHUB_BRANCH }) });
+        if (!updateResponse.ok) throw new Error(`GitHub rejected the update (${updateResponse.status})`);
+        const list = getNotifications(); list.push(notification); saveNotifications(list.slice(-50));
+        notifText.value = ''; renderList(); publishStatus.textContent = 'Published. All users will receive it after their app refreshes.';
+    } catch (error) {
+        publishStatus.textContent = error.message || 'Could not publish notification.';
+    } finally {
+        postNotif.disabled = false;
+    }
 });
 
 // --- Dictionary CRUD ---
