@@ -1705,6 +1705,23 @@ img {
     transition: transform 0.2s ease;
 }
 
+.notif-item:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+}
+
+.notif-body {
+    min-width: 0;
+    flex: 1;
+}
+
+.notif-title {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-size: 1rem;
+}
+
 .notif-icon {
     flex: 0 0 40px;
     height: 40px;
@@ -1722,6 +1739,8 @@ img {
 }
 
 .notif-time {
+    display: block;
+    margin-top: 10px;
     font-size: 0.75rem;
     color: var(--soft);
 }

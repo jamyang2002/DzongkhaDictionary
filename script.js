@@ -754,6 +754,27 @@ function publishDictionaryCleanupNotice() {
     }]);
 }
 
+function normalizeNotificationTimes() {
+    const list = getNotifications();
+    const fixedTimes = new Set(['2026-08-19T00:00:00.000Z', '2026-08-26T00:00:00.000Z']);
+    let changed = false;
+    const normalized = list.map((notification) => {
+        if (!fixedTimes.has(notification.createdAt)) return notification;
+        changed = true;
+        return { ...notification, createdAt: new Date().toISOString() };
+    });
+    if (changed) saveNotifications(normalized);
+}
+
+function formatNotificationTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Time unavailable';
+    return new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    }).format(date);
+}
+
 function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
     const statusPanel = document.getElementById('dictionaryUpdateStatus');
     if (!statusPanel) return;
@@ -816,7 +837,7 @@ function renderNotificationSection() {
                 <strong class="notif-title">${escapeHtml(n.title || 'Dictionary update')}</strong>
                 <p class="notif-msg ${fontClass}">${escapeHtml(n.message)}</p>
                 ${Array.isArray(n.categories) ? `<div class="notif-tags">${n.categories.map((category) => `<span>${escapeHtml(category)}</span>`).join('')}</div>` : ''}
-                <span class="notif-time">${new Date(n.createdAt).toLocaleDateString()} at ${new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                <span class="notif-time">${escapeHtml(formatNotificationTime(n.createdAt))}</span>
             </div>
         </div>
     `;
@@ -824,6 +845,7 @@ function renderNotificationSection() {
 }
 
 function showLatestNotification() {
+    normalizeNotificationTimes();
     publishDictionaryCleanupNotice();
     publishAdditionalTerminologyNotice();
     updateNotificationBadge();
