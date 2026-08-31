@@ -1009,7 +1009,12 @@ function setDirection(newDirection, skipDefaultMessage = false) {
 
 function renderMessage(message, isError = false) {
     const errorClass = isError ? 'error' : '';
+    resultElement.classList.remove('has-results', 'has-selected-result');
     resultElement.innerHTML = `<div class="message ${errorClass}">${message}</div>`;
+}
+
+function resetSearchResults() {
+    renderMessage('Search for a word to see its translation and notes.');
 }
 
 function renderClickableText(value, valueClass) {
@@ -1072,7 +1077,7 @@ function getFieldDefinitions(entry, entryType) {
     return fields;
 }
 
-function renderCard(entry, entryType) {
+function renderCard(entry, entryType, animationIndex = 0) {
     const fields = getFieldDefinitions(entry, entryType);
     
     // Determine flags based on direction
@@ -1126,7 +1131,7 @@ function renderCard(entry, entryType) {
         : (entryType === 'enDz' || entryType === 'countries' ? 'dzongkha-word' : 'english-word');
 
     return `
-        <section class="dictionary-entry">
+        <section class="dictionary-entry result-card" data-result-card tabindex="0" aria-label="Focus ${escapeHtml(entry.root)} result" style="--entry-index: ${animationIndex}">
             <h2 class="word ${mainWordClass}">
                 <span class="lang-flag">${rootFlag}</span> ${entry.root}
                 <button type="button" class="audio-btn" data-root-audio="${entry.root}" title="Play English pronunciation">🔊</button>
@@ -1447,6 +1452,8 @@ function renderBrowseTableRows(config, allRows, tbody, browseTableWrap) {
 }
 
 function renderEntry(entry, entryType) {
+    resultElement.classList.add('has-results');
+    resultElement.classList.remove('has-selected-result');
     resultElement.innerHTML = renderCard(entry, entryType);
 }
 
@@ -1631,11 +1638,22 @@ function getSearchGroups(query, normalizedQuery) {
 function renderSearchCards(query, groups, similarDirection) {
     const cards = [];
     groups.forEach(({ entries, type }) => {
-        entries.slice(0, 20).forEach((entry) => cards.push(renderCard(entry, type)));
+        entries.slice(0, 20).forEach((entry) => cards.push(renderCard(entry, type, cards.length)));
     });
 
     if (!cards.length) return false;
-    resultElement.innerHTML = cards.join('');
+    resultElement.classList.add('has-results');
+    resultElement.classList.remove('has-selected-result');
+    const countLabel = `${cards.length} ${cards.length === 1 ? 'result' : 'results'}`;
+    resultElement.innerHTML = `
+        <div class="result-summary">
+            <div>
+                <span class="result-summary-label">Matches for</span>
+                <strong>${escapeHtml(query)}</strong>
+            </div>
+            <span class="result-summary-count">${countLabel}</span>
+        </div>
+        ${cards.join('')}`;
     const similar = renderSimilar(query, similarDirection || direction);
     if (similar) resultElement.appendChild(similar);
     scrollToResults();
@@ -1701,6 +1719,7 @@ function updateSuggestions() {
     if (!query) {
         suggestions.hidden = true;
         inputElement.setAttribute('aria-expanded', 'false');
+        resetSearchResults();
         return;
     }
 
@@ -1754,6 +1773,28 @@ resultElement.addEventListener('click', (e) => {
     suggestions.hidden = true;
     inputElement.value = val;
     searchWord();
+});
+
+function selectResultCard(card) {
+    if (!card) return;
+    resultElement.classList.add('has-selected-result');
+    resultElement.querySelectorAll('[data-result-card]').forEach((item) => {
+        item.classList.toggle('is-selected', item === card);
+    });
+    card.classList.remove('selection-pulse');
+    window.requestAnimationFrame(() => card.classList.add('selection-pulse'));
+}
+
+resultElement.addEventListener('click', (event) => {
+    if (event.target.closest('button, a, input, select, textarea')) return;
+    selectResultCard(event.target.closest('[data-result-card]'));
+});
+
+resultElement.addEventListener('keydown', (event) => {
+    const card = event.target.closest('[data-result-card]');
+    if (!card || (event.key !== 'Enter' && event.key !== ' ')) return;
+    event.preventDefault();
+    selectResultCard(card);
 });
 
 // Handle audio and favorite clicks
@@ -1846,6 +1887,7 @@ function renderSimilar(query, effectiveDirection) {
 
 searchButton.addEventListener('click', searchWord);
 inputElement.addEventListener('input', updateSuggestions);
+inputElement.addEventListener('search', updateSuggestions);
 inputElement.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -1873,6 +1915,7 @@ if (clearSearchButton) {
         suggestions.hidden = true;
         inputElement.setAttribute('aria-expanded', 'false');
         clearSearchButton.hidden = true;
+        resetSearchResults();
         inputElement.focus();
     });
 }
