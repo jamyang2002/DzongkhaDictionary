@@ -2076,3 +2076,7 @@ if ('serviceWorker' in navigator) {
         window.location.reload();
     });
 }
+
+// Keep the installed iOS app at its intended scale while preserving normal scrolling.
+document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
+document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });
