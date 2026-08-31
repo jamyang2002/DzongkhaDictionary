@@ -71,6 +71,12 @@ html {
     background: var(--bg);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    touch-action: pan-y;
+}
+
+.browse-table-container,
+.dictionary-table {
+    touch-action: pan-x pan-y;
 }
 
 body {
