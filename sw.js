@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v2.1';
+const CACHE_NAME = 'dzongkha-dict-v2.2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -60,16 +60,21 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch strategy: Network First for JSON data, Cache First for assets
+// Keep pages and dictionary data fresh, while retaining cached fallbacks offline.
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
   const url = new URL(event.request.url);
   const isDataFile = url.pathname.endsWith('.json');
+  const isNavigation = event.request.mode === 'navigate';
+  const isHtmlFile = url.pathname.endsWith('.html');
+  const isFreshContent = isDataFile || isNavigation || isHtmlFile;
 
   event.respondWith(
-    isDataFile
+    isFreshContent
       ? fetch(event.request)
           .then((response) => {
-            if (!response.ok) return response; // Don't cache errors
+            if (!response.ok) return response;
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
             return response;
