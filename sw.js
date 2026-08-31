@@ -1,8 +1,9 @@
-const CACHE_NAME = 'dzongkha-dict-v1.19';
+const CACHE_NAME = 'dzongkha-dict-v2.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
+  './modern.css',
   './script.js',
   './admin.js',
   './manifest.json',
@@ -64,7 +65,7 @@ self.addEventListener('fetch', (event) => {
   const isDataFile = url.pathname.endsWith('.json');
 
   event.respondWith(
-    isDataFile 
+    isDataFile
       ? fetch(event.request)
           .then((response) => {
             if (!response.ok) return response; // Don't cache errors

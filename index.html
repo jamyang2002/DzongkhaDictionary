@@ -3,36 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilingual Dictionary</title>
+    <title>Dzongkha Bilingual Dictionary</title>
+    <meta name="description" content="A fast, accessible Dzongkha–English dictionary for readers, translators, language officers, and learners.">
+    <meta name="color-scheme" content="light dark">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#8B0000">
+    <meta name="theme-color" content="#172554">
+    <link rel="icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="modern.css?v=2.0">
 </head>
 <body>
-    <div id="appSplash" class="splash-overlay">
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
+
+    <div id="appSplash" class="splash-overlay" role="dialog" aria-modal="true" aria-labelledby="splashTitle">
+        <div class="splash-ambient splash-ambient-one" aria-hidden="true"></div>
+        <div class="splash-ambient splash-ambient-two" aria-hidden="true"></div>
         <div class="splash-card">
-            <img src="assets/app-logo.png" alt="Bilingual Dictionary Logo" class="splash-logo">
-            <p class="welcome-greeting uchen-word" style="font-size: 2.2rem; margin-bottom: 5px;">སྐུ་གཟུགས་བཟང་པོ་ལགས།</p>
-            <h1 class="splash-title">Bilingual Dictionary</h1>
-            <p class="splash-description">A simple bilingual dictionary for personal use, built to support Dzongkha readers, translators, language officers, and learners.</p>
-            
-            <div class="welcome-stats" style="margin-top: 10px; margin-bottom: 10px; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
-                <div style="background: var(--panel-soft); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);">
+            <div class="splash-emblem"><img src="assets/app-logo.png" alt="" class="splash-logo"></div>
+            <p class="splash-kicker">Dzongkha language resource</p>
+            <p class="welcome-greeting uchen-word splash-greeting">སྐུ་གཟུགས་བཟང་པོ་ལགས།</p>
+            <h1 id="splashTitle" class="splash-title">Words that connect cultures.</h1>
+            <p class="splash-description">Explore trusted Dzongkha and English definitions in a focused, beautifully crafted workspace.</p>
+
+            <div class="splash-stats" aria-label="Dictionary collection summary">
+                <div>
                     <strong id="splashDzEnCount">36,499</strong>
                     <span>Dzongkha-English</span>
                 </div>
-                <div style="background: var(--panel-soft); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);">
+                <div>
                     <strong id="splashEnDzCount">31,538</strong>
                     <span>English-Dzongkha</span>
                 </div>
-                <div style="background: var(--panel-soft); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);">
+                <div>
                     <strong id="splashDzDzCount">20,622</strong>
-                    <span>Dzongkha definitions</span>
+                    <span>Dzongkha-Definitions</span>
                 </div>
             </div>
 
             <div class="splash-actions">
-                <button id="splashStartBtn" class="primary-button" type="button" style="width: 100%;">
+                <button id="splashStartBtn" class="primary-button" type="button">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 19.1-4.6-4.6a7 7 0 1 0-1.4 1.4l4.6 4.6 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
                     <span>Start searching</span>
                 </button>
@@ -86,7 +96,7 @@
             </div>
         </aside>
 
-        <section class="app-main">
+        <section id="mainContent" class="app-main" tabindex="-1">
             <div id="notificationBar" class="notification-bar" hidden></div>
 
             <header class="app-topbar">
@@ -112,8 +122,9 @@
                         <div class="welcome-content">
                             <img class="welcome-logo" src="assets/app-logo.png" alt="Bilingual Dictionary logo">
                             <p class="welcome-greeting uchen-word">སྐུ་གཟུགས་བཟང་པོ་ལགས།</p>
-                            <h2 id="homeTitle">Bilingual Dictionary</h2>
-                            <p class="welcome-copy">A simple bilingual dictionary for personal use, built to support Dzongkha readers, translators, language officers, and learners.</p>
+                            <p class="hero-kicker">Bhutan's language, within reach</p>
+                            <h2 id="homeTitle">Discover the meaning behind every word.</h2>
+                            <p class="welcome-copy">A carefully curated bilingual dictionary for Dzongkha readers, translators, language officers, educators, and learners.</p>
                             <div class="welcome-actions">
                                 <button id="startLookupButton" class="primary-button" type="button">
                                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 19.1-4.6-4.6a7 7 0 1 0-1.4 1.4l4.6 4.6 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
@@ -124,16 +135,16 @@
                                     <span>Switch theme</span>
                                 </button>
                             </div>
-                            <div class="welcome-stats" aria-label="Dictionary summary" style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 32px;">
-                                <div style="background: var(--panel-soft); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--line); min-width: 150px;">
+                            <div class="welcome-stats" aria-label="Dictionary summary">
+                                <div>
                                     <strong id="homeDzEnCount">36,499</strong>
                                     <span>Dzongkha-English</span>
                                 </div>
-                                <div style="background: var(--panel-soft); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--line); min-width: 150px;">
+                                <div>
                                     <strong id="homeEnDzCount">31,538</strong>
                                     <span>English-Dzongkha</span>
                                 </div>
-                                <div style="background: var(--panel-soft); padding: 16px 24px; border-radius: 12px; border: 1px solid var(--line); min-width: 150px;">
+                                <div>
                                     <strong id="homeDzDzCount">20,622</strong>
                                     <span>Dzongkha definitions</span>
                                 </div>
@@ -178,14 +189,17 @@
                         <section class="lookup-panel" aria-label="Dictionary lookup">
                             <section class="search-panel">
                                 <label class="visually-hidden" for="searchBox">Search term</label>
-                                <input id="searchBox" autocomplete="off" placeholder="Search word in English or Dzongkha">
+                                <input id="searchBox" type="search" autocomplete="off" enterkeyhint="search" placeholder="Search word in English or Dzongkha" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false">
+                                <button id="clearSearchButton" class="search-clear" type="button" aria-label="Clear search" title="Clear search" hidden>
+                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13.4 12 4.3-4.3-1.4-1.4-4.3 4.3-4.3-4.3-1.4 1.4 4.3 4.3-4.3 4.3 1.4 1.4 4.3-4.3 4.3 4.3 1.4-1.4-4.3-4.3Z"/></svg>
+                                </button>
                                 <button id="searchButton" type="button">
                                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 19.1-4.6-4.6a7 7 0 1 0-1.4 1.4l4.6 4.6 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"/></svg>
                                     <span>Search</span>
                                 </button>
                             </section>
 
-                            <section id="suggestions" class="suggestions" hidden></section>
+                            <section id="suggestions" class="suggestions" role="listbox" aria-label="Search suggestions" hidden></section>
 
                         </section>
 
@@ -194,7 +208,7 @@
                                 <p class="section-kicker">Result</p>
                                 <span class="font-note">Joyig Dzongkha font enabled</span>
                             </div>
-                            <section id="result" class="result-panel">
+                            <section id="result" class="result-panel" aria-live="polite" aria-atomic="false">
                                 <div class="notice">Search for a word to see its translation and notes.</div>
                             </section>
                         </section>
@@ -245,20 +259,23 @@
                         </div>
                     </div>
 
-                    <div class="acknowledgment-section" style="margin-top: 32px; border-top: 1px solid var(--line); padding-top: 24px;">
-                        <img src="assets/app-logo.png" alt="App Logo" style="width: 64px; height: auto; margin-bottom: 16px; display: block;">
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;">Acknowledgment</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-soft); line-height: 1.6;">All dictionary data used in this application are sourced from the Department of Culture and Dzongkha Development (DCDD), Royal Government of Bhutan. The developer gratefully acknowledges the Department for providing and maintaining these valuable Dzongkha language resources.</p>
+                    <div class="acknowledgment-section">
+                        <img src="assets/app-logo.png" alt="">
+                        <div>
+                            <p class="section-kicker">With gratitude</p>
+                            <h3>Acknowledgment</h3>
+                            <p>All dictionary data used in this application are sourced from the Department of Culture and Dzongkha Development (DCDD), Royal Government of Bhutan. The developer gratefully acknowledges the Department for providing and maintaining these valuable Dzongkha language resources.</p>
+                        </div>
                     </div>
 
-                    <div class="guidelines-container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line);">
+                    <div class="guidelines-container">
                         <p class="section-kicker uchen-word">ཚིག་མཛོད་ལག་ལེན་ལམ་སྟོན།</p>
-                        <div class="dzongkha-word" style="font-size: 0.85rem; line-height: 1.6; color: var(--text-soft);">
+                        <div class="dzongkha-word guidelines-copy">
                             <p>༡. རྩ་ཚིག་གི་རྗོད་སྒྲ་ཚུ་ རྫོང་ཁའི་ངག་གཤིས་ག་ཨིནམ་སྦེ་བཏོན་ཚུགས་ནིའི་དོན་ལུ་ ལྷན་ཐབས་བཟུམ་ཅིག་སྦེ་ རྩ་ཚིག་གི་རྩ་བར་གཡོ་ཤད་ slash(//)གཉིས་ཀྱི་བར་ན་ཡི་གུ་སྡེབ་སྦྱོར་མེད་མི་ཅིག་བཀོད་དེ་ཡོད།</p>
                             <p>༢. གཡོ་ཤད་གཉིས་ཀྱི་བར་ནའི་ཡི་གུ་ /ནཱ/ཟེར་འོག་ལས་འ་ཆུང་བཏགས་ཏེ་ཡོད་མི་དང་ /ཀའ/ཟེར་འ་ཡིག་རྗེས་འཇུག་བཟུམ་སྦེ་སྦྱར་ཏེ་ཡོད་མི་ཚུ་ རྗོད་སྒྲ་རིང་སུ་ཅིག་སྦེ་ལྷག་དགོ་པའི་དོན་ལུ་ཨིན།</p>
                             <p>༣. རྩ་ཚིག་ལུ་ གོ་དོན་གྱངས་ཁ་གཅིག་ལས་ལྷག་སྟེ་ཡོད་མི་ཚུ་ལུ་ ༡. ༢. ༣. ཟེར་ཨང་གྲངས་བཏགས་ཏེ་ཡོད།</p>
                             <p>༤. རྩ་ཚིག་གི་ཚིག་སྡེའི་དབྱེ་བ་ཚུ་ འོག་ལུ་བཀོད་ཡོད་དོ་བཟུམ་ཨིན།</p>
-                            <ul style="list-style: none; padding-left: 20px; margin-bottom: 1rem;">
+                            <ul class="guidelines-list">
                                 <li>ཀ༽ མིང་ noun ལུ་ (མིང)</li>
                                 <li>ཁ༽ བྱ་ཚིག་ verb ལུ་ (བྱ)</li>
                                 <li>ག༽ ཁྱད་ཚིག་ adjective ལུ་ (ཁྱད)</li>

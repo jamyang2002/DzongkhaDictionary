@@ -4,29 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin — Dzongkha Dictionary</title>
+  <meta name="description" content="Secure administration workspace for Dzongkha Dictionary content and notifications.">
+  <meta name="theme-color" content="#172554">
   <link rel="stylesheet" href="style.css">
-  <style>
-    body { padding: 24px; font-family: Inter, system-ui, sans-serif; max-width: 1200px; margin: 0 auto; }
-    label { display: block; margin: 12px 0 4px; font-weight: 600; }
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
-    .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
-    .admin-tab { padding: 8px 16px; cursor: pointer; border-radius: 6px; border: none; background: none; color: var(--muted); font-weight: 700; }
-    .admin-tab.active { background: var(--accent-soft); color: var(--accent); }
-    .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .data-table th, .data-table td { padding: 12px; border: 1px solid var(--line); text-align: left; }
-    .data-table th { background: var(--panel-soft); font-size: 0.8rem; text-transform: uppercase; }
-    .action-btns { display: flex; gap: 5px; }
-    .btn-edit { color: var(--gold); border-color: var(--gold); }
-    .btn-del { color: var(--danger); border-color: var(--danger); }
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
-    .modal-content { background: var(--panel); padding: 24px; border-radius: 12px; width: 500px; max-width: 90vw; max-height: 90vh; overflow-y: auto; }
-    [hidden] { display: none !important; }
-  </style>
+  <link rel="stylesheet" href="modern.css?v=2.0">
 </head>
 <body class="admin-page">
   <h1>Dictionary administration</h1>
   <p>Manage published dictionary data and user notifications from one secure workspace.</p>
-  
+
   <div id="authPanel">
     <form id="loginForm">
       <label>Admin password: <input id="secret" type="password" autocomplete="current-password" required></label>
@@ -53,14 +39,14 @@
     <!-- Dictionary Entry Section -->
     <section id="entrySection" hidden>
       <div class="utility-row">
-        <select id="dictSelector" style="width: 200px;">
+        <select id="dictSelector" class="admin-dictionary-selector">
           <option value="dzEn">Dzongkha → English</option>
           <option value="enDz">English → Dzongkha</option>
           <option value="dzDz">Dzongkha → Dzongkha</option>
           <option value="kangdrang">Kangdrang</option>
           <option value="tenses">Tenses</option>
         </select>
-        <input id="adminSearch" type="text" placeholder="Search entries to edit..." style="flex: 1;">
+        <input id="adminSearch" type="text" placeholder="Search entries to edit...">
         <button id="addNewBtn" class="primary-button">+ Add New Entry</button>
         <button id="exportDataBtn" class="secondary-button">Export updated JSON</button>
       </div>
@@ -84,7 +70,7 @@
       <h2 id="modalTitle">Edit Entry</h2>
       <form id="entryForm">
         <div id="formFields"></div>
-        <div class="utility-row" style="margin-top: 20px;">
+        <div class="utility-row modal-actions">
           <button type="submit" class="primary-button">Save and publish</button>
           <button type="button" id="closeModal" class="secondary-button">Cancel</button>
         </div>

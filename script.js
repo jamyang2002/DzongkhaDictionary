@@ -77,6 +77,7 @@ const suggestions = document.getElementById('suggestions');
 const resultElement = document.getElementById('result');
 const inputElement = document.getElementById('searchBox');
 const searchButton = document.getElementById('searchButton');
+const clearSearchButton = document.getElementById('clearSearchButton');
 const directionButtons = document.querySelectorAll('[data-direction]');
 const loadStatus = document.getElementById('loadStatus');
 const autoDetectCheckbox = document.getElementById('autoDetect');
@@ -196,7 +197,7 @@ navLinks.forEach((link) => {
 function switchView(viewName) {
     const topBar = document.querySelector('.app-topbar');
     if (topBar) {
-        topBar.style.display = (viewName === 'home') ? 'flex' : 'none';
+        topBar.style.display = 'flex';
     }
 
     screenPanels.forEach((panel) => {
@@ -204,6 +205,11 @@ function switchView(viewName) {
     });
     navLinks.forEach((item) => {
         item.classList.toggle('active', item.dataset.view === viewName);
+        if (item.dataset.view === viewName) {
+            item.setAttribute('aria-current', 'page');
+        } else {
+            item.removeAttribute('aria-current');
+        }
     });
 
     if (viewName === 'favorites') renderFavoritesPanel();
@@ -989,6 +995,8 @@ function setDirection(newDirection, skipDefaultMessage = false) {
 
     inputElement.value = '';
     suggestions.hidden = true;
+    inputElement.setAttribute('aria-expanded', 'false');
+    if (clearSearchButton) clearSearchButton.hidden = true;
     
     if (!skipDefaultMessage) {
         renderMessage('Search for a word to see its translation and term details.');
@@ -1689,8 +1697,10 @@ function scrollToResults() {
 
 function updateSuggestions() {
     const query = inputElement.value.trim();
+    if (clearSearchButton) clearSearchButton.hidden = !query;
     if (!query) {
         suggestions.hidden = true;
+        inputElement.setAttribute('aria-expanded', 'false');
         return;
     }
 
@@ -1712,14 +1722,16 @@ function updateSuggestions() {
 
     if (matches.length === 0) {
         suggestions.hidden = true;
+        inputElement.setAttribute('aria-expanded', 'false');
         return;
     }
 
     suggestions.hidden = false;
+    inputElement.setAttribute('aria-expanded', 'true');
     suggestions.innerHTML = matches.map((entry) => {
         const label = entry.root || entry.present || entry.future || entry.past || entry.imperative;
         const display = hasDz ? `<span class="dzongkha-word">${label}</span>` : `<span class="english-word">${label}</span>`;
-        return `<button type="button" class="suggestion-item" data-value="${label}">${display}</button>`;
+        return `<button type="button" class="suggestion-item" role="option" data-value="${label}">${display}</button>`;
     }).join('');
 }
 
@@ -1728,6 +1740,7 @@ function handleSuggestionClick(event) {
     if (!button) return;
     inputElement.value = button.dataset.value;
     suggestions.hidden = true;
+    inputElement.setAttribute('aria-expanded', 'false');
     searchWord();
 }
 
@@ -1836,7 +1849,48 @@ inputElement.addEventListener('input', updateSuggestions);
 inputElement.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
+        const activeSuggestion = document.activeElement?.closest('.suggestion-item');
+        if (activeSuggestion) {
+            activeSuggestion.click();
+            return;
+        }
         searchWord();
+    } else if (event.key === 'ArrowDown') {
+        const firstSuggestion = suggestions.querySelector('.suggestion-item');
+        if (firstSuggestion && !suggestions.hidden) {
+            event.preventDefault();
+            firstSuggestion.focus();
+        }
+    } else if (event.key === 'Escape') {
+        suggestions.hidden = true;
+        inputElement.setAttribute('aria-expanded', 'false');
+    }
+});
+
+if (clearSearchButton) {
+    clearSearchButton.addEventListener('click', () => {
+        inputElement.value = '';
+        suggestions.hidden = true;
+        inputElement.setAttribute('aria-expanded', 'false');
+        clearSearchButton.hidden = true;
+        inputElement.focus();
+    });
+}
+
+suggestions.addEventListener('keydown', (event) => {
+    const options = [...suggestions.querySelectorAll('.suggestion-item')];
+    const index = options.indexOf(document.activeElement);
+    if (event.key === 'ArrowDown' && index >= 0 && index < options.length - 1) {
+        event.preventDefault();
+        options[index + 1].focus();
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (index > 0) options[index - 1].focus();
+        else inputElement.focus();
+    } else if (event.key === 'Escape') {
+        suggestions.hidden = true;
+        inputElement.setAttribute('aria-expanded', 'false');
+        inputElement.focus();
     }
 });
 
@@ -1845,17 +1899,34 @@ const splashOverlay = document.getElementById('appSplash');
 const splashStartBtn = document.getElementById('splashStartBtn');
 const splashThemeBtn = document.getElementById('splashThemeBtn');
 
+function closeSplash() {
+    if (!splashOverlay) return;
+    splashOverlay.classList.add('hidden');
+    splashOverlay.setAttribute('aria-hidden', 'true');
+}
+
 if (splashStartBtn) {
     splashStartBtn.addEventListener('click', () => {
-        splashOverlay.classList.add('hidden');
+        closeSplash();
         switchView('search');
         if (inputElement) window.setTimeout(() => inputElement.focus(), 420);
     });
+
+    window.requestAnimationFrame(() => splashStartBtn.focus({ preventScroll: true }));
 }
 
 if (splashThemeBtn) {
     splashThemeBtn.addEventListener('click', () => {
         if (themeToggle) themeToggle.click();
+    });
+}
+
+if (splashOverlay) {
+    splashOverlay.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        closeSplash();
+        switchView('home');
+        if (startLookupButton) startLookupButton.focus({ preventScroll: true });
     });
 }
 
