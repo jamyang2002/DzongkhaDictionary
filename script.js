@@ -235,7 +235,7 @@ const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const LOCAL_KANGDRANG_JSON = 'kangdrang.json';
 const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
 const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
-const FREE_DICTIONARY_API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en';
+const WIKIMEDIA_COMMONS_API_URL = 'https://commons.wikimedia.org/w/api.php';
 const COUNTRY_FLAG_CDN_URL = 'https://flags.restcountries.com/v5/w640';
 const COUNTRY_CODE_ALIASES = Object.freeze({
     'antigua and barbuda': 'AG',
@@ -1402,42 +1402,63 @@ function renderPronunciationControls(root) {
                     <span aria-hidden="true">🇺🇸</span> US
                 </button>
             </div>
-            <span class="pronunciation-help">Clear recorded pronunciation only—no synthetic device voice.</span>
+            <span class="pronunciation-help">Clear UK and US recordings from Wikimedia Commons—no synthetic device voice.</span>
             <span class="pronunciation-status" data-pronunciation-status aria-live="polite"></span>
         </div>`;
-}
-
-function classifyPronunciationAccent(item) {
-    const metadata = `${item.audio || ''} ${item.sourceUrl || ''}`.toLowerCase();
-    if (/(?:^|[-_/])(uk|gb|en-gb)(?:[-_/\.]|$)|_gb_|british/.test(metadata)) return 'en-GB';
-    if (/(?:^|[-_/])(us|usa|en-us)(?:[-_/\.]|$)|_us_|american/.test(metadata)) return 'en-US';
-    return '';
 }
 
 function getRecordedPronunciations(root) {
     const cacheKey = normalizeEnglish(root);
     if (pronunciationCache.has(cacheKey)) return pronunciationCache.get(cacheKey);
 
-    const request = fetch(`${FREE_DICTIONARY_API_URL}/${encodeURIComponent(cacheKey)}`, {
+    const cleanRoot = cacheKey
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[’']/g, '-')
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/-+/g, '-');
+    if (!cleanRoot) return Promise.resolve([]);
+
+    const titles = [`File:En-uk-${cleanRoot}.ogg`, `File:En-us-${cleanRoot}.ogg`];
+    const params = new URLSearchParams({
+        action: 'query',
+        format: 'json',
+        formatversion: '2',
+        origin: '*',
+        prop: 'videoinfo',
+        viprop: 'url|derivatives',
+        titles: titles.join('|')
+    });
+
+    const request = fetch(`${WIKIMEDIA_COMMONS_API_URL}?${params}`, {
         cache: 'force-cache',
         credentials: 'omit'
     }).then(async (response) => {
-        if (response.status === 404) return [];
         if (!response.ok) throw new Error(`Pronunciation request failed: ${response.status}`);
-        const entries = await response.json();
-        return (Array.isArray(entries) ? entries : [])
-            .flatMap((entry) => Array.isArray(entry.phonetics) ? entry.phonetics : [])
-            .filter((item) => item?.audio)
-            .map((item) => {
-                const audio = String(item.audio).startsWith('//') ? `https:${item.audio}` : String(item.audio);
+        const data = await response.json();
+        const recordings = (data?.query?.pages || [])
+            .filter((page) => page.videoinfo?.[0]?.url)
+            .map((page) => {
+                const info = page.videoinfo[0];
+                const mp3 = (info.derivatives || []).find((item) => String(item.type || '').startsWith('audio/mpeg'));
+                const accent = /en-uk-/i.test(page.title) ? 'en-GB' : (/en-us-/i.test(page.title) ? 'en-US' : '');
                 return {
-                    audio,
-                    text: item.text || '',
-                    sourceUrl: item.sourceUrl || '',
-                    license: item.license || null,
-                    accent: classifyPronunciationAccent({ ...item, audio })
+                    audio: mp3?.src || info.url,
+                    text: '',
+                    sourceUrl: info.descriptionurl || '',
+                    license: null,
+                    accent
                 };
-            });
+            })
+            .filter((item) => item.accent);
+        recordings.forEach((recording) => {
+            if (typeof Audio !== 'function') return;
+            recording.player = new Audio(recording.audio);
+            recording.player.preload = 'auto';
+            recording.player.load();
+        });
+        return recordings;
     }).catch((error) => {
         pronunciationCache.delete(cacheKey);
         throw error;
@@ -1470,7 +1491,7 @@ function setRecordedPronunciationStatus(button, message, recording) {
 
     const sourceUrl = /^https?:\/\//i.test(recording.sourceUrl || '')
         ? recording.sourceUrl
-        : 'https://dictionaryapi.dev/';
+        : 'https://commons.wikimedia.org/';
     const sourceLink = document.createElement('a');
     sourceLink.href = sourceUrl;
     sourceLink.target = '_blank';
@@ -1503,7 +1524,8 @@ async function playEnglishPronunciation(root, accent, button) {
         }
 
         stopActivePronunciation();
-        const audio = new Audio(recording.audio);
+        const audio = recording.player || new Audio(recording.audio);
+        audio.currentTime = 0;
         activePronunciationAudio = audio;
         audio.addEventListener('ended', () => { if (activePronunciationAudio === audio) activePronunciationAudio = null; }, { once: true });
         await audio.play();

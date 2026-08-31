@@ -1010,7 +1010,6 @@ select:focus-visible {
 .entry-image-card {
     position: relative;
     display: grid;
-    min-height: 250px;
     margin: 0;
     overflow: hidden;
     border: 1px solid var(--line);
@@ -1020,11 +1019,14 @@ select:focus-visible {
     animation: resultReveal 420ms cubic-bezier(.16, 1, .3, 1) both;
 }
 
+.entry-image-card.is-loading {
+    min-height: 250px;
+}
+
 .entry-image-card img {
     display: block;
     width: 100%;
-    height: clamp(250px, 38vw, 430px);
-    object-fit: contain;
+    height: auto;
     background: var(--panel-strong);
 }
 
@@ -1857,7 +1859,7 @@ body.admin-page {
     }
 
     .entry-image-card img {
-        height: 260px;
+        height: auto;
     }
 
     .country-flag-figure img {
