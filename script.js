@@ -234,6 +234,74 @@ const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const LOCAL_KANGDRANG_JSON = 'kangdrang.json';
 const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
+const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
+const FREE_DICTIONARY_API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en';
+const COUNTRY_FLAG_CDN_URL = 'https://flags.restcountries.com/v5/w640';
+const COUNTRY_CODE_ALIASES = Object.freeze({
+    'antigua and barbuda': 'AG',
+    'bosnia herzegovina': 'BA',
+    'bolivia': 'BO',
+    'cote d ivoire': 'CI',
+    'czech republic': 'CZ',
+    'democratic republic of congo': 'CD',
+    'east timor': 'TL',
+    'federated states of micronesia': 'FM',
+    'iran': 'IR',
+    'laos': 'LA',
+    'macedonia': 'MK',
+    'moldova': 'MD',
+    'north korea': 'KP',
+    'republic of congo': 'CG',
+    'russia': 'RU',
+    'saint kitts nevis': 'KN',
+    'saint lucia': 'LC',
+    'saint vincent': 'VC',
+    'sao tome and principe': 'ST',
+    'south korea': 'KR',
+    'swaziland': 'SZ',
+    'syria': 'SY',
+    'taiwan': 'TW',
+    'tanzania': 'TZ',
+    'trinidad and tobago': 'TT',
+    'turkey': 'TR',
+    'united states of america': 'US',
+    'vatican city': 'VA',
+    'venezuela': 'VE'
+});
+// Curated aliases improve ambiguous or irregular lookups. Other English → Dzongkha
+// entries are looked up automatically, with confirmed nouns receiving priority.
+const ENTRY_IMAGE_TOPICS = Object.freeze({
+    dog: { title: 'Dog', label: 'Dog' },
+    dogs: { title: 'Dog', label: 'Dog' },
+    puppy: { title: 'Dog', label: 'Dog' },
+    puppies: { title: 'Dog', label: 'Dog' },
+    cat: { title: 'Cat', label: 'Cat' },
+    cats: { title: 'Cat', label: 'Cat' },
+    bird: { title: 'Bird', label: 'Bird' },
+    birds: { title: 'Bird', label: 'Bird' },
+    cow: { title: 'Cattle', label: 'Cow' },
+    cows: { title: 'Cattle', label: 'Cow' },
+    horse: { title: 'Horse', label: 'Horse' },
+    horses: { title: 'Horse', label: 'Horse' },
+    elephant: { title: 'Elephant', label: 'Elephant' },
+    elephants: { title: 'Elephant', label: 'Elephant' },
+    lion: { title: 'Lion', label: 'Lion' },
+    lions: { title: 'Lion', label: 'Lion' },
+    tiger: { title: 'Tiger', label: 'Tiger' },
+    tigers: { title: 'Tiger', label: 'Tiger' },
+    goat: { title: 'Goat', label: 'Goat' },
+    goats: { title: 'Goat', label: 'Goat' },
+    sheep: { title: 'Sheep', label: 'Sheep' },
+    pig: { title: 'Pig', label: 'Pig' },
+    pigs: { title: 'Pig', label: 'Pig' },
+    rabbit: { title: 'Rabbit', label: 'Rabbit' },
+    rabbits: { title: 'Rabbit', label: 'Rabbit' },
+    fish: { title: 'Fish', label: 'Fish' },
+    table: { title: 'Table (furniture)', label: 'Table' },
+    tables: { title: 'Table (furniture)', label: 'Table' },
+    doctor: { title: 'Physician', label: 'Doctor' },
+    doctors: { title: 'Physician', label: 'Doctor' }
+});
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
 const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
 const INTERFACE_UPDATE_ID = 'app-interface-update-2026-08-31';
@@ -265,6 +333,11 @@ let countryEntries = [];
 let publicServiceEntries = [];
 let placeNamesEntries = [];
 let isBulkLoadingDictionaries = false;
+const entryImageCache = new Map();
+let activeEntryImageRequest = 0;
+const pronunciationCache = new Map();
+let activePronunciationAudio = null;
+let countryCodeIndex = null;
 
 function inferDirectionFromFileName(fileName) {
     const lower = fileName.toLowerCase();
@@ -1032,12 +1105,14 @@ function setDirection(newDirection, skipDefaultMessage = false) {
 }
 
 function renderMessage(message, isError = false) {
+    activeEntryImageRequest += 1;
     const errorClass = isError ? 'error' : '';
     resultElement.classList.remove('has-results', 'has-selected-result');
     resultElement.innerHTML = `<div class="message ${errorClass}">${message}</div>`;
 }
 
 function resetSearchResults() {
+    activeEntryImageRequest += 1;
     resultElement.classList.remove('has-results', 'has-selected-result');
     resultElement.innerHTML = `
         <div class="notice search-empty">
@@ -1083,6 +1158,363 @@ function escapeHtml(value) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+function normalizeCountryFlagName(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/\([^)]*\)/g, ' ')
+        .replace(/\bthe\b/g, ' ')
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim()
+        .replace(/\s+/g, ' ');
+}
+
+function getCountryCodeIndex() {
+    if (countryCodeIndex) return countryCodeIndex;
+    countryCodeIndex = new Map(Object.entries(COUNTRY_CODE_ALIASES));
+
+    if (typeof Intl.DisplayNames === 'function') {
+        const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+        for (let first = 65; first <= 90; first += 1) {
+            for (let second = 65; second <= 90; second += 1) {
+                const code = String.fromCharCode(first, second);
+                const name = regionNames.of(code);
+                if (name && name !== code) countryCodeIndex.set(normalizeCountryFlagName(name), code);
+            }
+        }
+        Object.entries(COUNTRY_CODE_ALIASES).forEach(([name, code]) => countryCodeIndex.set(name, code));
+    }
+
+    return countryCodeIndex;
+}
+
+function getCountryFlagCode(countryName) {
+    return getCountryCodeIndex().get(normalizeCountryFlagName(countryName)) || '';
+}
+
+function renderCountryFlag(entry) {
+    if (!/^\d+$/.test(String(entry.no || ''))) return '';
+    const countryName = String(entry.root || '').trim();
+    const countryCode = getCountryFlagCode(countryName);
+    if (!countryCode) return '';
+    const flagUrl = `${COUNTRY_FLAG_CDN_URL}/${countryCode.toLowerCase()}.png`;
+
+    return `
+        <figure class="country-flag-figure" data-country-flag>
+            <img
+                src="${flagUrl}"
+                loading="lazy"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                data-country-flag-image
+                alt="Flag of ${escapeHtml(countryName)}">
+            <figcaption>
+                <span><strong>${escapeHtml(countryName)}</strong> · National flag</span>
+                <a href="https://restcountries.com/docs/countries" target="_blank" rel="noopener noreferrer">Flag source</a>
+            </figcaption>
+        </figure>`;
+}
+
+function getEntryImageTopic(query, groups) {
+    const hasCountryResult = groups.some(({ entries, type }) =>
+        type === 'countries' && entries.some((entry) => /^\d+$/.test(String(entry.no || '')))
+    );
+    if (hasCountryResult) return null;
+
+    const englishEntries = groups
+        .filter(({ type }) => type === 'enDz')
+        .flatMap(({ entries }) => entries.slice(0, 20))
+        .filter((entry) => isSuitableImageRoot(String(entry.root || '').split(/[,;|]+/)[0].trim()))
+        .sort((a, b) => getImageEntryRank(a) - getImageEntryRank(b));
+
+    if (!englishEntries.length) return null;
+
+    const candidates = [query];
+    englishEntries.forEach((entry) => candidates.push(entry.root, entry.also));
+
+    for (const candidate of candidates) {
+        if (!candidate || /[\u0F00-\u0FFF]/.test(candidate)) continue;
+        const terms = String(candidate).split(/[,;/|]+/);
+        for (const term of terms) {
+            const topic = ENTRY_IMAGE_TOPICS[normalizeEnglish(term)];
+            if (topic) return topic;
+        }
+    }
+
+    const bestEntry = englishEntries.find((entry) => normalizeEnglish(entry.root) === normalizeEnglish(query))
+        || englishEntries[0];
+    const root = String(bestEntry.root || '').split(/[,;|]+/)[0].trim();
+    if (!isSuitableImageRoot(root)) return null;
+
+    return { title: root, label: root };
+}
+
+function isEnglishNounEntry(entry) {
+    const type = String(entry?.type || '').trim().toLowerCase();
+    return type === 'n' || /(^|[\s,./(])noun(?=$|[\s,./)་])/.test(type);
+}
+
+function getImageEntryRank(entry) {
+    if (isEnglishNounEntry(entry)) return 0;
+    if (!String(entry?.type || '').trim()) return 1;
+    return 2;
+}
+
+function isSuitableImageRoot(root) {
+    return root.length > 0
+        && root.length <= 100
+        && /[A-Za-z]/.test(root)
+        && !/[<>\[\]{}"`]/.test(root);
+}
+
+function renderEntryImagePlaceholder(topic) {
+    return `
+        <figure class="entry-image-card is-loading" data-entry-image aria-label="Reference picture for ${escapeHtml(topic.label)}">
+            <div class="entry-image-skeleton" role="status">
+                <span class="visually-hidden">Loading picture for ${escapeHtml(topic.label)}</span>
+            </div>
+        </figure>`;
+}
+
+function getWikipediaImage(topic) {
+    const cacheKey = normalizeEnglish(topic.title);
+    if (entryImageCache.has(cacheKey)) return entryImageCache.get(cacheKey);
+
+    const request = (async () => {
+        const commonParams = {
+            action: 'query',
+            format: 'json',
+            formatversion: '2',
+            origin: '*',
+            redirects: '1',
+            prop: 'pageimages|info',
+            inprop: 'url',
+            piprop: 'thumbnail|name',
+            pilicense: 'free',
+            pithumbsize: '960'
+        };
+        const exactData = await fetchWikipediaData({ ...commonParams, titles: topic.title });
+        const exactPages = exactData?.query?.pages || [];
+        let page = exactPages.find((item) => item.thumbnail?.source);
+        let isRelatedMatch = false;
+
+        // Broaden to related results when the exact page has no usable image. The
+        // interface explicitly labels these automated matches as approximate.
+        if (!page) {
+            const searchData = await fetchWikipediaData({
+                ...commonParams,
+                generator: 'search',
+                gsrsearch: topic.title,
+                gsrnamespace: '0',
+                gsrlimit: '5'
+            });
+            const rankedPages = [...(searchData?.query?.pages || [])]
+                .sort((a, b) => (a.index ?? Number.MAX_SAFE_INTEGER) - (b.index ?? Number.MAX_SAFE_INTEGER));
+            page = rankedPages.find((item) => item.thumbnail?.source);
+            isRelatedMatch = Boolean(page);
+        }
+        if (!page) return null;
+
+        const fileTitle = page.pageimage ? `File:${page.pageimage}` : '';
+        return {
+            src: page.thumbnail.source,
+            width: page.thumbnail.width,
+            height: page.thumbnail.height,
+            matchedTitle: page.title || topic.title,
+            isRelatedMatch,
+            articleUrl: page.fullurl || `https://en.wikipedia.org/wiki/${encodeURIComponent(topic.title)}`,
+            fileUrl: fileTitle
+                ? `https://en.wikipedia.org/wiki/${encodeURIComponent(fileTitle).replace('%3A', ':')}`
+                : (page.fullurl || 'https://en.wikipedia.org/')
+        };
+    })();
+
+    entryImageCache.set(cacheKey, request);
+    request.catch(() => entryImageCache.delete(cacheKey));
+    return request;
+}
+
+async function fetchWikipediaData(parameters) {
+    const params = new URLSearchParams(parameters);
+    const response = await fetch(`${WIKIPEDIA_API_URL}?${params}`, {
+        cache: 'force-cache',
+        credentials: 'omit'
+    });
+    if (!response.ok) throw new Error(`Wikipedia image request failed: ${response.status}`);
+    return response.json();
+}
+
+async function hydrateEntryImage(topic, requestId) {
+    const slot = resultElement.querySelector('[data-entry-image]');
+    if (!slot) return;
+
+    try {
+        const image = await withTimeout(getWikipediaImage(topic), 8000, null);
+        if (!image || requestId !== activeEntryImageRequest || !resultElement.contains(slot)) {
+            if (resultElement.contains(slot)) slot.remove();
+            return;
+        }
+
+        slot.classList.remove('is-loading');
+        slot.innerHTML = `
+            <img
+                src="${escapeHtml(image.src)}"
+                width="${image.width}"
+                height="${image.height}"
+                loading="lazy"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                alt="${escapeHtml(topic.label)} reference image from Wikipedia">
+            <figcaption>
+                <div class="entry-image-caption-row">
+                    <span><strong>${escapeHtml(topic.label)}</strong> · ${image.isRelatedMatch ? `Related to “${escapeHtml(image.matchedTitle)}”` : 'Reference picture'}</span>
+                    <span class="entry-image-links">
+                        <a href="${escapeHtml(image.fileUrl)}" target="_blank" rel="noopener noreferrer">Credit &amp; licence</a>
+                        <a href="${escapeHtml(image.articleUrl)}" target="_blank" rel="noopener noreferrer">Wikipedia</a>
+                    </span>
+                </div>
+                <p class="entry-image-disclaimer" role="note"><strong>Image note:</strong> This automatically selected related web image may not fully match the intended Dzongkha meaning or every sense of the English term.</p>
+            </figcaption>`;
+
+        const img = slot.querySelector('img');
+        img?.addEventListener('error', () => slot.remove(), { once: true });
+    } catch (error) {
+        if (requestId === activeEntryImageRequest && resultElement.contains(slot)) slot.remove();
+        console.warn(`Could not load the reference picture for ${topic.label}:`, error);
+    }
+}
+
+function renderPronunciationControls(root) {
+    if (!/[A-Za-z]/.test(root)) return '';
+
+    return `
+        <div class="pronunciation-panel" data-pronunciation>
+            <span class="pronunciation-label">Pronunciation</span>
+            <div class="pronunciation-actions">
+                <button type="button" class="audio-btn pronunciation-btn" data-root-audio="${escapeHtml(root)}" data-pronunciation-accent="en-GB" aria-label="Play UK pronunciation of ${escapeHtml(root)}">
+                    <span aria-hidden="true">🇬🇧</span> UK
+                </button>
+                <button type="button" class="audio-btn pronunciation-btn" data-root-audio="${escapeHtml(root)}" data-pronunciation-accent="en-US" aria-label="Play US pronunciation of ${escapeHtml(root)}">
+                    <span aria-hidden="true">🇺🇸</span> US
+                </button>
+            </div>
+            <span class="pronunciation-help">Clear recorded pronunciation only—no synthetic device voice.</span>
+            <span class="pronunciation-status" data-pronunciation-status aria-live="polite"></span>
+        </div>`;
+}
+
+function classifyPronunciationAccent(item) {
+    const metadata = `${item.audio || ''} ${item.sourceUrl || ''}`.toLowerCase();
+    if (/(?:^|[-_/])(uk|gb|en-gb)(?:[-_/\.]|$)|_gb_|british/.test(metadata)) return 'en-GB';
+    if (/(?:^|[-_/])(us|usa|en-us)(?:[-_/\.]|$)|_us_|american/.test(metadata)) return 'en-US';
+    return '';
+}
+
+function getRecordedPronunciations(root) {
+    const cacheKey = normalizeEnglish(root);
+    if (pronunciationCache.has(cacheKey)) return pronunciationCache.get(cacheKey);
+
+    const request = fetch(`${FREE_DICTIONARY_API_URL}/${encodeURIComponent(cacheKey)}`, {
+        cache: 'force-cache',
+        credentials: 'omit'
+    }).then(async (response) => {
+        if (response.status === 404) return [];
+        if (!response.ok) throw new Error(`Pronunciation request failed: ${response.status}`);
+        const entries = await response.json();
+        return (Array.isArray(entries) ? entries : [])
+            .flatMap((entry) => Array.isArray(entry.phonetics) ? entry.phonetics : [])
+            .filter((item) => item?.audio)
+            .map((item) => {
+                const audio = String(item.audio).startsWith('//') ? `https:${item.audio}` : String(item.audio);
+                return {
+                    audio,
+                    text: item.text || '',
+                    sourceUrl: item.sourceUrl || '',
+                    license: item.license || null,
+                    accent: classifyPronunciationAccent({ ...item, audio })
+                };
+            });
+    }).catch((error) => {
+        pronunciationCache.delete(cacheKey);
+        throw error;
+    });
+
+    pronunciationCache.set(cacheKey, request);
+    return request;
+}
+
+function stopActivePronunciation() {
+    if (activePronunciationAudio) {
+        activePronunciationAudio.pause();
+        activePronunciationAudio.currentTime = 0;
+        activePronunciationAudio = null;
+    }
+}
+
+function setPronunciationStatus(button, message, isError = false) {
+    const panel = button.closest('[data-pronunciation]');
+    const status = panel?.querySelector('[data-pronunciation-status]');
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle('is-error', isError);
+}
+
+function setRecordedPronunciationStatus(button, message, recording) {
+    setPronunciationStatus(button, message);
+    const status = button.closest('[data-pronunciation]')?.querySelector('[data-pronunciation-status]');
+    if (!status) return;
+
+    const sourceUrl = /^https?:\/\//i.test(recording.sourceUrl || '')
+        ? recording.sourceUrl
+        : 'https://dictionaryapi.dev/';
+    const sourceLink = document.createElement('a');
+    sourceLink.href = sourceUrl;
+    sourceLink.target = '_blank';
+    sourceLink.rel = 'noopener noreferrer';
+    sourceLink.textContent = 'Audio source';
+    status.append(' · ', sourceLink);
+
+    if (/^https?:\/\//i.test(recording.license?.url || '')) {
+        const licenseLink = document.createElement('a');
+        licenseLink.href = recording.license.url;
+        licenseLink.target = '_blank';
+        licenseLink.rel = 'noopener noreferrer';
+        licenseLink.textContent = recording.license.name || 'Licence';
+        status.append(' · ', licenseLink);
+    }
+}
+
+async function playEnglishPronunciation(root, accent, button) {
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    setPronunciationStatus(button, 'Preparing pronunciation…');
+
+    try {
+        const pronunciations = await withTimeout(getRecordedPronunciations(root), 5000, []);
+        const recording = pronunciations.find((item) => item.accent === accent);
+        const accentLabel = accent === 'en-GB' ? 'UK' : 'US';
+        if (!recording) {
+            setPronunciationStatus(button, `A clear recorded ${accentLabel} pronunciation is not available for this term.`, true);
+            return;
+        }
+
+        stopActivePronunciation();
+        const audio = new Audio(recording.audio);
+        activePronunciationAudio = audio;
+        audio.addEventListener('ended', () => { if (activePronunciationAudio === audio) activePronunciationAudio = null; }, { once: true });
+        await audio.play();
+        setRecordedPronunciationStatus(button, `Playing recorded ${accentLabel} pronunciation${recording.text ? ` · ${recording.text}` : ''}.`, recording);
+    } catch (error) {
+        const accentLabel = accent === 'en-GB' ? 'UK' : 'US';
+        setPronunciationStatus(button, `The recorded ${accentLabel} pronunciation could not be loaded.`, true);
+    } finally {
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+    }
 }
 
 function toLabel(key) {
@@ -1157,15 +1589,18 @@ function renderCard(entry, entryType, animationIndex = 0) {
     const captionClass = entryType === 'dzDz'
         ? 'dzongkha-word'
         : (entryType === 'enDz' || entryType === 'countries' ? 'dzongkha-word' : 'english-word');
+    const pronunciationControls = entryType === 'enDz' ? renderPronunciationControls(entry.root) : '';
+    const countryFlag = entryType === 'countries' ? renderCountryFlag(entry) : '';
 
     return `
         <section class="dictionary-entry result-card" data-result-card tabindex="0" aria-label="Focus ${escapeHtml(entry.root)} result" style="--entry-index: ${animationIndex}">
             <h2 class="word ${mainWordClass}">
                 <span class="lang-flag">${rootFlag}</span> ${entry.root}
-                <button type="button" class="audio-btn" data-root-audio="${entry.root}" title="Play English pronunciation">🔊</button>
                 <button type="button" class="fav-btn ${isFavorited(entry.root)?'favorited':''}" data-root-fav="${entry.root}" title="Save favorite">☆</button>
             </h2>
+            ${pronunciationControls}
             ${caption ? `<p class="translation-caption ${captionClass}"><span class="lang-flag">${transFlag}</span> ${caption}</p>` : ''}
+            ${countryFlag}
             <div class="dictionary-details">
                 ${details}
                 <div class="details-item">
@@ -1480,6 +1915,7 @@ function renderBrowseTableRows(config, allRows, tbody, browseTableWrap) {
 }
 
 function renderEntry(entry, entryType) {
+    activeEntryImageRequest += 1;
     resultElement.classList.add('has-results');
     resultElement.classList.remove('has-selected-result');
     resultElement.innerHTML = renderCard(entry, entryType);
@@ -1673,6 +2109,8 @@ function renderSearchCards(query, groups, similarDirection) {
     resultElement.classList.add('has-results');
     resultElement.classList.remove('has-selected-result');
     const countLabel = `${cards.length} ${cards.length === 1 ? 'result' : 'results'}`;
+    const imageTopic = getEntryImageTopic(query, groups);
+    const imageRequestId = ++activeEntryImageRequest;
     resultElement.innerHTML = `
         <div class="result-summary">
             <div>
@@ -1681,7 +2119,11 @@ function renderSearchCards(query, groups, similarDirection) {
             </div>
             <span class="result-summary-count">${countLabel}</span>
         </div>
+        ${imageTopic ? renderEntryImagePlaceholder(imageTopic) : ''}
         ${cards.join('')}`;
+    if (imageTopic) hydrateEntryImage(imageTopic, imageRequestId);
+    const firstPronunciationRoot = resultElement.querySelector('[data-root-audio]')?.dataset.rootAudio;
+    if (firstPronunciationRoot) getRecordedPronunciations(firstPronunciationRoot).catch(() => {});
     const similar = renderSimilar(query, similarDirection || direction);
     if (similar) resultElement.appendChild(similar);
     scrollToResults();
@@ -1818,7 +2260,13 @@ resultElement.addEventListener('click', (event) => {
     selectResultCard(event.target.closest('[data-result-card]'));
 });
 
+resultElement.addEventListener('error', (event) => {
+    if (!event.target.matches?.('[data-country-flag-image]')) return;
+    event.target.closest('[data-country-flag]')?.remove();
+}, true);
+
 resultElement.addEventListener('keydown', (event) => {
+    if (event.target.closest('button, a, input, select, textarea')) return;
     const card = event.target.closest('[data-result-card]');
     if (!card || (event.key !== 'Enter' && event.key !== ' ')) return;
     event.preventDefault();
@@ -1831,15 +2279,8 @@ resultElement.addEventListener('click', (e) => {
     if (audioBtn) {
         const root = audioBtn.dataset.rootAudio;
         if (!root) return;
-        // Only support English pronunciation for now
-        if (/^[A-Za-z0-9\s'’-]+$/.test(root)) {
-            const u = new SpeechSynthesisUtterance(root);
-            u.lang = 'en-US';
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(u);
-        } else {
-            renderMessage('Dzongkha pronunciation coming soon.', false);
-        }
+        const accent = audioBtn.dataset.pronunciationAccent === 'en-GB' ? 'en-GB' : 'en-US';
+        playEnglishPronunciation(root, accent, audioBtn);
         return;
     }
 
@@ -1854,6 +2295,15 @@ resultElement.addEventListener('click', (e) => {
         return;
     }
 });
+
+function primePronunciationOnIntent(event) {
+    const button = event.target.closest('[data-root-audio]');
+    if (!button) return;
+    getRecordedPronunciations(button.dataset.rootAudio).catch(() => {});
+}
+
+resultElement.addEventListener('pointerover', primePronunciationOnIntent);
+resultElement.addEventListener('focusin', primePronunciationOnIntent);
 
 function renderSimilar(query, effectiveDirection) {
     const container = document.createElement('div');

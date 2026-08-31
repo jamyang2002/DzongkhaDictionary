@@ -81,6 +81,7 @@ postNotif.addEventListener('click', async () => {
     const notification = { id: `admin-${Date.now()}`, title: 'Dictionary update', message, createdAt: new Date().toISOString() };
     currentNotifications.push(notification);
     postNotif.disabled = true;
+    setStatus('Publishing notification...');
     try { await saveNotifications(); notifText.value = ''; } catch (error) { currentNotifications.pop(); setStatus(error.message, true); } finally { postNotif.disabled = false; }
 });
 

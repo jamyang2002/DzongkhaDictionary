@@ -2271,3 +2271,185 @@ body.admin-page {
         align-items: flex-start;
     }
 }
+
+:root {
+    --bg: #f3f0e9;
+    --bg-alt: #e9eeeb;
+    --panel: #fffdf9;
+    --panel-soft: #f6f3ed;
+    --panel-strong: #e8efeb;
+    --panel-glass: rgba(255, 253, 249, 0.88);
+    --text: #17231f;
+    --muted: #66736d;
+    --soft: #8a9690;
+    --accent: #a33f2f;
+    --accent-strong: #7e2d25;
+    --accent-soft: rgba(163, 63, 47, 0.1);
+    --accent-border: rgba(163, 63, 47, 0.22);
+    --gold: #c28c27;
+    --line: rgba(23, 35, 31, 0.12);
+    --line-strong: rgba(23, 35, 31, 0.2);
+    --shadow-sm: 0 5px 16px rgba(31, 45, 39, 0.06);
+    --shadow-md: 0 16px 34px rgba(31, 45, 39, 0.09);
+    --shadow-lg: 0 24px 60px rgba(31, 45, 39, 0.14);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --focus: 0 0 0 4px rgba(163, 63, 47, 0.16);
+}
+
+:root[data-theme="dark"] {
+    --bg: #111816;
+    --bg-alt: #18221e;
+    --panel: #1b2621;
+    --panel-soft: #202d27;
+    --panel-strong: #293830;
+    --panel-glass: rgba(27, 38, 33, 0.9);
+    --text: #f3f4ed;
+    --muted: #b5c0b9;
+    --soft: #8f9d95;
+    --accent: #e58b76;
+    --accent-strong: #f1b09e;
+    --accent-soft: rgba(229, 139, 118, 0.14);
+    --accent-border: rgba(229, 139, 118, 0.26);
+    --gold: #e6bb5b;
+    --line: rgba(243, 244, 237, 0.12);
+    --line-strong: rgba(243, 244, 237, 0.22);
+    --focus: 0 0 0 4px rgba(229, 139, 118, 0.18);
+}
+
+body {
+    background:
+        linear-gradient(135deg, rgba(163, 63, 47, 0.055), transparent 34%),
+        linear-gradient(315deg, rgba(15, 124, 104, 0.06), transparent 38%),
+        var(--bg);
+    font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+}
+
+h1, h2, h3, .side-brand, .splash-title {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 0;
+}
+
+button, a, input, textarea, select,
+.app-screen, .dictionary-entry, .browse-card, .word-of-day, .importance-panel,
+.result-panel, .lookup-panel, .results-area, .nav-link, .icon-button {
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease,
+        box-shadow 180ms ease, transform 180ms ease, opacity 180ms ease;
+}
+
+.app-shell {
+    gap: 22px;
+}
+
+.side-nav {
+    border: 1px solid var(--line);
+    background: var(--panel-glass);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(18px);
+}
+
+.side-brand img, .welcome-logo, .splash-logo {
+    filter: drop-shadow(0 8px 12px rgba(27, 57, 48, 0.16));
+}
+
+.app-topbar {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+}
+
+.app-topbar h1 {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.nav-link, .icon-button, .primary-button, .secondary-button {
+    border-radius: 10px;
+}
+
+.nav-link:hover, .nav-link:focus-visible, .icon-button:hover, .icon-button:focus-visible,
+.primary-button:hover, .secondary-button:hover {
+    transform: translateY(-2px);
+}
+
+.search-panel {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--panel-glass);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(18px);
+}
+
+.search-panel input {
+    min-height: 58px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: 1.05rem;
+}
+
+.search-panel:focus-within {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md), var(--focus);
+}
+
+.search-panel button {
+    min-height: 46px;
+    border-radius: 9px;
+    background: var(--accent);
+    box-shadow: 0 8px 16px rgba(163, 63, 47, 0.2);
+}
+
+.search-panel button:hover, .search-panel button:focus-visible {
+    background: var(--accent-strong);
+}
+
+.direction-toggle {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-radius: var(--radius-md);
+    background: var(--panel-strong);
+}
+
+.direction-toggle button {
+    min-height: 52px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.direction-toggle button.active {
+    box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.result-panel, .lookup-panel, .results-area, .word-of-day, .importance-panel,
+.favorites-panel, .history-panel, .notification-summary, .creator-section {
+    border-color: var(--line);
+    box-shadow: var(--shadow-sm);
+}
+
+.dictionary-entry, .browse-card {
+    border-radius: var(--radius-md);
+}
+
+.dictionary-entry:hover, .browse-card:hover {
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.app-screen.is-active {
+    animation: screen-in 240ms ease both;
+}
+
+@keyframes screen-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+    .search-panel {
+        border-radius: var(--radius-md);
+    }
+
+    .direction-toggle {
+        grid-template-columns: 1fr;
+    }
+}

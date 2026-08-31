@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v2.2';
+const CACHE_NAME = 'dzongkha-dict-v2.6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
