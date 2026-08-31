@@ -1014,7 +1014,7 @@ function setDirection(newDirection, skipDefaultMessage = false) {
     } else if (newDirection === 'tense') {
         inputElement.placeholder = 'Search any tense form';
     } else {
-        inputElement.placeholder = 'Enter English word (e.g. mother)';
+        inputElement.placeholder = 'Enter an English word';
     }
 
     inputElement.value = '';
