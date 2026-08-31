@@ -84,7 +84,6 @@ const autoDetectCheckbox = document.getElementById('autoDetect');
 const themeToggle = document.getElementById('themeToggle');
 const loadJsonButton = document.getElementById('loadJsonButton');
 const jsonFileInput = document.getElementById('jsonFileInput');
-const notificationBar = document.getElementById('notificationBar');
 const wordOfDayEl = document.getElementById('wordOfDay');
 const favoritesButton = document.getElementById('favoritesButton');
 const favoritesPanel = document.getElementById('favoritesPanel');
@@ -95,7 +94,6 @@ const notificationSummary = document.getElementById('notificationSummary');
 const navLinks = document.querySelectorAll('.nav-link');
 const screenPanels = document.querySelectorAll('[data-view-panel]');
 const browseCards = document.querySelectorAll('[data-browse-direction]');
-const searchShortcutButtons = document.querySelectorAll('[data-search-shortcut]');
 const browseTableTitle = document.getElementById('browseTableTitle');
 const browseTableCount = document.getElementById('browseTableCount');
 const browseTableWrap = document.getElementById('browseTableWrap');
@@ -173,18 +171,6 @@ if (startLookupButton && inputElement) {
     });
 }
 
-searchShortcutButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-        const searchTerm = button.dataset.searchShortcut || '';
-        if (!searchTerm) return;
-        switchView('search');
-        inputElement.value = searchTerm;
-        updateSuggestions();
-        searchWord();
-        window.setTimeout(() => inputElement.focus(), 420);
-    });
-});
-
 if (wordOfDayEl && inputElement) {
     wordOfDayEl.addEventListener('click', (event) => {
         const alertButton = event.target.closest('[data-enable-daily-alerts]');
@@ -250,8 +236,9 @@ const LOCAL_KANGDRANG_JSON = 'kangdrang.json';
 const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
 const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
+const INTERFACE_UPDATE_ID = 'app-interface-update-2026-08-31';
+const NOTIFICATION_READ_IDS_KEY = 'dz_notification_read_ids';
 const REMOVED_NOTIFICATION_IDS = new Set(['kangdrang-dictionary-update-2026-08-26']);
-const KANGDRANG_NOTIFICATION_VIEWED_KEY = 'dz_kangdrang_notification_viewed';
 const DAILY_WORD_ALERTS_KEY = 'dz_daily_word_alerts_enabled';
 const DAILY_WORD_LAST_ALERT_KEY = 'dz_daily_word_last_alert';
 const ADDITIONAL_UPDATE_VIEWED_KEY = 'dz_additional_update_viewed';
@@ -643,7 +630,10 @@ function renderFavoritesPanel() {
             <button id="exportFavs" class="load-json-button">Export favourites</button>
             <button id="clearFavs" class="load-json-button">Clear all</button>
         </div>
-        <div class="fav-list">${list.map((f) => `<div class="fav-item">${escapeHtml(f.root)} <button data-root="${escapeHtml(f.root)}" class="similar-link remove-fav">Remove</button></div>`).join('')}</div>
+        <div class="fav-list">${list.map((f) => {
+            const wordClass = /[\u0F00-\u0FFF]/.test(f.root) ? 'dzongkha-word' : 'english-word';
+            return `<div class="fav-item"><button type="button" data-favorite-root="${escapeHtml(f.root)}" class="fav-open"><span class="${wordClass}">${escapeHtml(f.root)}</span><small>View result</small></button><button data-root="${escapeHtml(f.root)}" class="similar-link remove-fav">Remove</button></div>`;
+        }).join('')}</div>
     `;
 
     const exportBtn = document.getElementById('exportFavs');
@@ -660,6 +650,16 @@ function renderFavoritesPanel() {
 
     favoritesPanel.querySelectorAll('.remove-fav').forEach((b) => b.addEventListener('click', (e) => {
         const root = b.dataset.root; const l = loadFavorites(); const idx = l.findIndex(x=>x.root===root); if (idx>=0) { l.splice(idx,1); saveFavorites(l); renderFavoritesPanel(); }
+    }));
+
+    favoritesPanel.querySelectorAll('.fav-open').forEach((button) => button.addEventListener('click', () => {
+        const root = button.dataset.favoriteRoot || '';
+        if (!root) return;
+        switchView('search');
+        inputElement.value = root;
+        updateSuggestions();
+        searchWord();
+        window.setTimeout(() => inputElement.focus(), 420);
     }));
 }
 
@@ -840,10 +840,37 @@ function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
     `;
 }
 
+function getNotificationReadIds() {
+    try {
+        const value = JSON.parse(localStorage.getItem(NOTIFICATION_READ_IDS_KEY) || '[]');
+        return new Set(Array.isArray(value) ? value : []);
+    } catch (e) {
+        return new Set();
+    }
+}
+
+function saveNotificationReadIds(ids) {
+    try { localStorage.setItem(NOTIFICATION_READ_IDS_KEY, JSON.stringify([...ids])); } catch (e) {}
+}
+
+function getNotificationId(notification, index) {
+    return notification.id || `notification-${notification.createdAt || index}`;
+}
+
+function prepareInterfaceUpdateNotification() {
+    if (localStorage.getItem(NOTIFICATION_READ_IDS_KEY)) return;
+    const readIds = new Set(
+        getNotifications()
+            .map((notification, index) => getNotificationId(notification, index))
+            .filter((id) => id !== INTERFACE_UPDATE_ID)
+    );
+    saveNotificationReadIds(readIds);
+}
+
 function updateNotificationBadge() {
     const list = getNotifications();
-    const readCount = parseInt(localStorage.getItem('dz_notif_read_count') || '0');
-    const unreadCount = Math.max(0, list.length - readCount);
+    const readIds = getNotificationReadIds();
+    const unreadCount = list.filter((notification, index) => !readIds.has(getNotificationId(notification, index))).length;
     const badge = document.getElementById('notifBadge');
     if (badge) {
         badge.textContent = unreadCount;
@@ -853,7 +880,7 @@ function updateNotificationBadge() {
 
 function markNotificationsAsRead() {
     const list = getNotifications();
-    localStorage.setItem('dz_notif_read_count', list.length);
+    saveNotificationReadIds(new Set(list.map((notification, index) => getNotificationId(notification, index))));
     updateNotificationBadge();
 }
 
@@ -887,26 +914,10 @@ function renderNotificationSection() {
 
 function showLatestNotification() {
     normalizeNotificationTimes();
-    publishDictionaryCleanupNotice();
-    publishAdditionalTerminologyNotice();
+    prepareInterfaceUpdateNotification();
     updateNotificationBadge();
     renderNotificationSection();
     renderDictionaryUpdateStatus();
-
-    if (notificationBar && localStorage.getItem(KANGDRANG_NOTIFICATION_VIEWED_KEY) !== 'true') {
-        notificationBar.innerHTML = `
-            <div>
-                <span class="dictionary-notification-message">སྐད་ཡིག་གོང་འཕེལ་འགོ་དཔོན་ཕུརཔ་རྣམ་རྒྱལ་གྱིས་བསྡུ་སྒྲིག་འབད་དེ་ཡོད་པའི་ ཉེར་མཁོའི་རྐང་གྲངས་ཀྱི་དཔེ་དེབ་ནང་གི་གནས་སྡུད་ཚུ་ ཚིག་མཛོད་འདི་ནང་བཙུགས་ཏེ་ཡོད།</span>
-            </div>
-            <button class="notification-action" type="button" id="viewUpdateButton">View updates</button>
-        `;
-        notificationBar.hidden = false;
-        document.getElementById('viewUpdateButton')?.addEventListener('click', () => {
-            localStorage.setItem(KANGDRANG_NOTIFICATION_VIEWED_KEY, 'true');
-            notificationBar.hidden = true;
-            switchView('notification');
-        });
-    }
 }
 
 function loadDictionaryData(data, directionKey, fileName) {
@@ -1030,7 +1041,6 @@ function resetSearchResults() {
     resultElement.classList.remove('has-results', 'has-selected-result');
     resultElement.innerHTML = `
         <div class="notice search-empty">
-            <span class="search-empty-mark uchen-word" aria-hidden="true">ཨ</span>
             <div><strong>Your next word is waiting.</strong><span>Search in English or Dzongkha to explore trusted definitions.</span></div>
         </div>`;
 }
@@ -2031,9 +2041,13 @@ if (historyPanel) {
 
         const button = event.target.closest('.history-item');
         if (!button) return;
-        setDirection(button.dataset.historyDirection || 'dz-en');
+        switchView('search');
+        const savedDirection = button.dataset.historyDirection || 'all';
+        if (savedDirection !== 'all') setDirection(savedDirection);
         inputElement.value = button.dataset.historyQuery || '';
+        updateSuggestions();
         searchWord();
+        window.setTimeout(() => inputElement.focus(), 420);
     });
 }
 
