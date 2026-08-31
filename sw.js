@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dzongkha-dict-v2.0';
+const CACHE_NAME = 'dzongkha-dict-v2.1';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -24,7 +24,8 @@ const ASSETS_TO_CACHE = [
   './final_tense.json',
   './assets/app-logo.png',
   './assets/jamyang-loday.png',
-  './assets/icon-192.png'
+  './assets/icon-192.png',
+  './Design pictures/divider.png'
 ];
 
 // Install Service Worker and cache assets

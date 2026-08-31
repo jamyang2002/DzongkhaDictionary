@@ -95,6 +95,7 @@ const notificationSummary = document.getElementById('notificationSummary');
 const navLinks = document.querySelectorAll('.nav-link');
 const screenPanels = document.querySelectorAll('[data-view-panel]');
 const browseCards = document.querySelectorAll('[data-browse-direction]');
+const searchShortcutButtons = document.querySelectorAll('[data-search-shortcut]');
 const browseTableTitle = document.getElementById('browseTableTitle');
 const browseTableCount = document.getElementById('browseTableCount');
 const browseTableWrap = document.getElementById('browseTableWrap');
@@ -171,6 +172,18 @@ if (startLookupButton && inputElement) {
         window.setTimeout(() => inputElement.focus(), 420);
     });
 }
+
+searchShortcutButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        const searchTerm = button.dataset.searchShortcut || '';
+        if (!searchTerm) return;
+        switchView('search');
+        inputElement.value = searchTerm;
+        updateSuggestions();
+        searchWord();
+        window.setTimeout(() => inputElement.focus(), 420);
+    });
+});
 
 if (wordOfDayEl && inputElement) {
     wordOfDayEl.addEventListener('click', (event) => {
@@ -1014,7 +1027,12 @@ function renderMessage(message, isError = false) {
 }
 
 function resetSearchResults() {
-    renderMessage('Search for a word to see its translation and notes.');
+    resultElement.classList.remove('has-results', 'has-selected-result');
+    resultElement.innerHTML = `
+        <div class="notice search-empty">
+            <span class="search-empty-mark uchen-word" aria-hidden="true">ཨ</span>
+            <div><strong>Your next word is waiting.</strong><span>Search in English or Dzongkha to explore trusted definitions.</span></div>
+        </div>`;
 }
 
 function renderClickableText(value, valueClass) {

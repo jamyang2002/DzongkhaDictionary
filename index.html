@@ -11,7 +11,7 @@
     <link rel="icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="assets/icon-192.png">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="modern.css?v=2.0">
+    <link rel="stylesheet" href="modern.css">
 </head>
 <body>
     <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -160,6 +160,7 @@
                             <div class="preview-word uchen-word">རྫོང་ཁ།</div>
                             <div class="preview-meaning">Dzongkha · Bhutan's national language</div>
                             <p>Dzongkha carries identity, tradition, governance, literature, and everyday communication. This app helps keep that knowledge searchable and useful.</p>
+                            <img class="heritage-divider" src="Design%20pictures/divider.png" alt="" aria-hidden="true">
                         </div>
                     </div>
 
@@ -201,6 +202,15 @@
 
                             <section id="suggestions" class="suggestions" role="listbox" aria-label="Search suggestions" hidden></section>
 
+                            <div class="search-guidance">
+                                <p><span class="search-guidance-dot" aria-hidden="true"></span>Searches English and Dzongkha together</p>
+                                <div class="search-shortcuts" aria-label="Try an example search">
+                                    <button type="button" data-search-shortcut="mother">mother</button>
+                                    <button type="button" class="dzongkha-word" data-search-shortcut="ཨ་མ་">ཨ་མ་</button>
+                                    <button type="button" class="uchen-word" data-search-shortcut="རྫོང་ཁ།">རྫོང་ཁ།</button>
+                                </div>
+                            </div>
+
                         </section>
 
                         <section class="results-area" aria-label="Dictionary result">
@@ -209,7 +219,10 @@
                                 <span class="font-note">Joyig Dzongkha font enabled</span>
                             </div>
                             <section id="result" class="result-panel" aria-live="polite" aria-atomic="false">
-                                <div class="notice">Search for a word to see its translation and notes.</div>
+                                <div class="notice search-empty">
+                                    <span class="search-empty-mark uchen-word" aria-hidden="true">ཨ</span>
+                                    <div><strong>Your next word is waiting.</strong><span>Search in English or Dzongkha to explore trusted definitions.</span></div>
+                                </div>
                             </section>
                         </section>
                     </div>
