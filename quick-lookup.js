@@ -76,9 +76,31 @@
             </section>`;
     }
 
+    function renderResultItem(result, index, query) {
+        const headwordClass = result.headwordHasDzongkha ? 'dzongkha-word' : 'english-word';
+        const definitionClass = result.definitionHasDzongkha ? 'dzongkha-word' : 'english-word';
+
+        return `
+            <article class="quick-lookup-result" role="listitem">
+                <div class="quick-lookup-heading">
+                    <div>
+                        <span class="quick-lookup-direction">${escapeHtml(result.direction)}</span>
+                        <h2 ${index === 0 ? 'id="quickLookupTitle"' : ''} class="${headwordClass}">${escapeHtml(result.headword || query)}</h2>
+                    </div>
+                    ${result.type ? `<span class="quick-lookup-type">${escapeHtml(result.type)}</span>` : ''}
+                </div>
+                <div class="quick-lookup-definition ${definitionClass}">${escapeHtml(result.definition || 'Definition unavailable.')}</div>
+                <div class="quick-lookup-source">
+                    <span>Source</span>
+                    <strong>${escapeHtml(result.source)}</strong>
+                </div>
+            </article>`;
+    }
+
     function renderLookupResult(payload) {
-        const result = payload.results?.[0];
-        const resultCount = Number(payload.resultCount) || 0;
+        const results = Array.isArray(payload.results) ? payload.results : [];
+        const result = results[0];
+        const resultCount = Number(payload.resultCount) || results.length;
         const shortcut = getPlatformShortcut();
 
         if (!result) {
@@ -102,9 +124,7 @@
             return;
         }
 
-        const headwordClass = result.headwordHasDzongkha ? 'dzongkha-word' : 'english-word';
-        const definitionClass = result.definitionHasDzongkha ? 'dzongkha-word' : 'english-word';
-        const additionalCount = Math.max(0, resultCount - 1);
+        const countLabel = `${resultCount.toLocaleString()} matching ${resultCount === 1 ? 'entry' : 'entries'}`;
 
         root.hidden = false;
         root.innerHTML = `
@@ -113,19 +133,13 @@
                     <span class="quick-lookup-brand">Quick Lookup</span>
                     <button class="quick-lookup-close" type="button" data-quick-close aria-label="Close quick lookup">×</button>
                 </div>
-                <div class="quick-lookup-heading">
-                    <div>
-                        <span class="quick-lookup-direction">${escapeHtml(result.direction)}</span>
-                        <h2 id="quickLookupTitle" class="${headwordClass}">${escapeHtml(result.headword)}</h2>
-                    </div>
-                    ${result.type ? `<span class="quick-lookup-type">${escapeHtml(result.type)}</span>` : ''}
+                <div class="quick-lookup-result-summary">
+                    <span>Matches for “${escapeHtml(payload.query)}”</span>
+                    <strong>${escapeHtml(countLabel)}</strong>
                 </div>
-                <div class="quick-lookup-definition ${definitionClass}">${escapeHtml(result.definition || 'Definition unavailable.')}</div>
-                <div class="quick-lookup-source">
-                    <span>Source</span>
-                    <strong>${escapeHtml(result.source)}</strong>
+                <div class="quick-lookup-results" role="list" aria-label="${escapeHtml(countLabel)}" tabindex="0">
+                    ${results.map((item, index) => renderResultItem(item, index, payload.query)).join('')}
                 </div>
-                ${additionalCount ? `<div class="quick-lookup-more">+${additionalCount.toLocaleString()} more matching ${additionalCount === 1 ? 'entry' : 'entries'}</div>` : ''}
                 <a class="quick-lookup-open" href="${escapeHtml(getFullEntryUrl(payload.query))}" ${isQuickDocument ? 'target="_blank" rel="noopener noreferrer"' : ''} data-open-full-entry>
                     Open Full Entry
                     <span aria-hidden="true">↗</span>
@@ -184,7 +198,7 @@
 
         try {
             const sharedResult = preferOpenDictionary ? await lookupFromOpenDictionary(query) : null;
-            const payload = sharedResult || await api.lookup(query, { limit: 8 });
+            const payload = sharedResult || await api.lookup(query, { all: true, balanced: true });
             renderLookupResult(payload);
         } catch (error) {
             console.error('Quick lookup failed:', error);
@@ -276,7 +290,7 @@
         lookupChannel.addEventListener('message', async (event) => {
             if (event.data?.type !== 'lookup-request' || !event.data.requestId) return;
             try {
-                const payload = await api.lookup(event.data.query, { limit: 8 });
+                const payload = await api.lookup(event.data.query, { all: true, balanced: true });
                 lookupChannel.postMessage({
                     type: 'lookup-response',
                     requestId: event.data.requestId,

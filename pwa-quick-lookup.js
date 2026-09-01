@@ -90,20 +90,31 @@
         window.setTimeout(() => document.getElementById('pwaQuickLookupInput')?.focus(), 60);
     }
 
-    function getResultParts(payload) {
-        const results = Array.isArray(payload.results) ? payload.results : [];
-        const primary = results[0];
-        const dzongkha = results.find((item) => item.definitionHasDzongkha && item.definition);
-        const english = results.find((item) => !item.definitionHasDzongkha && item.definition);
-        const sources = [...new Set([primary, dzongkha, english]
-            .filter(Boolean)
-            .map((item) => item.source)
-            .filter(Boolean))];
-        return { primary, dzongkha, english, sources };
+    function renderResultItem(result, index, query) {
+        const headwordClass = result.headwordHasDzongkha ? 'dzongkha-word' : 'english-word';
+        const definitionClass = result.definitionHasDzongkha ? 'dzongkha-word' : 'english-word';
+        const headword = result.headword || query;
+
+        return `
+            <article class="pwa-quick-lookup-result" role="listitem">
+                <div class="pwa-quick-lookup-heading">
+                    <div>
+                        <span>${escapeHtml(result.direction || 'Dictionary')}</span>
+                        <h2 ${index === 0 ? 'id="pwaQuickLookupResultTitle"' : ''} class="${headwordClass}">${escapeHtml(headword)}</h2>
+                    </div>
+                    ${result.type ? `<em>${escapeHtml(result.type)}</em>` : ''}
+                </div>
+                <div class="pwa-quick-lookup-detail">
+                    <span>Definition</span>
+                    <p class="${definitionClass}">${escapeHtml(result.definition || 'Definition unavailable.')}</p>
+                </div>
+                ${result.source ? `<div class="pwa-quick-lookup-source"><span>Source</span><strong>${escapeHtml(result.source)}</strong></div>` : ''}
+            </article>`;
     }
 
     function renderResult(payload) {
-        const { primary, dzongkha, english, sources } = getResultParts(payload);
+        const results = Array.isArray(payload.results) ? payload.results : [];
+        const primary = results[0];
         const query = payload.query || activeQuery;
 
         if (!primary) {
@@ -117,49 +128,23 @@
             return;
         }
 
-        const headwordClass = primary.headwordHasDzongkha ? 'dzongkha-word' : 'english-word';
         const canPronounce = payload.language === 'english' && typeof api.playPronunciation === 'function';
-        const additionalCount = Math.max(0, Number(payload.resultCount || 0) - 1);
-        const detailRows = [];
-
-        if (dzongkha?.definition) {
-            detailRows.push(`
-                <div class="pwa-quick-lookup-detail">
-                    <span>${payload.language === 'english' ? 'Dzongkha translation' : 'Dzongkha definition'}</span>
-                    <p class="dzongkha-word">${escapeHtml(dzongkha.definition)}</p>
-                </div>`);
-        }
-        if (english?.definition) {
-            detailRows.push(`
-                <div class="pwa-quick-lookup-detail">
-                    <span>${payload.language === 'english' ? 'English definition' : 'English equivalent'}</span>
-                    <p class="english-word">${escapeHtml(english.definition)}</p>
-                </div>`);
-        }
-        if (!detailRows.length && primary.definition) {
-            detailRows.push(`
-                <div class="pwa-quick-lookup-detail">
-                    <span>Definition</span>
-                    <p class="${primary.definitionHasDzongkha ? 'dzongkha-word' : 'english-word'}">${escapeHtml(primary.definition)}</p>
-                </div>`);
-        }
+        const resultCount = Number(payload.resultCount) || results.length;
+        const countLabel = `${resultCount.toLocaleString()} matching ${resultCount === 1 ? 'entry' : 'entries'}`;
 
         renderDialog(`
-            <div class="pwa-quick-lookup-heading">
-                <div>
-                    <span>${escapeHtml(primary.direction || 'Dictionary')}</span>
-                    <h2 class="${headwordClass}">${escapeHtml(primary.headword || query)}</h2>
-                </div>
-                ${primary.type ? `<em>${escapeHtml(primary.type)}</em>` : ''}
+            <div class="pwa-quick-lookup-result-summary">
+                <span>Matches for “${escapeHtml(query)}”</span>
+                <strong>${escapeHtml(countLabel)}</strong>
             </div>
             ${canPronounce ? `
                 <div class="pwa-quick-lookup-pronunciation" data-pronunciation>
                     <button type="button" data-pwa-pronounce data-root="${escapeHtml(primary.headword || query)}" aria-label="Play pronunciation of ${escapeHtml(primary.headword || query)}">🔊 Pronounce</button>
                     <span data-pronunciation-status aria-live="polite"></span>
                 </div>` : ''}
-            <div class="pwa-quick-lookup-details">${detailRows.join('')}</div>
-            ${sources.length ? `<div class="pwa-quick-lookup-source"><span>Source</span><strong>${escapeHtml(sources.join(' · '))}</strong></div>` : ''}
-            ${additionalCount ? `<div class="pwa-quick-lookup-more">+${additionalCount.toLocaleString()} more matching ${additionalCount === 1 ? 'entry' : 'entries'}</div>` : ''}
+            <div class="pwa-quick-lookup-results" role="list" aria-label="${escapeHtml(countLabel)}" tabindex="0">
+                ${results.map((result, index) => renderResultItem(result, index, query)).join('')}
+            </div>
             <button type="button" class="pwa-quick-lookup-primary" data-pwa-open-full>Open Full Entry <span aria-hidden="true">→</span></button>
         `, `Quick Lookup result for ${primary.headword || query}`);
     }
@@ -179,7 +164,7 @@
         const requestId = ++interactionId;
         renderLoading(`Looking up “${query}”…`);
         try {
-            const payload = await api.lookup(query, { limit: 12, balanced: true });
+            const payload = await api.lookup(query, { all: true, balanced: true });
             if (requestId === interactionId) renderResult(payload);
         } catch (error) {
             if (requestId !== interactionId) return;

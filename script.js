@@ -2364,7 +2364,9 @@ async function lookupDictionary(queryValue, options = {}) {
     if (!hasDz) await ensureEnglishDefinitionsForQuery(query);
 
     const orderedGroups = getOrderedSearchGroups(getSearchGroups(query, normalizedQuery), hasDz);
-    const limit = Math.max(1, Math.min(Number(options.limit) || 8, 20));
+    const limit = options.all
+        ? Number.POSITIVE_INFINITY
+        : Math.max(1, Math.min(Number(options.limit) || 8, 20));
     const results = [];
 
     if (options.balanced) {
