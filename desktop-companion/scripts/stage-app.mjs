@@ -16,6 +16,8 @@ const files = [
   'script.js',
   'quick-lookup.js',
   'quick-lookup.css',
+  'pwa-quick-lookup.js',
+  'pwa-quick-lookup.css',
   'desktop-updater.js',
   'desktop-updater.css',
   'manifest.json',

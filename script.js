@@ -2367,12 +2367,26 @@ async function lookupDictionary(queryValue, options = {}) {
     const limit = Math.max(1, Math.min(Number(options.limit) || 8, 20));
     const results = [];
 
-    for (const group of orderedGroups) {
-        for (const entry of group.entries) {
+    if (options.balanced) {
+        orderedGroups.forEach((group) => {
+            if (results.length >= limit || !group.entries.length) return;
+            results.push(summarizeQuickLookupEntry(group.entries[0], group.type));
+        });
+        for (const group of orderedGroups) {
+            for (const entry of group.entries.slice(1)) {
+                if (results.length >= limit) break;
+                results.push(summarizeQuickLookupEntry(entry, group.type));
+            }
             if (results.length >= limit) break;
-            results.push(summarizeQuickLookupEntry(entry, group.type));
         }
-        if (results.length >= limit) break;
+    } else {
+        for (const group of orderedGroups) {
+            for (const entry of group.entries) {
+                if (results.length >= limit) break;
+                results.push(summarizeQuickLookupEntry(entry, group.type));
+            }
+            if (results.length >= limit) break;
+        }
     }
 
     const resultCount = orderedGroups.reduce((total, group) => total + group.entries.length, 0);
@@ -2387,6 +2401,7 @@ async function lookupDictionary(queryValue, options = {}) {
 window.DzongkhaDictionary = Object.freeze({
     ensureReady: ensureDictionariesReady,
     lookup: lookupDictionary,
+    playPronunciation: playEnglishPronunciation,
     isQuickLookupMode: QUICK_LOOKUP_MODE
 });
 
