@@ -1,15 +1,15 @@
-const CACHE_NAME = 'dzongkha-dict-v3.4';
+const CACHE_NAME = 'dzongkha-dict-v3.5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './modern.css',
-  './quick-lookup.css?v=2.2',
-  './pwa-quick-lookup.css?v=2.2',
+  './quick-lookup.css?v=2.3',
+  './pwa-quick-lookup.css?v=2.3',
   './desktop-updater.css',
-  './script.js?v=1.20',
-  './quick-lookup.js?v=2.2',
-  './pwa-quick-lookup.js?v=2.2',
+  './script.js?v=1.21',
+  './quick-lookup.js?v=2.3',
+  './pwa-quick-lookup.js?v=2.3',
   './desktop-updater.js',
   './admin.js',
   './manifest.json',
