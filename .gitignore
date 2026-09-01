@@ -4,3 +4,4 @@
 .env.*
 !.env.example
 .vercel
+monlam_legacy/
