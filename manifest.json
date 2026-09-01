@@ -2,6 +2,8 @@
   "name": "Dzongkha Dictionary",
   "short_name": "Dictionary",
   "description": "A comprehensive English-Dzongkha bilingual dictionary with offline support.",
+  "version": "3.3",
+  "version": "3.3",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
