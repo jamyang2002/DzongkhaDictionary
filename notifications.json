@@ -4,5 +4,11 @@
     "title": "New app interface available",
     "message": "The Dzongkha Dictionary now has a refreshed interface with improved search, easier navigation, and a more polished experience.",
     "createdAt": "2026-08-31T00:00:00.000Z"
+  },
+  {
+    "id": "english-english-dictionary-2026-09-01",
+    "title": "English-English dictionary added",
+    "message": "English-to-English definitions are now available for 135,969 entries, including parts of speech, synonyms, examples, and pronunciation.",
+    "createdAt": "2026-09-01T00:00:00.000Z"
   }
 ]

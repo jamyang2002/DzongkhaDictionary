@@ -1,0 +1,11 @@
+{
+  "title": "Open English WordNet",
+  "version": "2025",
+  "source": "https://en-word.net/downloads",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "changes": "Converted to compact, alphabetically sharded English definition lookup data for the Dzongkha Dictionary app.",
+  "definitionEntryCount": 135969,
+  "lookupKeyCount": 131094,
+  "generatedAt": "2026-09-01T05:29:29.135Z"
+}

@@ -115,10 +115,12 @@ function updateDictionaryCounts() {
     const dzEn = document.querySelectorAll('#homeDzEnCount, #splashDzEnCount');
     const enDz = document.querySelectorAll('#homeEnDzCount, #splashEnDzCount');
     const dzDz = document.querySelectorAll('#homeDzDzCount, #splashDzDzCount');
+    const enEn = document.querySelectorAll('#homeEnEnCount, #splashEnEnCount');
 
     dzEn.forEach(el => el.textContent = formatCount(dzEnEntries.length));
     enDz.forEach(el => el.textContent = formatCount(enDzEntries.length));
     dzDz.forEach(el => el.textContent = formatCount(dzDzEntries.length));
+    enEn.forEach(el => el.textContent = formatCount(ENGLISH_DEFINITION_ENTRY_COUNT));
 
     if (dictionaryCountEls.browseDzEn) dictionaryCountEls.browseDzEn.textContent = `${formatCount(dzEnEntries.length)} entries`;
     if (dictionaryCountEls.browseEnDz) dictionaryCountEls.browseEnDz.textContent = `${formatCount(enDzEntries.length)} entries`;
@@ -233,6 +235,8 @@ const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const LOCAL_KANGDRANG_JSON = 'kangdrang.json';
+const ENGLISH_DEFINITION_DIRECTORY = 'english_definitions';
+const ENGLISH_DEFINITION_ENTRY_COUNT = 135969;
 const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
 const WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php';
 const WIKIMEDIA_COMMONS_API_URL = 'https://commons.wikimedia.org/w/api.php';
@@ -338,6 +342,9 @@ let activeEntryImageRequest = 0;
 const pronunciationCache = new Map();
 let activePronunciationAudio = null;
 let countryCodeIndex = null;
+const englishDefinitionShards = new Map();
+const englishDefinitionShardPromises = new Map();
+let activeDictionarySearchRequest = 0;
 
 function inferDirectionFromFileName(fileName) {
     const lower = fileName.toLowerCase();
@@ -409,6 +416,32 @@ function fetchLocalJsonWithXHR(path) {
     });
 }
 
+function fetchLocalObjectWithXHR(path) {
+    return new Promise((resolve) => {
+        const request = new XMLHttpRequest();
+        request.open('GET', path, true);
+        request.timeout = 8000;
+        request.overrideMimeType('application/json');
+        request.onload = () => {
+            if (request.status === 200 || request.status === 0) {
+                try {
+                    const data = JSON.parse(request.responseText);
+                    if (data && typeof data === 'object' && !Array.isArray(data)) {
+                        resolve(data);
+                        return;
+                    }
+                } catch (error) {
+                    console.warn(`Could not parse local JSON object ${path}:`, error);
+                }
+            }
+            resolve(null);
+        };
+        request.onerror = () => resolve(null);
+        request.ontimeout = () => resolve(null);
+        request.send();
+    });
+}
+
 async function fetchLocalJson(path) {
     const candidates = [path];
     if (!path.startsWith('./') && !path.startsWith('/') && !path.match(/^https?:\/\//i)) {
@@ -444,6 +477,84 @@ function withTimeout(promise, timeoutMs, fallback = null) {
         timeoutId = setTimeout(() => resolve(fallback), timeoutMs);
     });
     return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+}
+
+function getEnglishDefinitionLookupCandidates(query) {
+    const word = normalizeEnglish(query);
+    const candidates = [word];
+    const addCandidate = (candidate) => {
+        if (candidate && candidate.length > 1 && !candidates.includes(candidate)) candidates.push(candidate);
+    };
+
+    if (word.endsWith("'s") || word.endsWith('’s')) addCandidate(word.slice(0, -2));
+    if (word.endsWith('ies') && word.length > 3) addCandidate(`${word.slice(0, -3)}y`);
+    if (word.endsWith('ves') && word.length > 3) {
+        addCandidate(`${word.slice(0, -3)}f`);
+        addCandidate(`${word.slice(0, -3)}fe`);
+    }
+    if (word.endsWith('es') && word.length > 2) {
+        addCandidate(word.slice(0, -2));
+        addCandidate(word.slice(0, -1));
+    } else if (word.endsWith('s') && word.length > 1) {
+        addCandidate(word.slice(0, -1));
+    }
+    if (word.endsWith('ied') && word.length > 3) addCandidate(`${word.slice(0, -3)}y`);
+    if (word.endsWith('ed') && word.length > 2) {
+        addCandidate(word.slice(0, -2));
+        addCandidate(word.slice(0, -1));
+    }
+    if (word.endsWith('ing') && word.length > 3) {
+        const stem = word.slice(0, -3);
+        addCandidate(stem);
+        addCandidate(`${stem}e`);
+        if (stem.length > 2 && stem.at(-1) === stem.at(-2)) addCandidate(stem.slice(0, -1));
+    }
+
+    return candidates;
+}
+
+function getEnglishDefinitionShardName(value) {
+    const firstCharacter = normalizeEnglish(value).charAt(0);
+    return /^[a-z]$/.test(firstCharacter) ? firstCharacter : '0';
+}
+
+async function loadEnglishDefinitionShard(shardName) {
+    if (englishDefinitionShards.has(shardName)) return true;
+    if (englishDefinitionShardPromises.has(shardName)) return englishDefinitionShardPromises.get(shardName);
+
+    const path = `${ENGLISH_DEFINITION_DIRECTORY}/${shardName}.json`;
+    const request = (async () => {
+        let data = await fetchLocalObjectWithXHR(path);
+        if (!data) {
+            try {
+                const response = await withTimeout(fetch(path, { cache: 'no-store' }), 10000, null);
+                if (response?.ok) data = await response.json();
+            } catch (error) {
+                console.warn(`Could not load ${path}:`, error);
+            }
+        }
+
+        if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+        englishDefinitionShards.set(shardName, data);
+        return true;
+    })().finally(() => englishDefinitionShardPromises.delete(shardName));
+
+    englishDefinitionShardPromises.set(shardName, request);
+    return request;
+}
+
+async function ensureEnglishDefinitionsForQuery(query) {
+    const shardNames = [...new Set(getEnglishDefinitionLookupCandidates(query).map(getEnglishDefinitionShardName))];
+    await Promise.all(shardNames.map(loadEnglishDefinitionShard));
+}
+
+function findEnglishDefinitionMatches(query) {
+    for (const lookupKey of getEnglishDefinitionLookupCandidates(query)) {
+        const shard = englishDefinitionShards.get(getEnglishDefinitionShardName(lookupKey));
+        const matches = shard?.[lookupKey] || [];
+        if (matches.length) return uniqueEntries(matches, 'enEn');
+    }
+    return [];
 }
 
 async function loadLocalDataset(path) {
@@ -521,6 +632,13 @@ const fieldLabels = {
         { key: 'comparative', label: 'Comparative form' },
         { key: 'equivalent', label: 'Dzongkha translation' }
     ],
+    enEn: [
+        { key: 'root', label: 'Root word' },
+        { key: 'type', label: 'Part of speech' },
+        { key: 'definition', label: 'Definition' },
+        { key: 'synonyms', label: 'Synonyms' },
+        { key: 'examples', label: 'Examples' }
+    ],
     countries: [
         { key: 'root', label: 'Country' },
         { key: 'countryDz', label: 'Country (Dzongkha)' },
@@ -564,7 +682,7 @@ const fieldLabels = {
 };
 
 function normalizeEnglish(value) {
-    return String(value).trim().toLowerCase();
+    return String(value).normalize('NFKC').trim().toLowerCase();
 }
 
 function normalizeDzongkha(value) {
@@ -904,7 +1022,7 @@ function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
         <p class="update-status-copy">The app checks for the newest dictionary data whenever it reconnects. No reinstall is required.</p>
         <div class="update-status-grid">
             <div><strong>${loadedCount.toLocaleString()}</strong><span>new entries</span></div>
-            <div><strong>4</strong><span>dictionary directions</span></div>
+            <div><strong>5</strong><span>dictionary directions</span></div>
             <div><strong>Online</strong><span>sync status</span></div>
         </div>
         <div class="update-category-list">
@@ -1561,24 +1679,26 @@ function getFieldDefinitions(entry, entryType) {
 
 function renderCard(entry, entryType, animationIndex = 0) {
     const fields = getFieldDefinitions(entry, entryType);
+    const isEnglishRoot = ['enDz', 'enEn', 'countries', 'publicService', 'placeNames'].includes(entryType);
     
     // Determine flags based on direction
-    const rootFlag = entryType === 'enDz' ? '🇬🇧' : '🇧🇹';
+    const rootFlag = isEnglishRoot ? '🇬🇧' : '🇧🇹';
     const transFlag = entryType === 'enDz' ? '🇧🇹' : (entryType === 'dzEn' ? '🇬🇧' : '');
 
     const details = fields
         .filter((field) => field.key !== 'root' && entry[field.key] && entry[field.key].toString().trim().length > 0)
         .map((field) => {
             let valueClass = entryType === 'enDz' ? (field.key === 'equivalent' ? 'dzongkha-word' : 'english-word') : 'dzongkha-word';
+            if (entryType === 'enEn') valueClass = 'english-word';
             if (entryType === 'dzEn' && field.key === 'equivalentTerm') valueClass = 'english-word';
             if (entryType === 'dzDz') valueClass = 'dzongkha-word';
             if (entryType === 'tense') valueClass = 'dzongkha-word';
 
             const rawValue = entry[field.key];
-            const clickableKeys = ['equivalent', 'equivalentTerm', 'also', 'past', 'present', 'future', 'imperative'];
+            const clickableKeys = ['equivalent', 'equivalentTerm', 'also', 'synonyms', 'past', 'present', 'future', 'imperative'];
             const rawDisplay = (clickableKeys.includes(field.key) || (field.key === 'meaning' && entryType !== 'dzDz'))
                 ? renderClickableText(rawValue, valueClass)
-                : `<span class="${valueClass}">${rawValue}</span>`;
+                : `<span class="${valueClass}">${escapeHtml(rawValue)}</span>`;
             const displayValue = field.key === 'meaning'
                 ? `<span class="meaning-text ${valueClass}">${rawDisplay}</span>`
                 : rawDisplay;
@@ -1595,14 +1715,16 @@ function renderCard(entry, entryType, animationIndex = 0) {
     const directionLabel = entry.dictionaryLabel
         || (entryType === 'enDz'
             ? 'English → Dzongkha'
-            : entryType === 'countries'
-                ? 'Names of countries and capital'
-                : entryType === 'publicService'
-                    ? 'Public Service Terminology'
-                    : entryType === 'placeNames'
-                        ? 'Place names of Bhutan'
-                        : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
-    const mainWordClass = entryType === 'enDz' || entryType === 'countries' || entryType === 'publicService' || entryType === 'placeNames' ? 'english-word' : 'uchen-word';
+            : entryType === 'enEn'
+                ? 'English → English'
+                : entryType === 'countries'
+                    ? 'Names of countries and capital'
+                    : entryType === 'publicService'
+                        ? 'Public Service Terminology'
+                        : entryType === 'placeNames'
+                            ? 'Place names of Bhutan'
+                            : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
+    const mainWordClass = isEnglishRoot ? 'english-word' : 'uchen-word';
     const caption = entryType === 'enDz'
         ? (entry.equivalent || '')
         : entryType === 'countries'
@@ -1611,20 +1733,24 @@ function renderCard(entry, entryType, animationIndex = 0) {
     const captionClass = entryType === 'dzDz'
         ? 'dzongkha-word'
         : (entryType === 'enDz' || entryType === 'countries' ? 'dzongkha-word' : 'english-word');
-    const pronunciationControls = entryType === 'enDz' ? renderPronunciationControls(entry.root) : '';
+    const pronunciationControls = entryType === 'enDz' || entryType === 'enEn' ? renderPronunciationControls(entry.root) : '';
     const countryFlag = entryType === 'countries' ? renderCountryFlag(entry) : '';
+    const sourceAttribution = entryType === 'enEn'
+        ? `<div class="details-item"><strong>Source</strong><span class="english-word"><a href="https://en-word.net/" target="_blank" rel="noopener noreferrer">Open English WordNet 2025</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span></div>`
+        : '';
 
     return `
         <section class="dictionary-entry result-card" data-result-card tabindex="0" aria-label="Focus ${escapeHtml(entry.root)} result" style="--entry-index: ${animationIndex}">
             <h2 class="word ${mainWordClass}">
-                <span class="lang-flag">${rootFlag}</span> ${entry.root}
-                <button type="button" class="fav-btn ${isFavorited(entry.root)?'favorited':''}" data-root-fav="${entry.root}" title="Save favorite">☆</button>
+                <span class="lang-flag">${rootFlag}</span> ${escapeHtml(entry.root)}
+                <button type="button" class="fav-btn ${isFavorited(entry.root)?'favorited':''}" data-root-fav="${escapeHtml(entry.root)}" title="Save favorite">☆</button>
             </h2>
             ${pronunciationControls}
             ${caption ? `<p class="translation-caption ${captionClass}"><span class="lang-flag">${transFlag}</span> ${caption}</p>` : ''}
             ${countryFlag}
             <div class="dictionary-details">
                 ${details}
+                ${sourceAttribution}
                 <div class="details-item">
                     <strong>Dictionary direction</strong>
                     <span class="dictionary-direction-label">${directionLabel}</span>
@@ -1963,7 +2089,7 @@ function getIndexedMatches(index, ...keys) {
 function getEntrySignature(entry, entryType) {
     const fields = entryType === 'tense'
         ? ['past', 'present', 'future', 'imperative']
-        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'type', 'also', 'dictionaryLabel', 'source'];
+        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'definition', 'type', 'also', 'dictionaryLabel', 'source'];
     return fields.map((field) => entry[field] || '').join('|');
 }
 
@@ -2114,6 +2240,7 @@ function getSearchGroups(query, normalizedQuery) {
         dzEn: searchEntriesByQuery(dzEnEntries, 'dz-en', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         dzDz: searchEntriesByQuery(dzDzEntries, 'dz-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         enDz: searchEntriesByQuery(enDzEntries, 'en-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
+        enEn: findEnglishDefinitionMatches(query),
         countries: searchEntriesByQuery(countryEntries, 'countries', query, normalizedQuery, false),
         publicService: searchEntriesByQuery(publicServiceEntries, 'public-service', query, normalizedQuery, false),
         placeNames: searchEntriesByQuery(placeNamesEntries, 'place-names', query, normalizedQuery, false),
@@ -2152,7 +2279,7 @@ function renderSearchCards(query, groups, similarDirection) {
     return true;
 }
 
-function searchWord() {
+async function searchWord() {
     const query = inputElement.value.trim();
     if (!query) {
         renderMessage('Please enter a word to search.', true);
@@ -2163,6 +2290,13 @@ function searchWord() {
 
     const hasDz = /[\u0F00-\u0FFF]/.test(query);
     const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
+    const searchRequestId = ++activeDictionarySearchRequest;
+    if (!hasDz) {
+        const shardName = getEnglishDefinitionShardName(query);
+        if (!englishDefinitionShards.has(shardName)) renderMessage('Looking up English definitions…');
+        await ensureEnglishDefinitionsForQuery(query);
+        if (searchRequestId !== activeDictionarySearchRequest || inputElement.value.trim() !== query) return;
+    }
     const groups = getSearchGroups(query, normalizedQuery);
 
     const searchGroups = hasDz
@@ -2173,6 +2307,7 @@ function searchWord() {
         ]
         : [
             { entries: groups.enDz, type: 'enDz' },
+            { entries: groups.enEn, type: 'enEn' },
             { entries: groups.publicService, type: 'publicService' },
             { entries: groups.placeNames, type: 'placeNames' },
             { entries: groups.countries, type: 'countries' }

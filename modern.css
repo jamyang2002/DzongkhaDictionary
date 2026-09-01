@@ -282,7 +282,7 @@ select:focus-visible {
 
 .splash-stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     width: 100%;
     margin: 8px 0;
     overflow: hidden;
@@ -612,7 +612,7 @@ select:focus-visible {
 }
 
 .welcome-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     max-width: 760px;
     margin-top: 36px;
     border-radius: 18px;
