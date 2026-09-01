@@ -57,7 +57,7 @@
     --panel-soft: #1b2227;
     --panel-strong: #212930;
     --panel-glass: rgba(23, 29, 33, 0.84);
-    --text: #f4f7f8;
+    --text: #ffffff;
     --muted: #b3bec6;
     --soft: #8e9aa2;
     --accent: #ff9e86;
@@ -1131,13 +1131,14 @@ img {
     flex-wrap: wrap;
     margin: 0;
     color: var(--text);
-    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-size: clamp(1.1rem, 2.8vw, 1.6rem);
     font-weight: 900;
     line-height: 1.25;
     letter-spacing: -0.025em;
 }
 
 .lang-flag {
+    display: none;
     font-size: 1.2rem;
     vertical-align: middle;
     margin-right: 8px;
@@ -1159,7 +1160,7 @@ img {
     display: block;
     margin: 6px 0 8px;
     color: var(--muted);
-    font-size: 0.95rem;
+    font-size: 1.02rem;
     font-weight: 700;
     line-height: 1.65;
 }
@@ -1850,6 +1851,7 @@ img {
 
 .dictionary-direction-label {
     font-family: "Joyig", "Noto Sans Dzongkha", sans-serif;
+    font-size: 0.92rem;
     letter-spacing: 0;
 }
 
