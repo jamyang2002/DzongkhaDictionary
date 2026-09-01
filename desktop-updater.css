@@ -1,0 +1,178 @@
+.desktop-update-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(7, 13, 25, 0.42);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: desktop-update-fade 180ms ease-out;
+}
+
+.desktop-update-dialog {
+    width: min(440px, 100%);
+    padding: 28px;
+    border: 1px solid var(--line-strong);
+    border-radius: 22px;
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: var(--shadow-lg);
+    animation: desktop-update-rise 220ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.desktop-update-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    color: #fff;
+    background: linear-gradient(145deg, var(--accent), var(--accent-strong));
+    box-shadow: 0 12px 30px var(--accent-border);
+}
+
+.desktop-update-icon svg {
+    width: 25px;
+    height: 25px;
+    fill: currentColor;
+}
+
+.desktop-update-kicker {
+    margin: 0 0 5px;
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.desktop-update-dialog h2 {
+    margin: 0;
+    font-size: 1.55rem;
+    letter-spacing: -0.03em;
+}
+
+.desktop-update-version {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.desktop-update-notes {
+    max-height: 180px;
+    margin: 22px 0;
+    padding: 15px 16px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--panel-soft);
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.desktop-update-progress {
+    height: 4px;
+    margin: 3px 0 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--panel-strong);
+}
+
+.desktop-update-progress span {
+    display: block;
+    width: 42%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    animation: desktop-update-progress 1.1s ease-in-out infinite;
+}
+
+.desktop-update-status {
+    min-height: 20px;
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.desktop-update-status:empty {
+    display: none;
+}
+
+.desktop-update-status.is-error {
+    color: var(--danger);
+}
+
+.desktop-update-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.desktop-update-actions button {
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 11px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.desktop-update-later {
+    border: 1px solid var(--line-strong);
+    background: var(--panel-soft);
+    color: var(--text);
+}
+
+.desktop-update-now {
+    border: 1px solid transparent;
+    background: var(--accent);
+    color: #fff;
+}
+
+.desktop-update-actions button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.desktop-update-actions button:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+}
+
+.desktop-update-actions button:disabled {
+    cursor: wait;
+    opacity: 0.62;
+}
+
+@keyframes desktop-update-fade {
+    from { opacity: 0; }
+}
+
+@keyframes desktop-update-rise {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+
+@keyframes desktop-update-progress {
+    from { transform: translateX(-120%); }
+    to { transform: translateX(340%); }
+}
+
+@media (max-width: 520px) {
+    .desktop-update-overlay { padding: 14px; }
+    .desktop-update-dialog { padding: 22px; }
+    .desktop-update-actions { flex-direction: column-reverse; }
+    .desktop-update-actions button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .desktop-update-overlay,
+    .desktop-update-dialog,
+    .desktop-update-progress span {
+        animation-duration: 1ms;
+    }
+}

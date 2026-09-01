@@ -5,3 +5,13 @@
 !.env.example
 .vercel
 monlam_legacy/
+.DS_Store
+desktop-companion/dist/
+desktop-companion/node_modules/
+desktop-companion/.tauri/
+desktop-companion/src-tauri/gen/schemas/
+desktop-companion/src-tauri/icons/android/
+desktop-companion/src-tauri/icons/ios/
+desktop-companion/src-tauri/icons/Square*.png
+desktop-companion/src-tauri/icons/StoreLogo.png
+desktop-companion/src-tauri/target/

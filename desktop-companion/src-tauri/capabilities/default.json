@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permissions for the bundled Dzongkha Dictionary windows",
+  "windows": ["main", "quick"],
+  "permissions": ["core:default"]
+}

@@ -6,6 +6,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const isQuickDocument = api.isQuickLookupMode;
+    const isNativeDesktop = Boolean(window.__TAURI_INTERNALS__ && window.__TAURI__?.core?.invoke);
     const initialQuery = String(params.get('lookup') || '').normalize('NFC').trim();
     const lookupChannel = typeof BroadcastChannel === 'function'
         ? new BroadcastChannel('dzongkha-dictionary-quick-lookup')
@@ -51,6 +52,10 @@
     function closeQuickLookup({ notifyParent = isQuickDocument } = {}) {
         root.hidden = true;
         root.innerHTML = '';
+        if (notifyParent && isNativeDesktop) {
+            window.__TAURI__.core.invoke('hide_quick_lookup').catch(() => {});
+            return;
+        }
         if (notifyParent && window.parent !== window) {
             window.parent.postMessage({ type: 'DZONGKHA_QUICK_LOOKUP_CLOSE' }, '*');
         }
@@ -234,6 +239,11 @@
 
         const openLink = event.target.closest('[data-open-full-entry]');
         if (!openLink) return;
+        if (isQuickDocument && isNativeDesktop) {
+            event.preventDefault();
+            window.__TAURI__.core.invoke('open_full_entry', { query: activeQuery }).catch(() => {});
+            return;
+        }
         if (isQuickDocument) {
             window.setTimeout(() => closeQuickLookup(), 0);
             return;
@@ -244,6 +254,15 @@
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && !root.hidden) closeQuickLookup();
+    });
+
+    window.addEventListener('message', (event) => {
+        if (event.source !== window) return;
+        if (event.data?.type === 'DZONGKHA_NATIVE_QUICK_LOOKUP') {
+            performLookup(event.data.query);
+        } else if (event.data?.type === 'DZONGKHA_NATIVE_OPEN_FULL_ENTRY' && !isQuickDocument) {
+            openFullEntryInsideApp(event.data.query);
+        }
     });
 
     if (!isQuickDocument) {

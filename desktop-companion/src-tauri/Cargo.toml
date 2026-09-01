@@ -1,0 +1,22 @@
+[package]
+name = "dzongkha-dictionary-desktop"
+version = "1.0.0"
+description = "Native desktop companion for Dzongkha Dictionary Quick Lookup"
+authors = ["Dzongkha Dictionary"]
+edition = "2021"
+
+[lib]
+name = "dzongkha_dictionary_desktop_lib"
+crate-type = ["lib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+clipboard-rs = "0.3.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2.11.5", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-updater = "2.10"
+unicode-normalization = "0.1"
