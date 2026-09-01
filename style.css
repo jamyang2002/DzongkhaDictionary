@@ -1184,11 +1184,11 @@ img {
     grid-template-columns: minmax(140px, 0.3fr) minmax(0, 1fr);
     gap: 12px;
     align-items: start;
-    padding: 8px 11px;
+    padding: 7px 11px;
     background: var(--panel);
     color: var(--muted);
     font-size: 0.85rem;
-    line-height: 1.65;
+    line-height: 1.45;
 }
 
 .details-item strong {
@@ -1210,15 +1210,15 @@ img {
 .details-item .dzongkha-word,
 .details-item .inline-link.dzongkha-word {
     display: inline-block;
-    padding: 4px 0 2px;
+    padding: 2px 0 1px;
     font-size: 0.95rem;
-    line-height: 1.8;
+    line-height: 1.5;
 }
 
 .meaning-text {
     display: inline-block;
-    padding: 4px 0 2px;
-    line-height: 1.65;
+    padding: 2px 0 1px;
+    line-height: 1.4;
     overflow-wrap: break-word;
     white-space: pre-wrap;
 }

@@ -632,8 +632,7 @@ const fieldLabels = {
         { key: 'type', label: 'Type' },
         { key: 'plural', label: 'Plural' },
         { key: 'verbalForm', label: 'Verbal form' },
-        { key: 'comparative', label: 'Comparative form' },
-        { key: 'equivalent', label: 'Dzongkha translation' }
+        { key: 'comparative', label: 'Comparative form' }
     ],
     enEn: [
         { key: 'root', label: 'Root word' },
@@ -669,8 +668,7 @@ const fieldLabels = {
         { key: 'also', label: 'Also' },
         { key: 'syn', label: 'Syn.' },
         { key: 'app', label: 'App.' },
-        { key: 'hon', label: 'Hon.' },
-        { key: 'equivalentTerm', label: 'English equivalent' }
+        { key: 'hon', label: 'Hon.' }
     ],
     dzDz: [
         { key: 'root', label: 'Root word' },
