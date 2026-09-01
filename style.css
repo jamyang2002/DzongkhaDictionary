@@ -1110,12 +1110,12 @@ img {
 
 .dictionary-entry {
     display: grid;
-    gap: 10px;
-    margin-bottom: 14px;
-    padding: 16px;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 13px;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+    background: color-mix(in srgb, var(--panel-soft) 72%, var(--panel));
     box-shadow: var(--shadow-sm);
     text-align: left;
 }
@@ -1131,10 +1131,10 @@ img {
     flex-wrap: wrap;
     margin: 0;
     color: var(--text);
-    font-size: clamp(2.3rem, 5vw, 4.8rem);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
     font-weight: 900;
-    line-height: 1.02;
-    letter-spacing: -0.04em;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
 }
 
 .lang-flag {
@@ -1157,22 +1157,22 @@ img {
 
 .translation-caption {
     display: block;
-    margin: 2px 0 10px;
+    margin: 6px 0 8px;
     color: var(--muted);
-    font-size: 1.16rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    line-height: 1.85;
+    line-height: 1.65;
 }
 
 .translation-caption.dzongkha-word {
-    font-size: 1.4rem;
-    line-height: 2.35;
+    font-size: 1.1rem;
+    line-height: 1.9;
 }
 
 .dictionary-details {
     display: grid;
     gap: 1px;
-    margin-top: 8px;
+    margin-top: 6px;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -1181,14 +1181,14 @@ img {
 
 .details-item {
     display: grid;
-    grid-template-columns: minmax(210px, 0.34fr) minmax(0, 1fr);
-    gap: 20px;
+    grid-template-columns: minmax(140px, 0.3fr) minmax(0, 1fr);
+    gap: 12px;
     align-items: start;
-    padding: 10px 14px;
+    padding: 8px 11px;
     background: var(--panel);
     color: var(--muted);
-    font-size: 0.98rem;
-    line-height: 1.9;
+    font-size: 0.85rem;
+    line-height: 1.65;
 }
 
 .details-item strong {
@@ -1210,15 +1210,15 @@ img {
 .details-item .dzongkha-word,
 .details-item .inline-link.dzongkha-word {
     display: inline-block;
-    padding: 8px 0 6px;
-    font-size: 1.12rem;
-    line-height: 2.7;
+    padding: 4px 0 2px;
+    font-size: 0.95rem;
+    line-height: 1.8;
 }
 
 .meaning-text {
     display: inline-block;
-    padding: 8px 0 6px;
-    line-height: 2.7;
+    padding: 4px 0 2px;
+    line-height: 1.65;
     overflow-wrap: break-word;
     white-space: pre-wrap;
 }
@@ -1254,8 +1254,8 @@ img {
 }
 
 .similar-container {
-    margin-top: 18px;
-    padding: 16px;
+    margin-top: 12px;
+    padding: 13px;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     background: var(--panel-soft);
@@ -2160,11 +2160,13 @@ img {
     }
 
     .dictionary-entry {
-        padding: 16px;
+        padding: 13px;
+        margin-bottom: 10px;
+        gap: 8px;
     }
 
     .dictionary-entry .word {
-        font-size: clamp(1.8rem, 10vw, 2.5rem);
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
         letter-spacing: 0;
     }
 
