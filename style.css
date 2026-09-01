@@ -1185,11 +1185,11 @@ img {
     grid-template-columns: minmax(140px, 0.3fr) minmax(0, 1fr);
     gap: 12px;
     align-items: start;
-    padding: 7px 11px;
+    padding: 8px 11px;
     background: var(--panel);
     color: var(--muted);
     font-size: 0.85rem;
-    line-height: 1.45;
+    line-height: 1.5;
 }
 
 .details-item strong {
@@ -1213,13 +1213,13 @@ img {
     display: inline-block;
     padding: 2px 0 1px;
     font-size: 0.95rem;
-    line-height: 1.5;
+    line-height: 1.7;
 }
 
 .meaning-text {
     display: inline-block;
     padding: 2px 0 1px;
-    line-height: 1.4;
+    line-height: 1.8;
     overflow-wrap: break-word;
     white-space: pre-wrap;
 }
@@ -1838,6 +1838,7 @@ img {
 .dzongkha-word,
 .inline-link.dzongkha-word,
 .dictionary-entry .word.dzongkha-word {
+    color: var(--text);
     font-family: "Joyig", "Noto Sans Dzongkha", sans-serif;
     letter-spacing: 0;
 }
