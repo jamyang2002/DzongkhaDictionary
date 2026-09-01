@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dzongkha Quick Lookup Test</title>
+    <style>
+        @font-face { font-family: Joyig; src: url('../Font/Joyig.ttf'); }
+        :root { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f3f6fb; color: #101828; }
+        body { margin: 0; padding: 48px 20px; }
+        main { width: min(720px, 100%); margin: auto; padding: 34px; border: 1px solid #dce3ef; border-radius: 24px; background: #fff; box-shadow: 0 24px 70px rgba(17,32,61,.1); }
+        h1 { margin: 0 0 10px; font-size: clamp(2rem, 7vw, 3.4rem); letter-spacing: -.045em; }
+        p { color: #56637a; line-height: 1.65; }
+        .samples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+        .sample { padding: 22px 14px; border: 1px solid #dce3ef; border-radius: 16px; background: #f8fafc; text-align: center; user-select: text; }
+        .word { display: block; color: #2948a5; font-size: 1.35rem; font-weight: 800; }
+        .dzongkha { font-family: Joyig, serif; font-size: 1.8rem; line-height: 1.6; }
+        small { display: block; margin-top: 7px; color: #7c899f; }
+        kbd { padding: 3px 7px; border: 1px solid #cdd6e5; border-radius: 6px; background: #eef2f7; box-shadow: 0 1px 0 #cdd6e5; font: inherit; font-size: .76rem; font-weight: 800; }
+        @media (max-width: 600px) { .samples { grid-template-columns: 1fr; } main { padding: 25px 18px; } }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Quick Lookup test page</h1>
+        <p>Highlight one word below, then press <kbd>⌘ C</kbd> twice on macOS or <kbd>Ctrl C</kbd> twice on Windows. The browser's normal copy still works and the dictionary popup should appear.</p>
+        <div class="samples">
+            <div class="sample"><span class="word">mother</span><small>English → Dzongkha</small></div>
+            <div class="sample"><span class="word dzongkha">ཀ།</span><small>Dzongkha → English</small></div>
+            <div class="sample"><span class="word dzongkha">རྫོང་ཁ།</span><small>Dzongkha lookup</small></div>
+        </div>
+    </main>
+</body>
+</html>

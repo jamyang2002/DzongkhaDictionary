@@ -1,3 +1,5 @@
+const QUICK_LOOKUP_MODE = new URLSearchParams(window.location.search).get('quick') === '1';
+
 const enDzEntries = [
     {
         root: "mother",
@@ -345,6 +347,7 @@ let countryCodeIndex = null;
 const englishDefinitionShards = new Map();
 const englishDefinitionShardPromises = new Map();
 let activeDictionarySearchRequest = 0;
+let dictionaryInitializationPromise = null;
 
 function inferDirectionFromFileName(fileName) {
     const lower = fileName.toLowerCase();
@@ -2248,6 +2251,145 @@ function getSearchGroups(query, normalizedQuery) {
     };
 }
 
+function getOrderedSearchGroups(groups, hasDz) {
+    return hasDz
+        ? [
+            { entries: groups.dzEn, type: 'dzEn' },
+            { entries: groups.dzDz, type: 'dzDz' },
+            { entries: groups.tense, type: 'tense' }
+        ]
+        : [
+            { entries: groups.enDz, type: 'enDz' },
+            { entries: groups.enEn, type: 'enEn' },
+            { entries: groups.publicService, type: 'publicService' },
+            { entries: groups.placeNames, type: 'placeNames' },
+            { entries: groups.countries, type: 'countries' }
+        ];
+}
+
+function ensureDictionariesReady() {
+    if (!dictionaryInitializationPromise) {
+        dictionaryInitializationPromise = initializeLocalDictionaries().catch((error) => {
+            dictionaryInitializationPromise = null;
+            throw error;
+        });
+    }
+    return dictionaryInitializationPromise;
+}
+
+function getQuickLookupSource(entry, entryType) {
+    if (entryType === 'enEn') return 'Open English WordNet 2025';
+    if (entry.dictionaryLabel) return entry.dictionaryLabel;
+
+    const sourceLabels = {
+        [LOCAL_EN_DZ_JSON]: 'English–Dzongkha Dictionary',
+        [LOCAL_DZ_EN_JSON]: 'Dzongkha–English Dictionary',
+        [LOCAL_DZ_DZ_JSON]: 'Dzongkha Dictionary',
+        [LOCAL_DZ_DZ_COLLOQUIAL_JSON]: 'Colloquial Terminology',
+        [LOCAL_TENSE_JSON]: 'Dzongkha Tenses',
+        [LOCAL_COUNTRIES_JSON]: 'Countries and Capitals',
+        [LOCAL_PUBLIC_SERVICE_JSON]: 'Public Service Terminology',
+        [LOCAL_PLACE_NAMES_JSON]: 'Place Names of Bhutan',
+        [LOCAL_ADDITIONAL_TERMINOLOGY_JSON]: 'Additional Terminology',
+        [LOCAL_KANGDRANG_JSON]: 'Kangdrang Dictionary'
+    };
+
+    return sourceLabels[entry.source] || entry.source || getQuickLookupDirection(entry, entryType);
+}
+
+function getQuickLookupDefinition(entry, entryType) {
+    if (entryType === 'enDz' || entryType === 'publicService') return entry.equivalent || '';
+    if (entryType === 'enEn') return entry.definition || '';
+    if (entryType === 'dzEn') return entry.equivalentTerm || '';
+    if (entryType === 'dzDz') return entry.meaning || '';
+    if (entryType === 'placeNames') {
+        return [
+            entry.equivalent,
+            entry.chiwog ? `Chiwog: ${entry.chiwog}` : '',
+            entry.gewog ? `Gewog: ${entry.gewog}` : '',
+            entry.dzongkhag ? `Dzongkhag: ${entry.dzongkhag}` : ''
+        ].filter(Boolean).join(' · ');
+    }
+    if (entryType === 'countries') {
+        return [
+            entry.countryDz,
+            entry.equivalent ? `Capital: ${entry.equivalent}` : '',
+            entry.capitalDz
+        ].filter(Boolean).join(' · ');
+    }
+    if (entryType === 'tense') {
+        return [
+            entry.present ? `Present: ${entry.present}` : '',
+            entry.past ? `Past: ${entry.past}` : '',
+            entry.future ? `Future: ${entry.future}` : '',
+            entry.imperative ? `Imperative: ${entry.imperative}` : ''
+        ].filter(Boolean).join(' · ');
+    }
+    return entry.meaning || entry.equivalent || entry.equivalentTerm || '';
+}
+
+function getQuickLookupDirection(entry, entryType) {
+    if (entryType === 'enDz') return 'English → Dzongkha';
+    if (entryType === 'enEn') return 'English → English';
+    if (entryType === 'dzEn') return 'Dzongkha → English';
+    if (entryType === 'dzDz') return 'Dzongkha → Dzongkha';
+    if (entryType === 'tense') return 'Dzongkha tenses';
+    if (entryType === 'countries') return 'Countries and capitals';
+    if (entryType === 'publicService') return 'Public Service Terminology';
+    if (entryType === 'placeNames') return 'Place names of Bhutan';
+    return entry.dictionaryLabel || 'Dictionary';
+}
+
+function summarizeQuickLookupEntry(entry, entryType) {
+    const headword = String(entry.root || entry.present || entry.future || entry.past || entry.imperative || '').trim();
+    const definition = String(getQuickLookupDefinition(entry, entryType)).trim();
+    return {
+        headword,
+        definition,
+        source: getQuickLookupSource(entry, entryType),
+        direction: getQuickLookupDirection(entry, entryType),
+        type: String(entry.type || '').trim(),
+        headwordHasDzongkha: /[\u0F00-\u0FFF]/.test(headword),
+        definitionHasDzongkha: /[\u0F00-\u0FFF]/.test(definition)
+    };
+}
+
+async function lookupDictionary(queryValue, options = {}) {
+    const query = String(queryValue || '').normalize('NFC').trim().replace(/\s+/g, ' ');
+    if (!query) return { query: '', language: 'unknown', resultCount: 0, results: [] };
+
+    await ensureDictionariesReady();
+    const hasDz = /[\u0F00-\u0FFF]/.test(query);
+    const normalizedQuery = hasDz ? normalizeDzongkha(query) : normalizeEnglish(query);
+    if (!hasDz) await ensureEnglishDefinitionsForQuery(query);
+
+    const orderedGroups = getOrderedSearchGroups(getSearchGroups(query, normalizedQuery), hasDz);
+    const limit = Math.max(1, Math.min(Number(options.limit) || 8, 20));
+    const results = [];
+
+    for (const group of orderedGroups) {
+        for (const entry of group.entries) {
+            if (results.length >= limit) break;
+            results.push(summarizeQuickLookupEntry(entry, group.type));
+        }
+        if (results.length >= limit) break;
+    }
+
+    const resultCount = orderedGroups.reduce((total, group) => total + group.entries.length, 0);
+    return {
+        query,
+        language: hasDz ? 'dzongkha' : 'english',
+        resultCount,
+        results
+    };
+}
+
+window.DzongkhaDictionary = Object.freeze({
+    ensureReady: ensureDictionariesReady,
+    lookup: lookupDictionary,
+    isQuickLookupMode: QUICK_LOOKUP_MODE
+});
+
 function renderSearchCards(query, groups, similarDirection) {
     const cards = [];
     groups.forEach(({ entries, type }) => {
@@ -2299,19 +2441,7 @@ async function searchWord() {
     }
     const groups = getSearchGroups(query, normalizedQuery);
 
-    const searchGroups = hasDz
-        ? [
-            { entries: groups.dzEn, type: 'dzEn' },
-            { entries: groups.dzDz, type: 'dzDz' },
-            { entries: groups.tense, type: 'tense' }
-        ]
-        : [
-            { entries: groups.enDz, type: 'enDz' },
-            { entries: groups.enEn, type: 'enEn' },
-            { entries: groups.publicService, type: 'publicService' },
-            { entries: groups.placeNames, type: 'placeNames' },
-            { entries: groups.countries, type: 'countries' }
-        ];
+    const searchGroups = getOrderedSearchGroups(groups, hasDz);
 
     if (renderSearchCards(query, searchGroups, hasDz ? 'all-dz' : 'en-dz')) return;
 
@@ -2590,7 +2720,9 @@ if (splashStartBtn) {
         if (inputElement) window.setTimeout(() => inputElement.focus(), 420);
     });
 
-    window.requestAnimationFrame(() => splashStartBtn.focus({ preventScroll: true }));
+    if (!QUICK_LOOKUP_MODE) {
+        window.requestAnimationFrame(() => splashStartBtn.focus({ preventScroll: true }));
+    }
 }
 
 if (splashThemeBtn) {
@@ -2658,11 +2790,13 @@ if (historyPanel) {
     });
 }
 
-setDirection(direction, true);
-updateWordOfTheDay();
-loadSharedNotifications().finally(showLatestNotification);
-renderHistoryPanel();
-initializeLocalDictionaries();
+if (!QUICK_LOOKUP_MODE) {
+    setDirection(direction, true);
+    updateWordOfTheDay();
+    loadSharedNotifications().finally(showLatestNotification);
+    renderHistoryPanel();
+    ensureDictionariesReady();
+}
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {

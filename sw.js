@@ -1,10 +1,12 @@
-const CACHE_NAME = 'dzongkha-dict-v2.9';
+const CACHE_NAME = 'dzongkha-dict-v3.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './modern.css',
+  './quick-lookup.css',
   './script.js',
+  './quick-lookup.js',
   './admin.js',
   './manifest.json',
   './Font/DDC_Uchen.ttf',

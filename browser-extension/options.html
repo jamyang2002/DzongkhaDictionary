@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dzongkha Quick Lookup Settings</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <main>
+        <p class="kicker">Dzongkha Dictionary</p>
+        <h1>Quick Lookup settings</h1>
+        <p class="intro">Open the dictionary once to connect it automatically, or enter its public web address below.</p>
+
+        <form id="settingsForm">
+            <label for="dictionaryUrl">Dictionary web address</label>
+            <div class="field-row">
+                <input id="dictionaryUrl" name="dictionaryUrl" type="url" inputmode="url" placeholder="https://your-dictionary.example/" required>
+                <button type="submit">Save address</button>
+            </div>
+            <p id="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <section class="instructions">
+            <h2>How to use it</h2>
+            <ol>
+                <li>Keep the Dzongkha Dictionary open in a tab or installed app window.</li>
+                <li>Select an English or Dzongkha word on another webpage.</li>
+                <li>Press <kbd>⌘ C</kbd> twice on macOS or <kbd>Ctrl C</kbd> twice on Windows.</li>
+            </ol>
+            <p>The normal copy action is preserved. Quick Lookup does not monitor text until you copy a selection twice.</p>
+        </section>
+    </main>
+    <script src="options.js"></script>
+</body>
+</html>
