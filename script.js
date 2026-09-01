@@ -632,7 +632,8 @@ const fieldLabels = {
         { key: 'type', label: 'Type' },
         { key: 'plural', label: 'Plural' },
         { key: 'verbalForm', label: 'Verbal form' },
-        { key: 'comparative', label: 'Comparative form' }
+        { key: 'comparative', label: 'Comparative form' },
+        { key: 'equivalent', label: 'Dzongkha translation' }
     ],
     enEn: [
         { key: 'root', label: 'Root word' },
@@ -668,7 +669,8 @@ const fieldLabels = {
         { key: 'also', label: 'Also' },
         { key: 'syn', label: 'Syn.' },
         { key: 'app', label: 'App.' },
-        { key: 'hon', label: 'Hon.' }
+        { key: 'hon', label: 'Hon.' },
+        { key: 'equivalentTerm', label: 'English equivalent' }
     ],
     dzDz: [
         { key: 'root', label: 'Root word' },
@@ -1726,14 +1728,8 @@ function renderCard(entry, entryType, animationIndex = 0) {
                             ? 'Place names of Bhutan'
                             : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
     const mainWordClass = isEnglishRoot ? 'english-word' : 'uchen-word';
-    const caption = entryType === 'enDz'
-        ? (entry.equivalent || '')
-        : entryType === 'countries'
-            ? (entry.equivalent || '')
-            : (entryType === 'dzEn' ? (entry.equivalentTerm || '') : (entryType === 'tense' ? 'Verb tense forms' : ''));
-    const captionClass = entryType === 'dzDz'
-        ? 'dzongkha-word'
-        : (entryType === 'enDz' || entryType === 'countries' ? 'dzongkha-word' : 'english-word');
+    const caption = entryType === 'tense' ? 'Verb tense forms' : '';
+    const captionClass = 'english-word';
     const pronunciationControls = entryType === 'enDz' || entryType === 'enEn' ? renderPronunciationControls(entry.root) : '';
     const countryFlag = entryType === 'countries' ? renderCountryFlag(entry) : '';
     const sourceAttribution = entryType === 'enEn'
