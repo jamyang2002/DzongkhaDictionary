@@ -80,9 +80,11 @@
     }
 
     const DEFERRED_VERSION_KEY = 'dzongkha-desktop-deferred-update';
+    const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
     let activeUpdate = null;
     let refreshBeforeInstall = false;
     let overlay = null;
+    let updateCheckPromise = null;
 
     function removeDialog() {
         overlay?.remove();
@@ -170,16 +172,23 @@
         }
     }
 
-    async function checkForUpdate() {
-        try {
-            const update = await invoke('check_for_update');
-            if (!update || sessionStorage.getItem(DEFERRED_VERSION_KEY) === update.version) return;
-            activeUpdate = update;
-            refreshBeforeInstall = false;
-            createDialog(update);
-        } catch (error) {
-            console.warn('Automatic update check failed:', error);
-        }
+    function checkForUpdate() {
+        if (overlay || updateCheckPromise) return updateCheckPromise;
+
+        updateCheckPromise = (async () => {
+            try {
+                const update = await invoke('check_for_update');
+                if (!update || sessionStorage.getItem(DEFERRED_VERSION_KEY) === update.version) return;
+                activeUpdate = update;
+                refreshBeforeInstall = false;
+                createDialog(update);
+            } catch (error) {
+                console.warn('Automatic update check failed:', error);
+            } finally {
+                updateCheckPromise = null;
+            }
+        })();
+        return updateCheckPromise;
     }
 
     document.addEventListener('keydown', (event) => {
@@ -187,4 +196,9 @@
     });
 
     window.setTimeout(checkForUpdate, 2500);
+    window.setInterval(checkForUpdate, UPDATE_CHECK_INTERVAL_MS);
+    window.addEventListener('online', checkForUpdate);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkForUpdate();
+    });
 })();

@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Select a short Dzongkha or English word in another application and press `Command+C` twice within 1.8 seconds. The app must remain running, but its main window may be hidden. Press Escape, click the close button, or click outside the popup to dismiss it.
+Select a short Dzongkha or English word in another application and press `Command+C` twice within 2.5 seconds. The app must remain running, but its main window may be hidden. Drag the popup's top bar to move it. Press Escape, click the close button, or click outside the popup to dismiss it.
 
 ### Windows 10/11
 
@@ -30,7 +30,7 @@ npm run dev
 ```
 
 Select a short Dzongkha or English word in Word, a PDF reader, a browser, or another
-application and press `Ctrl+C` twice within 1.8 seconds. The popup appears near the pointer.
+application and press `Ctrl+C` twice within 2.5 seconds. The popup appears near the pointer and its top bar can be dragged to move it.
 The tray menu can open the full dictionary, disable Quick Lookup, toggle start-at-login,
 or quit the background app.
 
@@ -74,7 +74,8 @@ code-signed and notarized.
 
 ## Automatic updates and releases
 
-The production app checks the latest GitHub Release metadata after startup. If a newer
+The production app checks the latest GitHub Release metadata after startup, every 30 minutes,
+when the computer reconnects, and when the window becomes active. If a newer
 signed version exists, the main window shows an Update Available dialog with the version,
 release notes, Update Now, and Later. Update Now downloads through the official Tauri
 updater, verifies the artifact signature, installs it, and restarts the app. The updater

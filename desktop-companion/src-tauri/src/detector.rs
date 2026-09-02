@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 use unicode_normalization::UnicodeNormalization;
 
-pub const DOUBLE_COPY_WINDOW: Duration = Duration::from_millis(1800);
+pub const DOUBLE_COPY_WINDOW: Duration = Duration::from_millis(2500);
 pub const MAX_QUERY_CHARACTERS: usize = 160;
 
 #[derive(Default)]
@@ -89,6 +89,18 @@ mod tests {
         assert_eq!(
             detector.observe(&"x".repeat(MAX_QUERY_CHARACTERS + 1), start),
             None
+        );
+    }
+
+    #[test]
+    fn accepts_a_deliberate_but_slower_double_copy() {
+        let start = Instant::now();
+        let mut detector = DoubleCopyDetector::default();
+
+        assert_eq!(detector.observe("dictionary", start), None);
+        assert_eq!(
+            detector.observe("dictionary", start + Duration::from_millis(2400)),
+            Some("dictionary".to_string())
         );
     }
 }

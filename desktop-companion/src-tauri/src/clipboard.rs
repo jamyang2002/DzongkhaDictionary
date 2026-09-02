@@ -8,9 +8,12 @@ use std::{
         Arc,
     },
     thread,
-    time::Instant,
+    time::{Duration, Instant},
 };
 use tauri::AppHandle;
+
+const CLIPBOARD_READ_ATTEMPTS: usize = 4;
+const CLIPBOARD_RETRY_DELAY: Duration = Duration::from_millis(20);
 
 struct LookupClipboardHandler {
     app: AppHandle,
@@ -26,8 +29,23 @@ impl ClipboardHandler for LookupClipboardHandler {
             return;
         }
 
-        let Ok(text) = self.clipboard.get_text() else {
-            self.detector.reset();
+        // Clipboard notifications can arrive before the source application has
+        // fully released the clipboard. Retry briefly instead of losing the
+        // first half of a deliberate double-copy gesture.
+        let mut text = None;
+        for attempt in 0..CLIPBOARD_READ_ATTEMPTS {
+            match self.clipboard.get_text() {
+                Ok(value) => {
+                    text = Some(value);
+                    break;
+                }
+                Err(_) if attempt + 1 < CLIPBOARD_READ_ATTEMPTS => {
+                    thread::sleep(CLIPBOARD_RETRY_DELAY);
+                }
+                Err(_) => return,
+            }
+        }
+        let Some(text) = text else {
             return;
         };
 

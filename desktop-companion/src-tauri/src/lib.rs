@@ -21,6 +21,11 @@ fn hide_quick_lookup(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn start_quick_lookup_drag(window: tauri::WebviewWindow) -> Result<(), String> {
+    windows::start_quick_lookup_drag(&window).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 fn open_full_entry(app: tauri::AppHandle, query: String) -> Result<(), String> {
     windows::open_full_entry_window(&app, &query).map_err(|error| error.to_string())
 }
@@ -42,6 +47,7 @@ pub fn run() {
         .manage(updates::PendingUpdate::default())
         .invoke_handler(tauri::generate_handler![
             hide_quick_lookup,
+            start_quick_lookup_drag,
             open_full_entry,
             updates::check_for_update,
             updates::install_pending_update

@@ -12,10 +12,16 @@
         ? new BroadcastChannel('dzongkha-dictionary-quick-lookup')
         : null;
     const root = document.createElement('div');
-    const DOUBLE_COPY_WINDOW_MS = 1800;
+    const DOUBLE_COPY_WINDOW_MS = 2500;
+    const QUICK_LOOKUP_RESULT_LIMIT = 24;
+    const dragHandleAttribute = isQuickDocument && isNativeDesktop ? ' data-quick-drag-handle' : '';
+    const quickLookupBrand = isQuickDocument && isNativeDesktop
+        ? '<span aria-hidden="true">⠿</span> Quick Lookup <small>Drag to move</small>'
+        : 'Quick Lookup';
     let lastCopiedText = '';
     let lastCopyTime = 0;
     let activeQuery = '';
+    let lookupRequestId = 0;
 
     root.id = 'quickLookupRoot';
     root.hidden = true;
@@ -51,6 +57,7 @@
     }
 
     function closeQuickLookup({ notifyParent = isQuickDocument } = {}) {
+        lookupRequestId += 1;
         root.hidden = true;
         root.innerHTML = '';
         if (notifyParent && isNativeDesktop) {
@@ -66,8 +73,8 @@
         root.hidden = false;
         root.innerHTML = `
             <section class="quick-lookup-card is-loading" role="dialog" aria-modal="false" aria-label="Quick lookup for ${escapeHtml(query)}">
-                <div class="quick-lookup-topline">
-                    <span class="quick-lookup-brand">Quick Lookup</span>
+                <div class="quick-lookup-topline"${dragHandleAttribute}>
+                    <span class="quick-lookup-brand">${quickLookupBrand}</span>
                     <button class="quick-lookup-close" type="button" data-quick-close aria-label="Close quick lookup">×</button>
                 </div>
                 <div class="quick-lookup-loading" role="status">
@@ -111,8 +118,8 @@
             root.hidden = false;
             root.innerHTML = `
                 <section class="quick-lookup-card" role="dialog" aria-modal="false" aria-labelledby="quickLookupTitle">
-                    <div class="quick-lookup-topline">
-                        <span class="quick-lookup-brand">Quick Lookup</span>
+                    <div class="quick-lookup-topline"${dragHandleAttribute}>
+                        <span class="quick-lookup-brand">${quickLookupBrand}</span>
                         <button class="quick-lookup-close" type="button" data-quick-close aria-label="Close quick lookup">×</button>
                     </div>
                     <div class="quick-lookup-empty">
@@ -133,8 +140,8 @@
         root.hidden = false;
         root.innerHTML = `
             <section class="quick-lookup-card" role="dialog" aria-modal="false" aria-labelledby="quickLookupTitle">
-                <div class="quick-lookup-topline">
-                    <span class="quick-lookup-brand">Quick Lookup</span>
+                <div class="quick-lookup-topline"${dragHandleAttribute}>
+                    <span class="quick-lookup-brand">${quickLookupBrand}</span>
                     <button class="quick-lookup-close" type="button" data-quick-close aria-label="Close quick lookup">×</button>
                 </div>
                 <div class="quick-lookup-result-summary">
@@ -156,8 +163,8 @@
         root.hidden = false;
         root.innerHTML = `
             <section class="quick-lookup-card" role="dialog" aria-modal="false" aria-label="Quick lookup unavailable">
-                <div class="quick-lookup-topline">
-                    <span class="quick-lookup-brand">Quick Lookup</span>
+                <div class="quick-lookup-topline"${dragHandleAttribute}>
+                    <span class="quick-lookup-brand">${quickLookupBrand}</span>
                     <button class="quick-lookup-close" type="button" data-quick-close aria-label="Close quick lookup">×</button>
                 </div>
                 <div class="quick-lookup-empty">
@@ -172,7 +179,7 @@
         return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
-    function lookupFromOpenDictionary(query, timeoutMs = 900) {
+    function lookupFromOpenDictionary(query, timeoutMs = 1200) {
         if (!lookupChannel) return Promise.resolve(null);
         const requestId = createRequestId();
 
@@ -197,14 +204,17 @@
     async function performLookup(queryValue, { preferOpenDictionary = false } = {}) {
         const query = String(queryValue || '').normalize('NFC').trim().replace(/\s+/g, ' ');
         if (!query) return;
+        const requestId = ++lookupRequestId;
         activeQuery = query;
         renderLoading(query);
 
         try {
             const sharedResult = preferOpenDictionary ? await lookupFromOpenDictionary(query) : null;
-            const payload = sharedResult || await api.lookup(query, { all: true, balanced: true });
+            const payload = sharedResult || await api.lookup(query, { limit: QUICK_LOOKUP_RESULT_LIMIT, balanced: true });
+            if (requestId !== lookupRequestId) return;
             renderLookupResult(payload);
         } catch (error) {
+            if (requestId !== lookupRequestId) return;
             console.error('Quick lookup failed:', error);
             renderLookupError(query);
         }
@@ -270,6 +280,13 @@
         openFullEntryInsideApp(activeQuery);
     });
 
+    root.addEventListener('pointerdown', (event) => {
+        if (!isQuickDocument || !isNativeDesktop || event.button !== 0) return;
+        if (!event.target.closest('[data-quick-drag-handle]') || event.target.closest('button, a, input, textarea')) return;
+        event.preventDefault();
+        window.__TAURI__.core.invoke('start_quick_lookup_drag').catch(() => {});
+    });
+
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && !root.hidden) closeQuickLookup();
     });
@@ -277,7 +294,8 @@
     window.addEventListener('message', (event) => {
         if (event.source !== window) return;
         if (event.data?.type === 'DZONGKHA_NATIVE_QUICK_LOOKUP') {
-            performLookup(event.data.query);
+            window.__DZONGKHA_PENDING_QUICK_LOOKUP = '';
+            performLookup(event.data.query, { preferOpenDictionary: true });
         } else if (event.data?.type === 'DZONGKHA_NATIVE_OPEN_FULL_ENTRY' && !isQuickDocument) {
             openFullEntryInsideApp(event.data.query);
         }
@@ -294,7 +312,7 @@
         lookupChannel.addEventListener('message', async (event) => {
             if (event.data?.type !== 'lookup-request' || !event.data.requestId) return;
             try {
-                const payload = await api.lookup(event.data.query, { all: true, balanced: true });
+                const payload = await api.lookup(event.data.query, { limit: QUICK_LOOKUP_RESULT_LIMIT, balanced: true });
                 lookupChannel.postMessage({
                     type: 'lookup-response',
                     requestId: event.data.requestId,
@@ -317,7 +335,9 @@
 
     if (isQuickDocument) {
         document.documentElement.classList.add('quick-lookup-document');
-        performLookup(initialQuery, { preferOpenDictionary: true });
+        const pendingQuery = String(window.__DZONGKHA_PENDING_QUICK_LOOKUP || initialQuery || '');
+        window.__DZONGKHA_PENDING_QUICK_LOOKUP = '';
+        performLookup(pendingQuery, { preferOpenDictionary: true });
     } else if (initialQuery) {
         api.ensureReady().then(() => openFullEntryInsideApp(initialQuery)).catch(() => {});
     }

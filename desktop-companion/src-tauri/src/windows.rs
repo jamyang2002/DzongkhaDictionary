@@ -9,7 +9,7 @@ const MAIN_WINDOW_LABEL: &str = "main";
 // used by the PWA Quick Lookup interface.
 const QUICK_WINDOW_WIDTH: f64 = 426.0;
 const QUICK_WINDOW_HEIGHT: f64 = 576.0;
-const CURSOR_MARGIN: i32 = 18;
+const CURSOR_MARGIN: i32 = 36;
 const SCREEN_MARGIN: i32 = 12;
 
 pub fn create_quick_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
@@ -42,7 +42,7 @@ pub fn show_quick_lookup(app: &AppHandle, query: &str) -> tauri::Result<()> {
     position_near_cursor(app, &window)?;
     let serialized_query = serde_json::to_string(query).unwrap_or_else(|_| "\"\"".into());
     window.eval(format!(
-        "window.postMessage({{ type: 'DZONGKHA_NATIVE_QUICK_LOOKUP', query: {serialized_query} }}, '*')"
+        "window.__DZONGKHA_PENDING_QUICK_LOOKUP = {serialized_query}; window.postMessage({{ type: 'DZONGKHA_NATIVE_QUICK_LOOKUP', query: {serialized_query} }}, '*')"
     ))?;
     window.show()?;
     window.set_focus()?;
@@ -54,6 +54,13 @@ pub fn show_quick_lookup(app: &AppHandle, query: &str) -> tauri::Result<()> {
 pub fn hide_quick_lookup_window(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window(QUICK_WINDOW_LABEL) {
         window.hide()?;
+    }
+    Ok(())
+}
+
+pub fn start_quick_lookup_drag(window: &WebviewWindow) -> tauri::Result<()> {
+    if window.label() == QUICK_WINDOW_LABEL {
+        window.start_dragging()?;
     }
     Ok(())
 }
