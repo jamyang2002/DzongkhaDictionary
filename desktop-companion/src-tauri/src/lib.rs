@@ -73,9 +73,6 @@ pub fn run() {
                 api.prevent_close();
                 let _ = window.hide();
             }
-            WindowEvent::Focused(false) if window.label() == "quick" => {
-                let _ = window.hide();
-            }
             _ => {}
         })
         .run(tauri::generate_context!())

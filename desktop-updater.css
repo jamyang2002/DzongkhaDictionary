@@ -191,12 +191,6 @@
     cursor: pointer;
 }
 
-.desktop-update-later {
-    border: 1px solid var(--line-strong);
-    background: var(--panel-soft);
-    color: var(--text);
-}
-
 .desktop-update-now {
     border: 1px solid transparent;
     background: var(--accent);

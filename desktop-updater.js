@@ -79,7 +79,6 @@
         return;
     }
 
-    const DEFERRED_VERSION_KEY = 'dzongkha-desktop-deferred-update';
     const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
     let activeUpdate = null;
     let refreshBeforeInstall = false;
@@ -89,13 +88,6 @@
     function removeDialog() {
         overlay?.remove();
         overlay = null;
-    }
-
-    function deferUpdate() {
-        if (activeUpdate?.version) {
-            sessionStorage.setItem(DEFERRED_VERSION_KEY, activeUpdate.version);
-        }
-        removeDialog();
     }
 
     function createDialog(update) {
@@ -116,18 +108,15 @@
                 <div class="desktop-update-progress" hidden aria-hidden="true"><span></span></div>
                 <p class="desktop-update-status" role="status" aria-live="polite"></p>
                 <div class="desktop-update-actions">
-                    <button class="desktop-update-later" type="button">Later</button>
                     <button class="desktop-update-now" type="button">Update Now</button>
                 </div>
             </section>`;
 
         const version = overlay.querySelector('.desktop-update-version');
         const notes = overlay.querySelector('.desktop-update-notes');
-        const laterButton = overlay.querySelector('.desktop-update-later');
         const updateButton = overlay.querySelector('.desktop-update-now');
         version.textContent = `Version ${update.version} is ready (currently ${update.currentVersion}).`;
         notes.textContent = update.notes.trim() || 'This release includes improvements and fixes for the desktop dictionary.';
-        laterButton.addEventListener('click', deferUpdate);
         updateButton.addEventListener('click', installUpdate);
         document.body.appendChild(overlay);
         window.setTimeout(() => updateButton.focus(), 50);
@@ -135,12 +124,10 @@
 
     async function installUpdate() {
         if (!overlay || !activeUpdate) return;
-        const laterButton = overlay.querySelector('.desktop-update-later');
         const updateButton = overlay.querySelector('.desktop-update-now');
         const progress = overlay.querySelector('.desktop-update-progress');
         const status = overlay.querySelector('.desktop-update-status');
 
-        laterButton.disabled = true;
         updateButton.disabled = true;
         updateButton.textContent = 'Updating…';
         progress.hidden = false;
@@ -162,7 +149,6 @@
             status.textContent = 'Update installed. Restarting Dzongkha Dictionary…';
         } catch (error) {
             refreshBeforeInstall = true;
-            laterButton.disabled = false;
             updateButton.disabled = false;
             updateButton.textContent = 'Try Again';
             progress.hidden = true;
@@ -178,7 +164,7 @@
         updateCheckPromise = (async () => {
             try {
                 const update = await invoke('check_for_update');
-                if (!update || sessionStorage.getItem(DEFERRED_VERSION_KEY) === update.version) return;
+                if (!update) return;
                 activeUpdate = update;
                 refreshBeforeInstall = false;
                 createDialog(update);
@@ -190,10 +176,6 @@
         })();
         return updateCheckPromise;
     }
-
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && overlay) deferUpdate();
-    });
 
     window.setTimeout(checkForUpdate, 2500);
     window.setInterval(checkForUpdate, UPDATE_CHECK_INTERVAL_MS);

@@ -288,7 +288,9 @@
     });
 
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !root.hidden) closeQuickLookup();
+        if (event.key === 'Escape' && !root.hidden && !(isQuickDocument && isNativeDesktop)) {
+            closeQuickLookup();
+        }
     });
 
     window.addEventListener('message', (event) => {
