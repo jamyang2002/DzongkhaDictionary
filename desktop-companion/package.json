@@ -1,6 +1,6 @@
 {
   "name": "dzongkha-dictionary-desktop",
-  "version": "1.0.0",
+  "version": "3.6.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,11 +8,13 @@
     "tauri": "tauri",
     "dev": "tauri dev",
     "build": "tauri build",
-    "build:macos": "tauri build --bundles app,dmg",
-    "build:windows": "tauri build --bundles nsis,msi",
-    "build:windows:ci": "tauri build --bundles nsis,msi --config src-tauri/tauri.ci.conf.json",
+    "build:macos:fast": "tauri build --bundles app,dmg --config src-tauri/tauri.ci.conf.json",
+    "build:macos": "tauri build --target universal-apple-darwin --bundles app,dmg",
+    "build:windows": "tauri build --bundles nsis",
+    "build:windows:ci": "tauri build --bundles nsis --config src-tauri/tauri.ci.conf.json",
     "icons": "tauri icon app-icon.png",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "prepare:ci-release": "node scripts/prepare-ci-version.mjs",
     "verify:release": "node scripts/verify-release-version.mjs"
   },
   "devDependencies": {

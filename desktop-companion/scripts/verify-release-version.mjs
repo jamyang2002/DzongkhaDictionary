@@ -7,6 +7,7 @@ const packageJson = JSON.parse(await readFile(resolve(projectDirectory, 'package
 const tauriConfig = JSON.parse(await readFile(resolve(projectDirectory, 'src-tauri/tauri.conf.json'), 'utf8'));
 const cargoToml = await readFile(resolve(projectDirectory, 'src-tauri/Cargo.toml'), 'utf8');
 const updaterPublicKey = (await readFile(resolve(projectDirectory, 'UPDATER_PUBLIC_KEY.txt'), 'utf8')).trim();
+const webManifest = JSON.parse(await readFile(resolve(projectDirectory, '..', 'manifest.json'), 'utf8'));
 const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 const versions = new Set([packageJson.version, tauriConfig.version, cargoVersion]);
 
@@ -20,7 +21,13 @@ if (tauriConfig.plugins?.updater?.pubkey !== updaterPublicKey) {
 
 const version = packageJson.version;
 const tag = process.env.GITHUB_REF_NAME;
-if (tag && tag !== `desktop-v${version}`) {
+const desktopTrack = version.split('.').slice(0, 2).join('.');
+const webTrack = String(webManifest.version).split('.').slice(0, 2).join('.');
+if (desktopTrack !== webTrack) {
+  throw new Error(`PWA version ${webManifest.version} and desktop version ${version} are not on the same release track`);
+}
+
+if (tag?.startsWith('desktop-v') && tag !== `desktop-v${version}`) {
   throw new Error(`Tag ${tag} does not match desktop app version ${version}; expected desktop-v${version}`);
 }
 

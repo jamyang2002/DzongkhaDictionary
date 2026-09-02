@@ -11,6 +11,74 @@
     animation: desktop-update-fade 180ms ease-out;
 }
 
+.pwa-update-notice {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 10030;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    width: min(420px, calc(100vw - 28px));
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    border: 1px solid var(--accent-border);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--panel) 96%, transparent);
+    color: var(--text);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(22px) saturate(125%);
+    animation: desktop-update-rise 220ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.pwa-update-notice-icon {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 11px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.pwa-update-notice.is-installed .pwa-update-notice-icon {
+    background: color-mix(in srgb, var(--success) 13%, transparent);
+    color: var(--success);
+}
+
+.pwa-update-notice-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pwa-update-notice-copy strong {
+    font-size: .86rem;
+}
+
+.pwa-update-notice-copy span {
+    color: var(--muted);
+    font-size: .73rem;
+    line-height: 1.4;
+}
+
+.pwa-update-notice button {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--panel-soft);
+    color: var(--muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.1rem;
+}
+
 .desktop-update-dialog {
     width: min(440px, 100%);
     padding: 28px;
@@ -167,6 +235,10 @@
     .desktop-update-dialog { padding: 22px; }
     .desktop-update-actions { flex-direction: column-reverse; }
     .desktop-update-actions button { width: 100%; }
+    .pwa-update-notice {
+        right: 14px;
+        bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

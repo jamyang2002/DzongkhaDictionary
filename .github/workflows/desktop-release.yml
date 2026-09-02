@@ -2,11 +2,23 @@ name: Publish desktop release
 
 on:
   push:
-    tags:
-      - "desktop-v*"
+    branches:
+      - main
+    paths:
+      - "desktop-companion/**"
+      - "assets/**"
+      - "Font/**"
+      - "english_definitions/**"
+      - "Design pictures/**"
+      - "*.html"
+      - "*.css"
+      - "*.js"
+      - "*.json"
+      - ".github/workflows/desktop-release.yml"
+  workflow_dispatch:
 
 concurrency:
-  group: desktop-release-${{ github.ref }}
+  group: desktop-release-main
   cancel-in-progress: false
 
 jobs:
@@ -17,20 +29,19 @@ jobs:
       contents: write
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
-          - name: macOS Apple Silicon
+          - name: macOS universal installer
             platform: macos-latest
-            rust_target: aarch64-apple-darwin
-            args: --target aarch64-apple-darwin --bundles app,dmg
-          - name: macOS Intel
-            platform: macos-latest
-            rust_target: x86_64-apple-darwin
-            args: --target x86_64-apple-darwin --bundles app,dmg
-          - name: Windows x64
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+            cache_key: universal-apple-darwin
+            args: --target universal-apple-darwin --bundles app,dmg
+          - name: Windows x64 installer
             platform: windows-latest
-            rust_target: x86_64-pc-windows-msvc
-            args: --target x86_64-pc-windows-msvc --bundles nsis,msi
+            rust_targets: x86_64-pc-windows-msvc
+            cache_key: x86_64-pc-windows-msvc
+            args: --target x86_64-pc-windows-msvc --bundles nsis
 
     steps:
       - name: Check out source
@@ -46,16 +57,20 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.rust_target }}
+          targets: ${{ matrix.rust_targets }}
 
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: desktop-companion/src-tauri
-          key: ${{ matrix.rust_target }}
+          key: ${{ matrix.cache_key }}
 
       - name: Install desktop dependencies
         run: npm ci
+        working-directory: desktop-companion
+
+      - name: Prepare automatic release version
+        run: npm run prepare:ci-release
         working-directory: desktop-companion
 
       - name: Verify release version
@@ -103,7 +118,15 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Resolve automatic release version
+        id: release
+        shell: bash
+        run: node -e "const p=require('./manifest.json').version.split('.'); console.log('version='+p.slice(0,2).join('.')+'.'+process.env.GITHUB_RUN_NUMBER)" >> "$GITHUB_OUTPUT"
+
       - name: Publish GitHub Release after every platform succeeds
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+        run: gh release edit "desktop-v${{ steps.release.outputs.version }}" --repo "$GITHUB_REPOSITORY" --draft=false --latest

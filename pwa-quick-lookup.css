@@ -46,8 +46,8 @@
 .pwa-quick-lookup-card {
     display: flex;
     width: min(410px, 100%);
-    max-height: min(680px, calc(100vh - 36px));
-    max-height: min(680px, calc(100dvh - 36px));
+    max-height: min(560px, calc(100vh - 36px));
+    max-height: min(560px, calc(100dvh - 36px));
     min-height: 0;
     flex-direction: column;
     overflow: hidden;
@@ -189,6 +189,7 @@
 
 .pwa-quick-lookup-results {
     display: grid;
+    flex: 1 1 auto;
     min-height: 0;
     gap: 10px;
     overflow-y: auto;

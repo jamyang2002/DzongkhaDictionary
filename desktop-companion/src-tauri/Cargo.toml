@@ -1,6 +1,6 @@
 [package]
 name = "dzongkha-dictionary-desktop"
-version = "1.0.0"
+version = "3.6.0"
 description = "Native desktop companion for Dzongkha Dictionary Quick Lookup"
 authors = ["Dzongkha Dictionary"]
 edition = "2021"

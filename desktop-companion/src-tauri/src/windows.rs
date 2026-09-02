@@ -5,8 +5,10 @@ use tauri::{
 
 const QUICK_WINDOW_LABEL: &str = "quick";
 const MAIN_WINDOW_LABEL: &str = "main";
-const QUICK_WINDOW_WIDTH: f64 = 430.0;
-const QUICK_WINDOW_HEIGHT: f64 = 560.0;
+// Eight pixels of webview padding on each side leaves the same 410 x 560 card
+// used by the PWA Quick Lookup interface.
+const QUICK_WINDOW_WIDTH: f64 = 426.0;
+const QUICK_WINDOW_HEIGHT: f64 = 576.0;
 const CURSOR_MARGIN: i32 = 18;
 const SCREEN_MARGIN: i32 = 12;
 

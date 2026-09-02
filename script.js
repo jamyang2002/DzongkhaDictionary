@@ -2809,26 +2809,6 @@ if (!QUICK_LOOKUP_MODE) {
     ensureDictionariesReady();
 }
 
-// Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
-            .then(registration => {
-                registration.update().catch(() => {});
-                console.log('Service Worker registered');
-            })
-            .catch(err => console.error('Service Worker registration failed', err));
-    });
-
-    // Automatically reload the page when a new service worker takes control
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        refreshing = true;
-        window.location.reload();
-    });
-}
-
 // Keep the installed iOS app at its intended scale while preserving normal scrolling.
 document.addEventListener('gesturestart', (event) => event.preventDefault(), { passive: false });
 document.addEventListener('gesturechange', (event) => event.preventDefault(), { passive: false });

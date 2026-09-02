@@ -38,9 +38,15 @@ or quit the background app.
 
 Installers must be built on their target operating system.
 
+For quick testing on the current Mac only, use `npm run dev` or
+`npm run build:macos:fast`. The fast build targets the current Mac architecture.
+Use the universal command below only for the final DMG shared with other people,
+because it must compile and link both Intel and Apple Silicon binaries.
+
 macOS:
 
 ```sh
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
 export TAURI_SIGNING_PRIVATE_KEY="$(<.tauri/dzongkha-updater.key)"
 export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(<.tauri/dzongkha-updater.key.password)"
 npm run build:macos
@@ -56,10 +62,12 @@ npm run build:windows
 Remove-Item Env:TAURI_SIGNING_PRIVATE_KEY, Env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD
 ```
 
-Tauri writes all output under `src-tauri/target/release/bundle`. The Windows command
-produces both an NSIS `.exe` installer and an MSI installer. The repository workflow
-`.github/workflows/desktop-windows.yml` also runs the Rust tests and creates both Windows
-installers on a Windows runner; it can be started manually from GitHub Actions.
+Tauri writes output under `src-tauri/target`. The macOS command produces one universal
+DMG for both Intel and Apple Silicon Macs. The Windows command produces one NSIS `.exe`
+installer. The repository workflow `.github/workflows/desktop-windows.yml` can also build
+the Windows installer manually or validate it on a pull request. The additional macOS
+`.app.tar.gz` and `.sig` files are updater payloads generated for existing installations;
+friends should download the DMG, not those internal update files.
 
 Public Windows releases should be Authenticode-signed. Public macOS releases should be
 code-signed and notarized.
@@ -83,16 +91,15 @@ Before publishing, add the contents of the two private files as GitHub repositor
 named `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Never commit the
 private key or password. Losing either prevents shipping updates to already-installed apps.
 
-To publish a release:
+Every relevant push to `main` now publishes the matching desktop update automatically.
+The workflow reads the PWA release track from `manifest.json`, appends the GitHub Actions
+run number (for example, PWA `3.6.0` becomes desktop `3.6.142`), builds a universal macOS
+DMG and Windows EXE, signs their updater artifacts, generates release notes, publishes the
+GitHub Release, and uploads `latest.json`. Vercel continues to deploy the same committed
+web files as the PWA, while the desktop staging script bundles those exact files.
 
-1. Set the same semantic version in `package.json`, `src-tauri/Cargo.toml`, and
-   `src-tauri/tauri.conf.json`.
-2. Commit and push the version change.
-3. Create and push the matching tag, for example `desktop-v1.1.0`.
-
-The `desktop-release.yml` workflow validates the version, runs the Rust tests, builds Intel
-and Apple Silicon macOS bundles plus Windows NSIS/MSI installers, signs updater artifacts,
-publishes the GitHub Release, and uploads `latest.json` for update checks. The existing web
-and PWA deployment is not part of this workflow.
+Friends can download the `.dmg` on a Mac or the `-setup.exe` on Windows from the latest
+GitHub Release. Existing desktop installations receive the same release through the
+in-app Update Available dialog.
 
 The companion reads only text clipboard updates, rejects empty or overlong selections, and does not install a global keyboard hook. This avoids macOS Accessibility permission while retaining the double-copy gesture.

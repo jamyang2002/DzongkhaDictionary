@@ -3,7 +3,81 @@
 
     const invoke = window.__TAURI__?.core?.invoke;
     const isQuickWindow = new URLSearchParams(window.location.search).get('quick') === '1';
-    if (typeof invoke !== 'function' || isQuickWindow) return;
+    if (isQuickWindow) return;
+
+    const PWA_UPDATED_KEY = 'dzongkha-pwa-update-installed';
+
+    function showPwaUpdateNotice({ installed = false, version = '' } = {}) {
+        document.querySelector('.pwa-update-notice')?.remove();
+        const notice = document.createElement('aside');
+        notice.className = `pwa-update-notice${installed ? ' is-installed' : ''}`;
+        notice.setAttribute('role', 'status');
+        notice.setAttribute('aria-live', 'polite');
+        notice.innerHTML = `
+            <span class="pwa-update-notice-icon" aria-hidden="true">${installed ? '✓' : '↻'}</span>
+            <span class="pwa-update-notice-copy">
+                <strong>${installed ? 'Dictionary updated' : 'Updating dictionary…'}</strong>
+                <span>${installed
+                    ? `The latest GitHub changes${version ? ` (version ${version})` : ''} are now installed.`
+                    : 'A new PWA version was found and is being installed automatically.'}</span>
+            </span>
+            <button type="button" aria-label="Dismiss update message">×</button>`;
+        notice.querySelector('button').addEventListener('click', () => notice.remove());
+        document.body.appendChild(notice);
+        if (installed) window.setTimeout(() => notice.remove(), 9000);
+    }
+
+    async function getPwaVersion() {
+        try {
+            const response = await fetch('./manifest.json', { cache: 'no-store' });
+            if (!response.ok) return '';
+            return String((await response.json()).version || '');
+        } catch (_) {
+            return '';
+        }
+    }
+
+    function initializePwaUpdates() {
+        if (!('serviceWorker' in navigator)) return;
+
+        if (sessionStorage.getItem(PWA_UPDATED_KEY) === 'true') {
+            sessionStorage.removeItem(PWA_UPDATED_KEY);
+            getPwaVersion().then((version) => showPwaUpdateNotice({ installed: true, version }));
+        }
+
+        const hadController = Boolean(navigator.serviceWorker.controller);
+        let refreshing = false;
+        let registration = null;
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!hadController || refreshing) return;
+            refreshing = true;
+            sessionStorage.setItem(PWA_UPDATED_KEY, 'true');
+            window.location.reload();
+        });
+
+        window.addEventListener('load', async () => {
+            try {
+                registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+                registration.addEventListener('updatefound', () => {
+                    if (hadController) showPwaUpdateNotice();
+                });
+                await registration.update();
+            } catch (error) {
+                console.warn('PWA update check failed:', error);
+            }
+        });
+
+        window.setInterval(() => registration?.update().catch(() => {}), 60 * 60 * 1000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') registration?.update().catch(() => {});
+        });
+    }
+
+    if (typeof invoke !== 'function') {
+        initializePwaUpdates();
+        return;
+    }
 
     const DEFERRED_VERSION_KEY = 'dzongkha-desktop-deferred-update';
     let activeUpdate = null;

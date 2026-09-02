@@ -89,11 +89,14 @@
                     </div>
                     ${result.type ? `<span class="quick-lookup-type">${escapeHtml(result.type)}</span>` : ''}
                 </div>
-                <div class="quick-lookup-definition ${definitionClass}">${escapeHtml(result.definition || 'Definition unavailable.')}</div>
-                <div class="quick-lookup-source">
+                <div class="quick-lookup-definition">
+                    <span>Definition</span>
+                    <p class="${definitionClass}">${escapeHtml(result.definition || 'Definition unavailable.')}</p>
+                </div>
+                ${result.source ? `<div class="quick-lookup-source">
                     <span>Source</span>
                     <strong>${escapeHtml(result.source)}</strong>
-                </div>
+                </div>` : ''}
             </article>`;
     }
 

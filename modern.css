@@ -337,6 +337,78 @@ select:focus-visible {
     50% { transform: translate3d(2%, 5%, 0) scale(1.08); }
 }
 
+/* Keep both welcome actions reachable in the desktop app's minimum-height
+   window and on short Windows laptop displays. */
+@media (max-height: 760px) and (min-width: 641px) {
+    .splash-overlay {
+        align-items: flex-start;
+        overflow-y: auto;
+        padding: 12px 20px;
+    }
+
+    .splash-card {
+        gap: 7px;
+        margin: auto;
+        padding: 16px 28px;
+        border-radius: 24px;
+    }
+
+    .splash-emblem {
+        width: 66px;
+        height: 66px;
+        margin: 0;
+        border-radius: 19px;
+    }
+
+    .splash-logo {
+        width: 54px;
+        height: 54px;
+    }
+
+    .splash-greeting {
+        font-size: 1.35rem;
+    }
+
+    .splash-divider {
+        width: 250px;
+        max-height: 42px;
+    }
+
+    .splash-title {
+        font-size: clamp(1.9rem, 5.4vw, 2.8rem);
+        line-height: 1;
+    }
+
+    .splash-description {
+        margin: 0;
+        font-size: .88rem;
+        line-height: 1.42;
+    }
+
+    .splash-stats {
+        margin: 3px 0;
+    }
+
+    .splash-stats > div {
+        gap: 2px;
+        padding: 7px 10px;
+    }
+
+    .splash-stats strong {
+        font-size: 1rem;
+    }
+
+    .splash-stats span {
+        font-size: .63rem;
+    }
+
+    .splash-actions .primary-button,
+    .splash-actions .secondary-button {
+        min-height: 40px;
+    }
+
+}
+
 /* App chrome */
 .app-shell {
     grid-template-columns: 256px minmax(0, 1fr);
@@ -2002,5 +2074,48 @@ body.admin-page {
     .search-panel button {
         outline: 2px solid currentColor;
         outline-offset: 2px;
+    }
+}
+
+/* Placed after the general responsive rules so short desktop windows keep
+   their compact welcome layout at every supported width above mobile. */
+@media (max-height: 760px) and (min-width: 641px) {
+    .welcome-interface {
+        min-height: auto;
+        gap: 26px;
+        padding: 28px;
+    }
+
+    .welcome-logo {
+        width: 64px;
+        margin-bottom: 12px;
+    }
+
+    .hero-kicker {
+        margin-bottom: 9px;
+    }
+
+    .welcome-interface h2 {
+        font-size: clamp(2.35rem, 5.3vw, 4rem);
+    }
+
+    .welcome-copy {
+        margin-top: 14px;
+        font-size: .94rem;
+        line-height: 1.55;
+    }
+
+    .welcome-actions,
+    .welcome-stats {
+        margin-top: 18px;
+    }
+
+    .welcome-stats div {
+        min-height: 70px;
+        padding: 10px 12px;
+    }
+
+    .welcome-preview {
+        min-height: 360px;
     }
 }
