@@ -14,7 +14,7 @@ Before publishing, the included `test-page.html` can be served with the dictiona
 ## Use
 
 1. Select an English or Dzongkha word on a normal webpage.
-2. Press **Command+C twice** on macOS or **Ctrl+C twice** on Windows within about one second.
+2. Press **Command+C twice** on macOS or **Ctrl+C twice** on Windows within 1.8 seconds.
 3. Close the result with **Esc**, the close button, or a click outside. Use **Open Full Entry** for the complete dictionary result.
 
 The extension preserves the browser's normal copy behavior. It only reads the current selection during a copy event, keeps it briefly to recognize the second copy, and does not send it anywhere except the configured dictionary URL.

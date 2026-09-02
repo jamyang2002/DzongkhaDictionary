@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 use unicode_normalization::UnicodeNormalization;
 
-pub const DOUBLE_COPY_WINDOW: Duration = Duration::from_millis(950);
+pub const DOUBLE_COPY_WINDOW: Duration = Duration::from_millis(1800);
 pub const MAX_QUERY_CHARACTERS: usize = 160;
 
 #[derive(Default)]

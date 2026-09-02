@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Select a short Dzongkha or English word in another application and press `Command+C` twice within 950 ms. The app must remain running, but its main window may be hidden. Press Escape, click the close button, or click outside the popup to dismiss it.
+Select a short Dzongkha or English word in another application and press `Command+C` twice within 1.8 seconds. The app must remain running, but its main window may be hidden. Press Escape, click the close button, or click outside the popup to dismiss it.
 
 ### Windows 10/11
 
@@ -30,7 +30,7 @@ npm run dev
 ```
 
 Select a short Dzongkha or English word in Word, a PDF reader, a browser, or another
-application and press `Ctrl+C` twice within 950 ms. The popup appears near the pointer.
+application and press `Ctrl+C` twice within 1.8 seconds. The popup appears near the pointer.
 The tray menu can open the full dictionary, disable Quick Lookup, toggle start-at-login,
 or quit the background app.
 

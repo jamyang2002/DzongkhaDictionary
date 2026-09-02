@@ -1,7 +1,7 @@
 (() => {
     'use strict';
 
-    const DOUBLE_COPY_WINDOW_MS = 950;
+    const DOUBLE_COPY_WINDOW_MS = 1800;
     const MAX_QUERY_LENGTH = 160;
     let lastCopiedText = '';
     let lastCopyTime = 0;

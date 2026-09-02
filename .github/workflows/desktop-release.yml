@@ -19,7 +19,7 @@ on:
 
 concurrency:
   group: desktop-release-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   publish-desktop:

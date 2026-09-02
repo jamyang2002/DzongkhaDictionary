@@ -12,6 +12,7 @@
         ? new BroadcastChannel('dzongkha-dictionary-quick-lookup')
         : null;
     const root = document.createElement('div');
+    const DOUBLE_COPY_WINDOW_MS = 1800;
     let lastCopiedText = '';
     let lastCopyTime = 0;
     let activeQuery = '';
@@ -242,7 +243,7 @@
         }
 
         const now = performance.now();
-        const isDoubleCopy = selectedText === lastCopiedText && now - lastCopyTime <= 950;
+        const isDoubleCopy = selectedText === lastCopiedText && now - lastCopyTime <= DOUBLE_COPY_WINDOW_MS;
         lastCopiedText = selectedText;
         lastCopyTime = now;
         if (isDoubleCopy) performLookup(selectedText);
