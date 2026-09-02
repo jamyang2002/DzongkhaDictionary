@@ -38,6 +38,11 @@ pub fn run() {
     let watcher_state = state.clone();
 
     tauri::Builder::default()
+        // Register this first so a second launch exits before it can create
+        // another clipboard watcher, tray icon, or Quick Lookup window.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            let _ = windows::show_main_window(app);
+        }))
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             None,
