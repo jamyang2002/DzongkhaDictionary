@@ -13,7 +13,7 @@ const CURSOR_MARGIN: i32 = 36;
 const SCREEN_MARGIN: i32 = 12;
 
 pub fn create_quick_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
-    WebviewWindowBuilder::new(
+    let window = WebviewWindowBuilder::new(
         app,
         QUICK_WINDOW_LABEL,
         WebviewUrl::App("index.html?quick=1".into()),
@@ -31,7 +31,10 @@ pub fn create_quick_window(app: &AppHandle) -> tauri::Result<WebviewWindow> {
     .shadow(true)
     .background_throttling(BackgroundThrottlingPolicy::Disabled)
     .prevent_overflow()
-    .build()
+    .build()?;
+
+    configure_quick_window_for_fullscreen(&window)?;
+    Ok(window)
 }
 
 pub fn show_quick_lookup(app: &AppHandle, query: &str) -> tauri::Result<()> {
@@ -40,6 +43,7 @@ pub fn show_quick_lookup(app: &AppHandle, query: &str) -> tauri::Result<()> {
     };
 
     position_near_cursor(app, &window)?;
+    configure_quick_window_for_fullscreen(&window)?;
     let serialized_query = serde_json::to_string(query).unwrap_or_else(|_| "\"\"".into());
     window.eval(format!(
         "window.__DZONGKHA_PENDING_QUICK_LOOKUP = {serialized_query}; window.postMessage({{ type: 'DZONGKHA_NATIVE_QUICK_LOOKUP', query: {serialized_query} }}, '*')"
@@ -48,6 +52,32 @@ pub fn show_quick_lookup(app: &AppHandle, query: &str) -> tauri::Result<()> {
     window.set_focus()?;
     #[cfg(debug_assertions)]
     eprintln!("Quick Lookup window shown.");
+    Ok(())
+}
+
+fn configure_quick_window_for_fullscreen(window: &WebviewWindow) -> tauri::Result<()> {
+    window.set_always_on_top(true)?;
+    window.set_visible_on_all_workspaces(true)?;
+
+    #[cfg(target_os = "macos")]
+    configure_macos_fullscreen_auxiliary(window)?;
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn configure_macos_fullscreen_auxiliary(window: &WebviewWindow) -> tauri::Result<()> {
+    use objc2_app_kit::{NSStatusWindowLevel, NSWindow, NSWindowCollectionBehavior};
+
+    let ns_window = window.ns_window()?.cast::<NSWindow>();
+    // SAFETY: Tauri owns this NSWindow for at least as long as `window`, and
+    // this function runs through Tauri's window APIs on the main event loop.
+    let ns_window = unsafe { &*ns_window };
+    let behavior = ns_window.collectionBehavior()
+        | NSWindowCollectionBehavior::CanJoinAllSpaces
+        | NSWindowCollectionBehavior::FullScreenAuxiliary;
+    ns_window.setCollectionBehavior(behavior);
+    ns_window.setLevel(NSStatusWindowLevel);
     Ok(())
 }
 

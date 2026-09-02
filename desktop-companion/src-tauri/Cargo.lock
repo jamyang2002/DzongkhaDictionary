@@ -816,6 +816,7 @@ name = "dzongkha-dictionary-desktop"
 version = "3.6.0"
 dependencies = [
  "clipboard-rs",
+ "objc2-app-kit",
  "serde",
  "serde_json",
  "tauri",
