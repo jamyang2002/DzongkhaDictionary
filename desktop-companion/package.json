@@ -13,7 +13,7 @@
     "build:windows": "tauri build --bundles nsis",
     "build:windows:ci": "tauri build --bundles nsis --config src-tauri/tauri.ci.conf.json",
     "icons": "tauri icon app-icon.png",
-    "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "test:rust": "npm run stage && cargo test --manifest-path src-tauri/Cargo.toml",
     "prepare:ci-release": "node scripts/prepare-ci-version.mjs",
     "verify:release": "node scripts/verify-release-version.mjs"
   },
