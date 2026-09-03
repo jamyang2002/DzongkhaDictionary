@@ -10,5 +10,16 @@
     "title": "English-English dictionary added",
     "message": "English-to-English definitions are now available for 135,969 entries, including parts of speech, synonyms, examples, and pronunciation.",
     "createdAt": "2026-09-01T00:00:00.000Z"
+  },
+  {
+    "id": "public-service-terminology-2026-09-03",
+    "title": "6,000+ public-service terms added",
+    "message": "Added 6,112 English–Dzongkha public-service terminology entries from services provided from 2018 through 2026, current as of 3 September 2026. The source files were received from Tsheten Dorji, Public Service Focal Person, and compiled by Jamyang Loday.",
+    "createdAt": "2026-09-03T00:00:00.000+06:00",
+    "categories": [
+      "Translation",
+      "Coinage and terminology",
+      "Editing and verification"
+    ]
   }
 ]

@@ -311,6 +311,13 @@ const ENTRY_IMAGE_TOPICS = Object.freeze({
 const ADDITIONAL_UPDATE_ID = 'additional-terminology-2026-08-19';
 const DICTIONARY_CLEANUP_UPDATE_ID = 'collected-terminology-cleanup-2026-08-26';
 const INTERFACE_UPDATE_ID = 'app-interface-update-2026-08-31';
+const PUBLIC_SERVICE_UPDATE_COUNT = 6112;
+const PUBLIC_SERVICE_UPDATE_DETAILS = [
+    'Public services from 2018 through 2026',
+    'Translation, coinage, editing, and verification',
+    'Source: Tsheten Dorji, Public Service Focal Person',
+    'Compiled by Jamyang Loday'
+];
 const NOTIFICATION_READ_IDS_KEY = 'dz_notification_read_ids';
 const REMOVED_NOTIFICATION_IDS = new Set(['kangdrang-dictionary-update-2026-08-26']);
 const DAILY_WORD_ALERTS_KEY = 'dz_daily_word_alerts_enabled';
@@ -622,7 +629,7 @@ async function initializeLocalDictionaries() {
     updateDictionaryCounts();
     renderBrowseTable(direction);
     updateWordOfTheDay();
-    renderDictionaryUpdateStatus(additionalTerminologyData?.length || 0);
+    renderDictionaryUpdateStatus(publicServiceData?.length || 0);
 }
 
 const fieldLabels = {
@@ -650,7 +657,13 @@ const fieldLabels = {
     ],
     publicService: [
         { key: 'root', label: 'English term' },
-        { key: 'equivalent', label: 'Dzongkha translation' }
+        { key: 'equivalent', label: 'Dzongkha translation' },
+        { key: 'publicServiceYear', label: 'Public service year' },
+        { key: 'serviceType', label: 'Service type' },
+        { key: 'agencyClient', label: 'Agency / client' },
+        { key: 'validityStatus', label: 'Validity status' },
+        { key: 'sourceFile', label: 'Source file' },
+        { key: 'sourceLocation', label: 'Source location' }
     ],
     placeNames: [
         { key: 'root', label: 'Village (Standardized)' },
@@ -1010,7 +1023,7 @@ function formatNotificationTime(value) {
     }).format(date);
 }
 
-function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
+function renderDictionaryUpdateStatus(loadedCount = PUBLIC_SERVICE_UPDATE_COUNT) {
     const statusPanel = document.getElementById('dictionaryUpdateStatus');
     if (!statusPanel) return;
 
@@ -1018,18 +1031,18 @@ function renderDictionaryUpdateStatus(loadedCount = ADDITIONAL_UPDATE_COUNT) {
         <div class="update-status-header">
             <div>
                 <p class="section-kicker">Latest data sync</p>
-                <h3>Additional terminology is live</h3>
+                <h3>Public Service Terminology is live</h3>
             </div>
             <span class="update-status-pill">Synced</span>
         </div>
-        <p class="update-status-copy">The app checks for the newest dictionary data whenever it reconnects. No reinstall is required.</p>
+        <p class="update-status-copy">Search the complete English–Dzongkha public-service collection, including service year, work type, validity, agency, and source details.</p>
         <div class="update-status-grid">
-            <div><strong>${loadedCount.toLocaleString()}</strong><span>new entries</span></div>
-            <div><strong>5</strong><span>dictionary directions</span></div>
-            <div><strong>Online</strong><span>sync status</span></div>
+            <div><strong>${loadedCount.toLocaleString()}</strong><span>unique entries</span></div>
+            <div><strong>2018–2026</strong><span>service period</span></div>
+            <div><strong>77</strong><span>source files</span></div>
         </div>
         <div class="update-category-list">
-            ${ADDITIONAL_UPDATE_CATEGORIES.map((category) => `<span>${escapeHtml(category)}</span>`).join('')}
+            ${PUBLIC_SERVICE_UPDATE_DETAILS.map((detail) => `<span>${escapeHtml(detail)}</span>`).join('')}
         </div>
     `;
 }
@@ -1691,7 +1704,9 @@ function renderCard(entry, entryType, animationIndex = 0) {
     const details = fields
         .filter((field) => field.key !== 'root' && entry[field.key] && entry[field.key].toString().trim().length > 0)
         .map((field) => {
-            let valueClass = entryType === 'enDz' ? (field.key === 'equivalent' ? 'dzongkha-word' : 'english-word') : 'dzongkha-word';
+            let valueClass = entryType === 'enDz' || entryType === 'publicService'
+                ? (field.key === 'equivalent' ? 'dzongkha-word' : 'english-word')
+                : 'dzongkha-word';
             if (entryType === 'enEn') valueClass = 'english-word';
             if (entryType === 'dzEn' && field.key === 'equivalentTerm') valueClass = 'english-word';
             if (entryType === 'dzDz') valueClass = 'dzongkha-word';
@@ -2239,7 +2254,7 @@ function getSearchGroups(query, normalizedQuery) {
         enDz: searchEntriesByQuery(enDzEntries, 'en-dz', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         enEn: findEnglishDefinitionMatches(query),
         countries: searchEntriesByQuery(countryEntries, 'countries', query, normalizedQuery, false),
-        publicService: searchEntriesByQuery(publicServiceEntries, 'public-service', query, normalizedQuery, false),
+        publicService: searchEntriesByQuery(publicServiceEntries, 'public-service', query, normalizedQuery, /[\u0F00-\u0FFF]/.test(query)),
         placeNames: searchEntriesByQuery(placeNamesEntries, 'place-names', query, normalizedQuery, false),
         tense: findTenseMatches(query)
     };
@@ -2250,6 +2265,7 @@ function getOrderedSearchGroups(groups, hasDz) {
         ? [
             { entries: groups.dzEn, type: 'dzEn' },
             { entries: groups.dzDz, type: 'dzDz' },
+            { entries: groups.publicService, type: 'publicService' },
             { entries: groups.tense, type: 'tense' }
         ]
         : [

@@ -116,7 +116,9 @@
         const notes = overlay.querySelector('.desktop-update-notes');
         const updateButton = overlay.querySelector('.desktop-update-now');
         version.textContent = `Version ${update.version} is ready (currently ${update.currentVersion}).`;
-        notes.textContent = update.notes.trim() || 'This release includes improvements and fixes for the desktop dictionary.';
+        const dataHighlight = 'Includes 6,112 searchable public-service terminology entries covering services from 2018 through 2026.';
+        const releaseNotes = update.notes.trim();
+        notes.textContent = releaseNotes ? `${dataHighlight}\n\n${releaseNotes}` : dataHighlight;
         updateButton.addEventListener('click', installUpdate);
         document.body.appendChild(overlay);
         window.setTimeout(() => updateButton.focus(), 50);
