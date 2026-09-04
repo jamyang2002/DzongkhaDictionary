@@ -69,7 +69,7 @@ COLUMN_MAP = {
     "རྩ་ཚིག།": "root",
     "རྐང་གྲངས།": "equivalent",
     "ཕལ་སྐད།": "root",
-    "ཞེ་ས།": "meaning",
+    "ཞེ་ས།": "honorific",
 
     # Dzongkha → English
     "tenses": "tenses",

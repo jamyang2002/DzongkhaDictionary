@@ -690,7 +690,8 @@ const fieldLabels = {
     ],
     dzDz: [
         { key: 'root', label: 'Root word' },
-        { key: 'meaning', label: 'Meaning' }
+        { key: 'meaning', label: 'Meaning' },
+        { key: 'honorific', label: 'ཞེ་ས།' }
     ],
     tense: [
         { key: 'past', label: 'Past' },
@@ -1719,7 +1720,7 @@ function renderCard(entry, entryType, animationIndex = 0) {
             if (entryType === 'tense') valueClass = 'dzongkha-word';
 
             const rawValue = entry[field.key];
-            const clickableKeys = ['equivalent', 'equivalentTerm', 'also', 'synonyms', 'past', 'present', 'future', 'imperative'];
+            const clickableKeys = ['equivalent', 'equivalentTerm', 'honorific', 'also', 'synonyms', 'past', 'present', 'future', 'imperative'];
             const rawDisplay = (clickableKeys.includes(field.key) || (field.key === 'meaning' && entryType !== 'dzDz'))
                 ? renderClickableText(rawValue, valueClass)
                 : `<span class="${valueClass}">${escapeHtml(rawValue)}</span>`;
@@ -1749,8 +1750,14 @@ function renderCard(entry, entryType, animationIndex = 0) {
                             ? 'Place names of Bhutan'
                             : (entryType === 'dzEn' ? 'Dzongkha → English' : (entryType === 'tense' ? 'Tenses' : 'Dzongkha → Dzongkha')));
     const mainWordClass = isEnglishRoot ? 'english-word' : 'uchen-word';
-    const caption = entryType === 'tense' ? 'Verb tense forms' : '';
-    const captionClass = 'english-word';
+    const isHonorificTermsEntry = entry.source === LOCAL_HONORIFIC_TERMS_JSON
+        || entry.dictionaryLabel === 'ཕལ་སྐད་ཞེ་སའི་རྣམ་གཞག་སྐར་མེའི་འོད་ཟེར།';
+    const caption = entryType === 'tense'
+        ? 'Verb tense forms'
+        : isHonorificTermsEntry
+            ? 'ཕལ་སྐད།'
+            : '';
+    const captionClass = isHonorificTermsEntry ? 'dzongkha-word' : 'english-word';
     const pronunciationControls = entryType === 'enDz' || entryType === 'enEn' ? renderPronunciationControls(entry.root) : '';
     const countryFlag = entryType === 'countries' ? renderCountryFlag(entry) : '';
     const sourceAttribution = entryType === 'enEn'
@@ -1872,7 +1879,8 @@ function getBrowseConfig(directionKey) {
             type: 'dzDz',
             columns: [
                 { key: 'root', label: 'Root word', className: 'uchen-word' },
-                { key: 'meaning', label: 'Meaning', className: 'dzongkha-word wide' }
+                { key: 'meaning', label: 'Meaning', className: 'dzongkha-word wide' },
+                { key: 'honorific', label: 'ཞེ་ས།', className: 'dzongkha-word wide' }
             ]
         };
     }
@@ -2107,7 +2115,7 @@ function getIndexedMatches(index, ...keys) {
 function getEntrySignature(entry, entryType) {
     const fields = entryType === 'tense'
         ? ['past', 'present', 'future', 'imperative']
-        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'definition', 'type', 'also', 'dictionaryLabel', 'source'];
+        : ['root', 'equivalent', 'equivalentTerm', 'meaning', 'honorific', 'definition', 'type', 'also', 'dictionaryLabel', 'source'];
     return fields.map((field) => entry[field] || '').join('|');
 }
 
@@ -2160,7 +2168,7 @@ function buildIndex(entries, directionKey) {
             : directionKey === 'countries' || directionKey === 'public-service' || directionKey === 'place-names'
                 ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
                 : directionKey === 'dz-dz'
-                    ? ['root', 'meaning']
+                    ? ['root', 'meaning', 'honorific']
                     : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
         fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));
@@ -2211,7 +2219,7 @@ function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
         : directionKey === 'countries' || directionKey === 'public-service'
             ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
             : directionKey === 'dz-dz'
-                ? ['root', 'meaning']
+                ? ['root', 'meaning', 'honorific']
                 : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
     return fields.some((field) => {
@@ -2223,7 +2231,7 @@ function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
 
 function suggestionMatchesQuery(entry, normalizedQuery, hasDz) {
     const fields = hasDz
-        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm', 'countryDz', 'capitalDz', 'chiwogDz', 'gewogDz']
+        ? ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'honorific', 'equivalent', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm', 'countryDz', 'capitalDz', 'chiwogDz', 'gewogDz']
         : ['root', 'also', 'plural', 'verbalForm', 'comparative', 'equivalent', 'chiwog', 'gewog', 'dzongkhag'];
 
     return fields.some((field) => {
@@ -2323,7 +2331,7 @@ function getQuickLookupDefinition(entry, entryType) {
     if (entryType === 'enDz' || entryType === 'publicService') return entry.equivalent || '';
     if (entryType === 'enEn') return entry.definition || '';
     if (entryType === 'dzEn') return entry.equivalentTerm || '';
-    if (entryType === 'dzDz') return entry.meaning || '';
+    if (entryType === 'dzDz') return entry.honorific || entry.meaning || '';
     if (entryType === 'placeNames') {
         return [
             entry.equivalent,
@@ -2657,7 +2665,7 @@ function renderSimilar(query, effectiveDirection) {
             const key = normalizeEnglish(entry.root || '');
             return key !== normalizedQuery && matchesNormalizedQuery(entry.root || '', normalizedQuery, false);
         }
-        return ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'equivalentTerm']
+        return ['root', 'past', 'present', 'future', 'imperative', 'meaning', 'honorific', 'equivalentTerm']
             .some((field) => {
                 const value = entry[field];
                 if (!value) return false;
