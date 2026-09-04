@@ -12,7 +12,8 @@ export const DICTIONARY_FILES = {
     collected: 'collected_terminology.json',
     terminology2026: 'terminology_2026.json',
     colloquial: 'colloquial_terminology.json',
-    additional: 'additional_terminology.json'
+    additional: 'additional_terminology.json',
+    honorificTerms: 'honorific_terms.json'
 };
 
 export function fileForKey(key) {

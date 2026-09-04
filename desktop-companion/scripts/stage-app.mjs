@@ -32,6 +32,7 @@ const files = [
   'english_to_dzongkha.json',
   'final_tense.json',
   'kangdrang.json',
+  'honorific_terms.json',
   'notifications.json',
   'place_names.json',
   'public_service.json',

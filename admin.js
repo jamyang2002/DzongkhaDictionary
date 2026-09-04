@@ -23,6 +23,7 @@ const schemas = {
     dzEn: ['root', 'equivalentTerm', 'type', 'tenses', 'short', 'also', 'syn', 'app', 'hon'],
     dzDz: ['root', 'meaning'],
     kangdrang: ['root', 'meaning', 'dictionaryLabel'],
+    honorificTerms: ['root', 'meaning', 'source'],
     tenses: ['root', 'past', 'present', 'future', 'imperative']
 };
 

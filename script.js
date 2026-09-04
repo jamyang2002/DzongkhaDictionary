@@ -237,6 +237,7 @@ const LOCAL_PUBLIC_SERVICE_JSON = 'public_service.json';
 const LOCAL_PLACE_NAMES_JSON = 'place_names.json';
 const LOCAL_ADDITIONAL_TERMINOLOGY_JSON = 'additional_terminology.json';
 const LOCAL_KANGDRANG_JSON = 'kangdrang.json';
+const LOCAL_HONORIFIC_TERMS_JSON = 'honorific_terms.json';
 const ENGLISH_DEFINITION_DIRECTORY = 'english_definitions';
 const ENGLISH_DEFINITION_ENTRY_COUNT = 135969;
 const SHARED_NOTIFICATIONS_JSON = 'notifications.json';
@@ -574,7 +575,7 @@ async function loadLocalDataset(path) {
 async function initializeLocalDictionaries() {
     const statusEl = document.getElementById('loadStatus');
 
-    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData, additionalTerminologyData, kangdrangData] = await Promise.all([
+    const [enDzData, collectedData, terminology2026Data, countriesData, publicServiceData, placeNamesData, dzEnData, dzDzData, dzDzColloquialData, tenseData, additionalTerminologyData, kangdrangData, honorificTermsData] = await Promise.all([
         loadLocalDataset(LOCAL_EN_DZ_JSON),
         loadLocalDataset(LOCAL_COLLECTED_TERMINOLOGY_JSON),
         loadLocalDataset(LOCAL_TERMINOLOGY_2026_JSON),
@@ -586,10 +587,11 @@ async function initializeLocalDictionaries() {
         loadLocalDataset(LOCAL_DZ_DZ_COLLOQUIAL_JSON),
         loadLocalDataset(LOCAL_TENSE_JSON),
         loadLocalDataset(LOCAL_ADDITIONAL_TERMINOLOGY_JSON),
-        loadLocalDataset(LOCAL_KANGDRANG_JSON)
+        loadLocalDataset(LOCAL_KANGDRANG_JSON),
+        loadLocalDataset(LOCAL_HONORIFIC_TERMS_JSON)
     ]);
 
-    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0) + (additionalTerminologyData?.length || 0) + (kangdrangData?.length || 0);
+    const totalLoaded = (enDzData?.length || 0) + (collectedData?.length || 0) + (terminology2026Data?.length || 0) + (countriesData?.length || 0) + (publicServiceData?.length || 0) + (placeNamesData?.length || 0) + (dzEnData?.length || 0) + (dzDzData?.length || 0) + (dzDzColloquialData?.length || 0) + (tenseData?.length || 0) + (additionalTerminologyData?.length || 0) + (kangdrangData?.length || 0) + (honorificTermsData?.length || 0);
 
     if (totalLoaded > 0) {
         enDzEntries.length = 0;
@@ -611,6 +613,7 @@ async function initializeLocalDictionaries() {
     if (tenseData) loadDictionaryData(tenseData, 'tense', LOCAL_TENSE_JSON);
     if (additionalTerminologyData) loadDictionaryData(additionalTerminologyData, 'en-dz', LOCAL_ADDITIONAL_TERMINOLOGY_JSON);
     if (kangdrangData) loadDictionaryData(kangdrangData, 'dz-dz', LOCAL_KANGDRANG_JSON);
+    if (honorificTermsData) loadDictionaryData(honorificTermsData, 'dz-dz', LOCAL_HONORIFIC_TERMS_JSON);
 
     // Merge with any manual edits from the Admin Panel
     const overrides = { enDz: 'en-dz', dzEn: 'dz-en', dzDz: 'dz-dz', tenses: 'tense' };
@@ -1151,6 +1154,9 @@ function loadDictionaryData(data, directionKey, fileName) {
             }
             if (fileName === LOCAL_PLACE_NAMES_JSON) {
                 e.dictionaryLabel = 'Place names of Bhutan';
+            }
+            if (fileName === LOCAL_HONORIFIC_TERMS_JSON) {
+                e.dictionaryLabel = 'ཕལ་སྐད་ཞེ་སའི་རྣམ་གཞག་སྐར་མེའི་འོད་ཟེར།';
             }
             cleaned.push(e);
         } catch (err) {
@@ -2132,12 +2138,17 @@ function indexEntryField(map, entry, value) {
     const text = String(value).trim();
     if (!text) return;
 
-    const dzKey = normalizeDzongkha(text);
-    const enKey = normalizeEnglish(text);
+    const variants = [text, ...text.split(/[།༎]\s*|[,;|/]+/)]
+        .map((variant) => variant.trim())
+        .filter(Boolean);
+    variants.forEach((variant) => {
+        const dzKey = normalizeDzongkha(variant);
+        const enKey = normalizeEnglish(variant);
 
-    if (dzKey) addIndexedEntry(map, dzKey, entry);
-    if (enKey) addIndexedEntry(map, enKey, entry);
-    if (text !== dzKey && text !== enKey) addIndexedEntry(map, text, entry);
+        if (dzKey) addIndexedEntry(map, dzKey, entry);
+        if (enKey) addIndexedEntry(map, enKey, entry);
+        if (variant !== dzKey && variant !== enKey) addIndexedEntry(map, variant, entry);
+    });
 }
 
 function buildIndex(entries, directionKey) {
@@ -2149,7 +2160,7 @@ function buildIndex(entries, directionKey) {
             : directionKey === 'countries' || directionKey === 'public-service' || directionKey === 'place-names'
                 ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
                 : directionKey === 'dz-dz'
-                    ? ['root']
+                    ? ['root', 'meaning']
                     : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
         fieldsToIndex.forEach((field) => indexEntryField(map, entry, entry[field]));
@@ -2200,7 +2211,7 @@ function entryMatchesQuery(entry, normalizedQuery, hasDz, directionKey) {
         : directionKey === 'countries' || directionKey === 'public-service'
             ? Object.keys(entry).filter((key) => !['source', 'no'].includes(key))
             : directionKey === 'dz-dz'
-                ? ['root']
+                ? ['root', 'meaning']
                 : ['root', 'also', 'syn', 'short', 'app', 'hon', 'equivalentTerm'];
 
     return fields.some((field) => {
@@ -2301,7 +2312,8 @@ function getQuickLookupSource(entry, entryType) {
         [LOCAL_PUBLIC_SERVICE_JSON]: 'Public Service Terminology',
         [LOCAL_PLACE_NAMES_JSON]: 'Place Names of Bhutan',
         [LOCAL_ADDITIONAL_TERMINOLOGY_JSON]: 'Additional Terminology',
-        [LOCAL_KANGDRANG_JSON]: 'Kangdrang Dictionary'
+        [LOCAL_KANGDRANG_JSON]: 'Kangdrang Dictionary',
+        [LOCAL_HONORIFIC_TERMS_JSON]: 'ཕལ་སྐད་ཞེ་སའི་རྣམ་གཞག་སྐར་མེའི་འོད་ཟེར།'
     };
 
     return sourceLabels[entry.source] || entry.source || getQuickLookupDirection(entry, entryType);
