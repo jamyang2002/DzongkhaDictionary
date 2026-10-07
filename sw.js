@@ -1,9 +1,9 @@
-const CACHE_NAME = 'dzongkha-dict-v3.6.6';
+const CACHE_NAME = 'dzongkha-dict-v3.6.6-ai-local-2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
-  './modern.css',
+  './modern.css?v=3.6.6-ios-glass-1',
   './quick-lookup.css?v=2.5',
   './pwa-quick-lookup.css?v=2.4',
   './desktop-updater.css?v=1.2',
